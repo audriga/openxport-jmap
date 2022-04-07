@@ -1,0 +1,90 @@
+# Test Debug API calls
+# NOTE: This play does not fail on error but print messages instead
+#       This allows for more fine grained testing
+# Test data, required on the test instance:
+# * One contact with a first name
+---
+- hosts: roundcube_servers:squirrel_servers:horde_servers:nextcloud_servers:vanilla_mock_servers:!jscontact_roundcube_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Create test folder
+      ansible.builtin.file:
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: 127.0.0.1
+
+    - name: Fire Contact/get call
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:contacts",
+              "https://www.audriga.eu/jmap/debug/"],"methodCalls":[
+              ["Contact/get", {"accountId":"{{ admin_user }}"}, "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO remove once we return correct 401
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               contact_get_debug.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: |
+          No log line present in the response
+          \n{{ call_response.json }}
+      when: "call_response.json |
+             community.general.json_query('logs[0].message') is not defined"
+      failed_when: true
+
+
+- hosts: jscontact_mock_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Create test folder
+      ansible.builtin.file:
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: 127.0.0.1
+
+    - name: Fire JSContact/get call
+      uri:
+        body: '{"using":["https://www.audriga.eu/jmap/jscontact/",
+              "https://www.audriga.eu/jmap/debug/"],"methodCalls":[
+              ["Card/get", {"accountId":"{{ admin_user }}"}, "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO remove once we return correct 401
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               jscontact_get_debug.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: |
+          No log line present in the response
+          \n{{ call_response.json }}
+      when: "call_response.json |
+             community.general.json_query('logs[0].message') is not defined"
+      failed_when: true

@@ -1,0 +1,130 @@
+---
+- hosts: mock_servers:horde_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Create test folder
+      ansible.builtin.file:
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: 127.0.0.1
+
+    - name: Get all SieveScripts for admin account
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:sieve"],"methodCalls":[["SieveScript/get", {"accountId":"{{ admin_user }}"}, "0"]]}'
+        body_format: json
+        force_basic_auth: true
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               sievescript_get.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "SieveScripts do not contain one with a name.\n{{ call_response.json | to_yaml }}"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?name]') | length == 0"
+      failed_when: true
+
+    - debug:
+        msg: "SieveScripts do not contain one with a blobId.\n{{ call_response.json | to_yaml }}"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?blobId]') | length == 0"
+      failed_when: true
+
+- hosts: mock_servers:horde_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Get all SieveScripts for normal account
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:sieve"],"methodCalls":[["SieveScript/get", {"accountId":"{{ normal_user }}"}, "0"]]}'
+        body_format: json
+        force_basic_auth: true
+        url: "{{ local_address }}"
+        url_password: "{{ normal_pass }}"
+        url_username: "{{ normal_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      tags:
+        - never
+        - normal_user
+      register: call_response
+
+- hosts: mock_servers:horde_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Get all SieveScripts for empty account
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:sieve"],"methodCalls":[["SieveScript/get", {"accountId":"{{ empty_user }}"}, "0"]]}'
+        body_format: json
+        force_basic_auth: true
+        url: "{{ local_address }}"
+        url_password: "{{ empty_pass }}"
+        url_username: "{{ empty_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               sievescript_get_empty.json"
+      delegate_to: 127.0.0.1
+
+- hosts: horde_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Test Sieve Blob Download for admin account
+      uri:
+        force_basic_auth: true
+        url: "{{ download_address }}?accountId={{ admin_user }}&blobId=sieve-ingo&name=ingo&accept=text/simple"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               download_sieve_horde"
+      delegate_to: 127.0.0.1
+
+- hosts: horde_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Test Sieve Blob Download for normal account
+      uri:
+        force_basic_auth: true
+        url: "{{ download_address }}?accountId={{ normal_user }}&blobId=sieve-ingo&name=ingo&accept=text/simple"
+        url_password: "{{ normal_pass }}"
+        url_username: "{{ normal_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      tags:
+        - never
+        - normal_user
+      register: call_response

@@ -1,0 +1,4 @@
+# Defaults for all host
+---
+unavailable_user: idontexist
+unavailable_pass: idonthavepass

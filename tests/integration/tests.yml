@@ -1,0 +1,43 @@
+# Ansible integration tests
+---
+- import_playbook: core.yml
+  tags:
+    core
+
+- import_playbook: calendars.yml
+  tags:
+    calendars
+
+- import_playbook: contacts.yml
+  tags:
+    contacts
+
+- import_playbook: tasks.yml
+  tags:
+    tasks
+
+- import_playbook: files.yml
+  tags:
+    - files
+
+- import_playbook: mail.yml
+  tags:
+    mail
+
+- import_playbook: auth.yml
+
+- import_playbook: notes.yml
+  tags:
+    notes
+
+- import_playbook: sieve.yml
+  tags:
+    sieve
+
+- import_playbook: debug.yml
+  tags:
+    debug
+
+- import_playbook: jscontacts.yml
+  tags:
+    jscontact

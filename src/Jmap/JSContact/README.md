@@ -1,0 +1,1 @@
+**Implementation note:** Currently we use [JSContact draft version 09](https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09) for the implementation of the JSContact data model

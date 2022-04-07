@@ -1,0 +1,292 @@
+# Test more complex files API calls
+# Requires on the test instance:
+# * One file at /current archives/OneNote Notebooks.txt
+#   with Allmynotebooksbelongtous as content
+# * One file at /phpupgrade-test/apr.zip with description==hola as metadata
+# * No folder at /Idonotexist/
+# * One hidden file /phpupgrade-test/.htaccess
+# * One weirdly named file under /broken files/mklost+found.8.gz
+---
+# NOTE Only SquirrelMail supports JMAP for Files for now
+- hosts: squirrel_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Create test folder
+      ansible.builtin.file:
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: 127.0.0.1
+
+    - name: Get a single file
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:files"],"methodCalls":[["StorageNode/get", {"accountId":"{{ admin_user }}", "ids": ["/current archives/OneNote Notebooks.txt"]}, "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               storagenode_get_single.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "StorageNode does not have a name.\n{{ call_response.json | to_yaml }}"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?name]') | length == 0"
+      failed_when: true
+
+    - name: Get a non-existent file
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:files"],"methodCalls":[["StorageNode/get", {"accountId":"{{ admin_user }}", "ids": ["/Idonotexist/"]}, "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        status_code: 500
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               storagenode_get_non_existent.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "StorageNode call for non-existent file does not return error response.\n{{ call_response.json | to_yaml }}"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('description') | length == 0" 
+      failed_when: true
+
+    - name: Get a folder
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:files"],"methodCalls":[["StorageNode/get", {"accountId":"{{ admin_user }}", "ids": ["/current archives/"]}, "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               storagenode_get_folder.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "The folder has a blob ID.\n{{ call_response.json | to_yaml }}"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?blobId]')"
+      failed_when: true
+
+    - name: Get the root folder
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:files"],"methodCalls":[["StorageNode/get", {"accountId":"{{ admin_user }}", "ids": ["root"]}, "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               storagenode_get_root.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "The root folder has not the ID root.\n{{ call_response_empty.json | to_yaml }}"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?id == `root` ]') | length == 0"
+      failed_when: true
+
+    - debug:
+        msg: "Root folder should not have a parent ID.\n{{ call_response_empty.json | to_yaml }}"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?parentId]')"
+      failed_when: true
+
+    - name: Get file with AJXP metadata
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:files"],"methodCalls":[["StorageNode/get", {"accountId":"{{ admin_user }}", "ids": ["/phpupgrade-test/apr.zip"]}, "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               storagenode_get_single_meta.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "The apr.zip should have a description saying hola.\n{{ call_response_empty.json | to_yaml }}"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?description == `hola` ]') | length == 0"
+      failed_when: true
+
+    - name: Query all files and folders
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:files"],"methodCalls":[["StorageNode/query",{"accountId":"{{ admin_user }}"},"0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               storagenode_query.json"
+      delegate_to: 127.0.0.1
+    
+    - debug:
+        msg: "StorageNode call does not have canCalculateChanges param.\n{{ call_response.json | to_yaml }}"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('ids') | length == 0"
+      failed_when: true
+
+    - name: Query folders only
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:files"],"methodCalls":[["StorageNode/query",{"accountId":"{{ admin_user }}","filter":{"hasBlobId":false}},"0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               storagenode_query_folders.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "StorageNode call does not include current_archives folder.\n{{ call_response.json | to_yaml }}"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('ids') | length == 0"
+      failed_when: true
+
+    - name: Query folder with hidden file
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:files"],"methodCalls":[["StorageNode/query",{"accountId":"{{ admin_user }}","filter":{"parentIds":["/phpupgrade-test/"]}},"0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               storagenode_query_folder_with_hidden.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "StorageNode call does not include current_archives folder.\n{{ call_response.json | to_yaml }}"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('length(ids)') != 3" # TODO it would be nicer to lookup element from list
+      failed_when: true
+
+    - name: Test File Download
+      uri:
+        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}/download.php?accountId={{ admin_user }}&blobId=/current%20archives/OneNote%20Notebooks.txt&name=OneNote%20Notebooks.txt&accept=text/simple"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               download_file"
+      delegate_to: 127.0.0.1
+
+    - name: Test Non-existent File Download
+      uri:
+        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}/download.php?accountId={{ admin_user }}&blobId=/idontexist/nonono&name=nonono&accept=text/simple"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        status_code: 500
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.contentn }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               download_file_non_existent"
+      delegate_to: 127.0.0.1
+
+    - name: Test File Download with weird name
+      uri:
+        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}/download.php?accountId={{ admin_user }}&blobId=/broken%20files/mklost%2Bfound.8.gz&name=mklost%2Bfound.8.gz&accept=application/gzip"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               download_file_weird_name"
+      delegate_to: 127.0.0.1

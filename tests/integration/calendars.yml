@@ -1,0 +1,196 @@
+# Test Calendars API calls
+# Test data, required on the test instance (the test data needs to be created in the following order below):
+# * One non full-day event with one organizer and one attendee
+# * One full-day recurrent event, with a modification on a single recurrence, repeating until a certain date
+# * One recurrent event with one modified exception (the master event needs to be named 'ticket #5420 week 2')
+# * One event with the title "RFC5545 escape chars: \ ; ,"
+---
+- hosts: horde_servers:calendar_roundcube_servers:squirrel_servers:nextcloud_servers:mock_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Create test folder
+      ansible.builtin.file:
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: 127.0.0.1
+
+    - name: Fire Calendar Event API call for admin account
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:calendars"],"methodCalls":[["CalendarEvent/get", {"accountId":"{{ admin_user }}"}, "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               calendarevent_get.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "CalendarEvents do not contain a full day event."
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?showWithoutTime == `true`]') | length == 0" 
+      failed_when: true
+
+    - debug:
+        msg: "CalendarEvents do not contain a non-full day event."
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?showWithoutTime == `false`]') | length == 0" 
+      failed_when: true
+
+    - debug:
+        msg: "CalendarEvents do not contain @type property."
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].\"@type\"') | length == 0" 
+      failed_when: true
+
+    - debug:
+        msg: "CalendarEvents do not contain RecurrenceRule property."
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].recurrenceRule') | length == 0" 
+      failed_when: true
+
+    - debug:
+        msg: "CalendarEvents does contain a RecurrenceRule property that is false."
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].recurrenceRule[?until == `false`]')" 
+      failed_when: true
+
+    - debug:
+        msg: "CalendarEvents do not contain one with one organizer and one attendee."
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?showWithoutTime == `true`].participants') | length == 2" 
+      failed_when: true
+
+    - debug:
+        msg: "Some escape chars are not properly handled.\n{{ call_response.json }}"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?title == `\"RFC5545 escape chars: \\\\\\ ; ,\"`]') | length == 0"
+      failed_when: true
+
+    - name: Fire Calendar Event API call for empty account
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:calendars"],"methodCalls":[["CalendarEvent/get", {"accountId":"{{ empty_user }}"}, "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ empty_pass }}"
+        url_username: "{{ empty_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response_empty
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response_empty.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               calendarevent_get_empty.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "CalendarEvents for empty user does return error response."
+      when: "call_response_empty.json.methodResponses[0][1] | community.general.json_query('type')" 
+      failed_when: true
+
+# SquirrelMail does not support modEx
+- hosts: horde_servers:calendar_roundcube_servers:nextcloud_servers:mock_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - debug:
+        msg: "CalendarEvents do not contain a full day event with modified recurrence."
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?showWithoutTime == `true`].recurrenceOverrides.*.title') | length == 0" 
+      failed_when: true
+
+    - debug:
+        msg: "CalendarEvents do not contain a recurrenceOverrides property."
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].recurrenceOverrides') | length == 0" 
+      failed_when: true
+
+    - debug:
+        msg: "CalendarEvent named 'ticket #5420 week 2' contains more than one recurrenceOverride."
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?title == `ticket #5420 week 2`].recurrenceOverrides | length([0])') != 1"
+      failed_when: true
+
+# Sometimes helps with debugging
+- hosts: all
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Fire Calendar Event API call for normal user
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:calendars"],"methodCalls":[["CalendarEvent/get", {"accountId":"{{ normal_user }}"}, "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ normal_pass }}"
+        url_username: "{{ normal_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      tags:
+        - never
+        - normal_user
+
+- hosts: horde_servers:calendar_roundcube_servers:squirrel_servers:mock_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Fire Calendar API calls
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:calendars"],"methodCalls":[["Calendar/get", {"accountId":"{{ admin_user }}"}, "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               calendar_get.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "Calendars do not contain color property."
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].id') | length == 0" 
+      failed_when: true
+
+    - name: Fire Calendar API calls for empty account
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:calendars"],"methodCalls":[["Calendar/get", {"accountId":"{{ empty_user }}"}, "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ empty_pass }}"
+        url_username: "{{ empty_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response_empty
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response_empty.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               calendar_get_empty.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "Calendar for empty user does return error response."
+      when: "call_response_empty.json.methodResponses[0][1] | community.general.json_query('type')" 
+      failed_when: true

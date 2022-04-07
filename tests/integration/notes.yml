@@ -1,0 +1,96 @@
+# Test note API calls
+# Requires on the test instance:
+# * One note with a name
+# * One notebook with a name
+---
+- hosts: horde_servers:mock_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Create test folder
+      ansible.builtin.file:
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: 127.0.0.1
+
+    - name: Get all Notes for admin account
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:notes"],"methodCalls":[["Note/get", {"accountId":"{{ admin_user }}"}, "0"]]}'
+        body_format: json
+        force_basic_auth: true
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               note_get.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "Notes do not contain one with a name.\n{{ call_response.json | to_yaml }}"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?name]') | length == 0"
+      failed_when: true
+
+    - debug:
+        msg: "Notes do not have a notebookId.\n{{ call_response.json | to_yaml }}"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?notebookId]') | length == 0"
+      failed_when: true
+
+- hosts: horde_servers:mock_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Get all Notes for normal account
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:notes"],"methodCalls":[["Note/get", {"accountId":"{{ normal_user }}"}, "0"]]}'
+        body_format: json
+        force_basic_auth: true
+        url: "{{ local_address }}"
+        url_password: "{{ normal_pass }}"
+        url_username: "{{ normal_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      tags:
+        - never
+        - normal_user
+
+- hosts: horde_servers:mock_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Notebook calls
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:notes"],"methodCalls":[["Notebook/get", {"accountId":"{{ admin_user }}"}, "0"]]}'
+        body_format: json
+        force_basic_auth: true #TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               notebook_get.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "Notebooks do not contain name property.\n{{ call_response.json | to_yaml }}"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].name') | length == 0"
+      failed_when: true

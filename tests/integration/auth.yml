@@ -1,0 +1,122 @@
+# Test auth-related calls
+---
+- hosts: roundcube_servers:squirrel_servers:horde_servers:nextcloud_servers:!jscontact_roundcube_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Create test folder
+      ansible.builtin.file:
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: 127.0.0.1
+
+    - name: Test auth with normal user and contact call
+      uri:
+        body: "{\"using\":[\"urn:ietf:params:jmap:contacts\"],\"methodCalls\":\
+               [[\"Contact/get\", {\"accountId\":\"{{ normal_user }}\"}, \"0\"]]}"
+        body_format: json
+        force_basic_auth: true  # TODO remove once we return correct 401
+        url: "{{ local_address }}"
+        url_password: "{{ normal_pass }}"
+        url_username: "{{ normal_user }}"
+        method: POST
+        return_content: true
+        status_code: 200
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               contact_get_auth_normal.json"
+      delegate_to: 127.0.0.1
+
+    - name: Test auth with wrong credentials and contact call
+      uri:
+        body: "{\"using\":[\"urn:ietf:params:jmap:contacts\"],\"methodCalls\":\
+               [[\"Contact/get\", {\"accountId\":\"{{ unavailable_user }}\"},\
+               \"0\"]]}"
+        body_format: json
+        force_basic_auth: true  # TODO remove once we return correct 401
+        url: "{{ local_address }}"
+        url_password: "{{ unavailable_pass }}"
+        url_username: "{{ unavailable_user }}"
+        method: POST
+        return_content: true
+        status_code: 401
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               contact_get_auth_unavailable"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "Contact/get should return a 401 message."
+      when: "'401 Unauthorized' not in call_response.content"
+      failed_when: true
+
+- hosts: squirrel_servers:horde_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Test admin auth with admin credentials and contact call
+      uri:
+        body: "{\"using\":[\"urn:ietf:params:jmap:contacts\"],\"methodCalls\":\
+               [[\"Contact/get\", {\"accountId\":\"{{ normal_user }}\"},\
+               \"0\"]]}"
+        body_format: json
+        force_basic_auth: true  # TODO remove once we return correct 401
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}*{{ normal_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               contact_get_auth_admin.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "Contact/get should return a methodResponse."
+      when: "call_response.json.methodResponses[0][1] | length == 0"
+      failed_when: true
+
+- hosts: squirrel_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Test admin auth with admin credentials and files call
+      uri:
+        body: "{\"using\":[\"urn:ietf:params:jmap:files\"],\"methodCalls\":\
+               [[\"StorageNode/get\", {\"accountId\":\"{{ admin_user }}\",\
+               \"ids\": [\"root\"]}, \"0\"]]}"
+        body_format: json
+        force_basic_auth: true  # TODO remove once we return correct 401
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}*{{ normal_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - debug:
+        msg: "The root folder has not the ID root."
+      when: "call_response.json.methodResponses[0][1] | \
+             community.general.json_query('list[?id == `root` ]') | length == 0"
+      failed_when: true

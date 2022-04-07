@@ -1,0 +1,127 @@
+# Test core API calls
+---
+- hosts: all
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Create test folder
+      ansible.builtin.file:
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: 127.0.0.1
+
+    - name: Test echo call
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:core"],
+              "methodCalls":[["Core/echo", {"accountId":"{{ admin_user }}",
+              "someOtherKey": "someOtherValue"}, "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO remove once we return correct 401
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               core_echo.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "echo does not contain expected key.\n{{ call_response.json }}"
+      when: "call_response.json.methodResponses[0][1] |
+            community.general.json_query('someOtherKey') | length == 0"
+      failed_when: true
+
+    - name: Test Session object
+      uri:
+        force_basic_auth: true  # TODO remove once we return correct 401
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: GET
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               session.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: |
+          Session object does not contain values in capabilities.
+          \n{{ call_response.json }}
+      when: "call_response.json.capabilities | length == 0"
+      failed_when: true
+
+- hosts: mock_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - debug:
+        msg: |
+          Session object does not contain debug capability.
+          \n{{ call_response.json }}
+      when: '"https://www.audriga.eu/jmap/debug/" not in
+        call_response.json.capabilities'
+      failed_when: true
+
+- hosts: mock_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Test SieveScript Blob Download
+      uri:
+        force_basic_auth: true
+        url: "{{ download_address }}?accountId={{ admin_user }}&\
+              blobId=sieve-another-test.sieve&name=sieve-another-test.sieve&accept=text/simple"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               download_sieve"
+      delegate_to: 127.0.0.1
+
+- hosts: mock_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Test Regular Blob Download
+      uri:
+        force_basic_auth: true
+        url: "{{ download_address }}?accountId={{ admin_user }}&\
+              blobId=file-sample.txt&name=file-sample.text&accept=text/simple"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               download"
+      delegate_to: 127.0.0.1
