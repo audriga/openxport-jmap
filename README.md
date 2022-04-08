@@ -15,12 +15,11 @@ OpenXPort is built with compatibility for older systems in mind. We support all 
 
 ## Installation
 ### Local installation
-1. Run `make init` to initialize the project for the default PHP version (8.1). Use other build targets (e.g. `php56_mode` or `php70_mode`) instead, in case you need to build for a different version.
-1. Run `make zip` to create a zipped package under `build/`
+1. Run `make` to initialize the project for the default PHP version (8.1). Use other build targets (e.g. `make php56_mode` or `make php70_mode`) instead, in case you need to build for a different version.
 
 ## Development
 ### Installation
-1. Run `make init` to initialize the project for the default PHP version (8.1). Use other build targets (e.g. `php56_mode` or `php70_mode`) instead, in case you need to build for a different version.
+1. Run `make` or one of the targets for old PHP versions above.
 1. Run `make update` to update depdendencies and make devtools available
 
 ### Tests

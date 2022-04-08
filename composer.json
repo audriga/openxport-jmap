@@ -25,9 +25,5 @@
     },
     "autoload": {
         "classmap": ["src/"]
-    },
-    "archive": {
-        "name": "jmap-openxport",
-        "exclude": ["/tests", "/build", "/README.md"]
     }
 }
