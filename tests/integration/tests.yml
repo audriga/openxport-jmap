@@ -26,6 +26,8 @@
 
 - import_playbook: auth.yml
 
+- import_playbook: auth_jscontact.yml
+
 - import_playbook: notes.yml
   tags:
     notes

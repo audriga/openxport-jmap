@@ -1,0 +1,65 @@
+# Test auth-related calls for servers that implement JMAP Contacts based on
+# JSContact
+---
+- hosts: jscontact_roundcube_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Create test folder
+      ansible.builtin.file:
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: 127.0.0.1
+
+    - name: Test auth with normal user and contact call
+      uri:
+        body: '{"using":["https://www.audriga.eu/jmap/jscontact/"],
+          "methodCalls":[["Card/get", {"accountId":"{{ normal_user }}"}, "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO remove once we return correct 401
+        url: "{{ local_address }}"
+        url_password: "{{ normal_pass }}"
+        url_username: "{{ normal_user }}"
+        method: POST
+        return_content: true
+        status_code: 200
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               contact_get_auth_normal.json"
+      delegate_to: 127.0.0.1
+
+    - name: Test auth with wrong credentials and contact call
+      uri:
+        body: '{"using":["https://www.audriga.eu/jmap/jscontact/"],
+          "methodCalls":[["Card/get", {"accountId":"{{ unavailable_user }}"},
+          "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO remove once we return correct 401
+        url: "{{ local_address }}"
+        url_password: "{{ unavailable_pass }}"
+        url_username: "{{ unavailable_user }}"
+        method: POST
+        return_content: true
+        status_code: 401
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               contact_get_auth_unavailable"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "Contact/get should return a 401 message."
+      when: "'401 Unauthorized' not in call_response.content"
+      failed_when: true

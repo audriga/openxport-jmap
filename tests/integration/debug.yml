@@ -4,7 +4,8 @@
 # Test data, required on the test instance:
 # * One contact with a first name
 ---
-- hosts: roundcube_servers:squirrel_servers:horde_servers:nextcloud_servers:vanilla_mock_servers:!jscontact_roundcube_servers
+- hosts: roundcube_servers:squirrel_servers:horde_servers:nextcloud_servers
+    :vanilla_mock_servers:!jscontact_roundcube_servers
   ignore_errors: true
   gather_facts: false
   tasks:
@@ -47,7 +48,7 @@
       failed_when: true
 
 
-- hosts: jscontact_mock_servers
+- hosts: jscontact_mock_servers:jscontact_roundcube_servers
   ignore_errors: true
   gather_facts: false
   tasks:
