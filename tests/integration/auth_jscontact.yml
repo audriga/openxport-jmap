@@ -1,7 +1,8 @@
 # Test auth-related calls for servers that implement JMAP Contacts based on
 # JSContact
+# Same requirements as in contacts.yml
 ---
-- hosts: jscontact_roundcube_servers
+- hosts: roundcube_servers
   ignore_errors: true
   gather_facts: false
   tasks:
