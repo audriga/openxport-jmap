@@ -2,7 +2,7 @@
 # Requires on the test instance:
 # * One contact with a first name
 ---
-- hosts: jscontact_mock_servers:roundcube_servers:!calendar_roundcube_servers
+- hosts: jscontact_mock_servers:roundcube_servers
   ignore_errors: true
   gather_facts: false
   tasks:

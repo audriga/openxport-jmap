@@ -1,6 +1,6 @@
 # Test auth-related calls
 ---
-- hosts: roundcube_servers:squirrel_servers:horde_servers:nextcloud_servers:!jscontact_roundcube_servers
+- hosts: squirrel_servers:horde_servers:nextcloud_servers
   ignore_errors: true
   gather_facts: false
   tasks:

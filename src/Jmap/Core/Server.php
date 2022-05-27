@@ -54,8 +54,11 @@ class Server
         }
     }
 
+    /* Process JMAP request and return JSON response */
     public function handleJmapRequest($jmapRequest)
     {
+        header('Content-Type: application/json');
+
         if (strcmp($_SERVER['REQUEST_METHOD'], "GET") === 0) {
             echo $this->serializeAsJson($this->session);
         } elseif (strcmp($_SERVER['REQUEST_METHOD'], "POST") === 0) {
