@@ -34,7 +34,7 @@ class Logger
             try {
                 // Try sending a log line first and raise exception in case of error
                 if ($oxpConfig["graylogUseTls"]) {
-                    $sslOptions = new Gelf\Transport\SslOptions();
+                    $sslOptions = new \Gelf\Transport\SslOptions();
 
                     $sslOptions->setAllowSelfSigned($oxpConfig["graylogAllowSelfSigned"]);
                 }
@@ -42,13 +42,13 @@ class Logger
                 $transport = new TcpTransport($oxpConfig["graylogEndpoint"], $oxpConfig["graylogPort"], $sslOptions);
                 $uniqueId = md5($_SERVER['REMOTE_ADDR'] . $_SERVER['REQUEST_TIME'] . $_SERVER['REMOTE_PORT']);
 
-                $logger = new Gelf\Logger($transport, null, array("request_id" => $uniqueId));
+                $logger = new \Gelf\Logger($transport, null, array("request_id" => $uniqueId));
 
                 $logger->info("Initializing...");
 
                 // Ignore all future logging errors and init Logger
-                $transport = new Gelf\Transport\IgnoreErrorTransportWrapper($transport);
-                $logger = new Gelf\Logger($transport, null, array("request_id" => $uniqueId));
+                $transport = new \Gelf\Transport\IgnoreErrorTransportWrapper($transport);
+                $logger = new \Gelf\Logger($transport, null, array("request_id" => $uniqueId));
 
                 $logger->info("Graylog Logger has been successfully initialized");
             } catch (exception $e) {
