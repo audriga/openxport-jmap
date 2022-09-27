@@ -4,6 +4,19 @@ OpenXPort Release Notes
 
 .. contents:: Topics
 
+v1.2.2
+=======
+
+Release summary
+---------------
+Split OXP into separate components
+
+Details
+-------
+* Verify checksum for composer installer script
+* Set Content-Type to JSON of Response
+* Fix issue with GELF\Logger on PHP 7
+
 v1.2.0
 =======
 
