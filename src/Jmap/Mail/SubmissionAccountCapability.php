@@ -6,7 +6,7 @@ class SubmissionAccountCapability extends \OpenXPort\Jmap\Core\AccountCapability
 {
     public function __construct()
     {
-        $this->capabilites = array(
+        $this->capabilities = array(
             'maxDelaySend' => 0,
             'submissionExtensions' => null,
         );
