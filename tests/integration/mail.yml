@@ -18,9 +18,10 @@
 
     - name: Fire Identity API call
       uri:
-        body: '{"using":["urn:ietf:params:jmap:submission"],"methodCalls":[["Identity/get", {"accountId":"{{ admin_user }}"}, "0"]]}'
+        body: '{"using":["urn:ietf:params:jmap:submission"],"methodCalls":[
+          ["Identity/get", {"accountId":"{{ admin_user }}"}, "0"]]}'
         body_format: json
-        force_basic_auth: true  # TODO once we return correct 401 we can remove this
+        force_basic_auth: true  # TODO remove once we return correct 401
         url: "{{ local_address }}"
         url_password: "{{ admin_pass }}"
         url_username: "{{ admin_user }}"
@@ -38,11 +39,48 @@
       delegate_to: 127.0.0.1
 
     - debug:
-        msg: "Identities do not contain textSignature.\n{{ call_response.json | to_yaml }}"
-      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].textSignature') | length == 0" 
+        msg: "Identities do not contain textSignature.
+          \n{{ call_response.json }}"
+      when: "call_response.json.methodResponses[0][1] |
+        community.general.json_query('list[*].textSignature') | length == 0"
       failed_when: true
 
     - debug:
-        msg: "Identities do not contain replyto.email.\n{{ call_response.json | to_yaml }}"
-      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].replyTo[0].email') | length == 0"
+        msg: "Identities do not contain replyto.email.
+          \n{{ call_response.json }}"
+      when: "call_response.json.methodResponses[0][1] |
+        community.general.json_query('list[*].replyTo[0].email') | length == 0"
+      failed_when: true
+
+- hosts: mock_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Call VacationResponse Get
+      uri:
+        body: '{"using":["urn:ietf:params:jmap:vacationresponse"],"methodCalls":
+          [["VacationResponse/get", {"accountId":"{{ admin_user }}"}, "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO remove once we return correct 401
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               identity_get.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "VacationReponse does not contain isEnabled.
+          \n{{ call_response.json }}"
+      when: "call_response.json.methodResponses[0][1] |
+        community.general.json_query('list[*].isEnabled') | length == 0"
       failed_when: true

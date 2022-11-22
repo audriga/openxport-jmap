@@ -24,7 +24,8 @@ class Server
         "tasks" => \OpenXPort\Jmap\Tasks\TasksServerCapability::class,
         "notes" => \OpenXPort\Jmap\Note\NotesServerCapability::class,
         "sieve" => \OpenXPort\Jmap\SieveScript\SieveScriptsServerCapability::class,
-        "jscontact" => \OpenXPort\Jmap\JSContact\ContactsServerCapability::class
+        "jscontact" => \OpenXPort\Jmap\JSContact\ContactsServerCapability::class,
+        "vacationResponse" => \OpenXPort\Jmap\Mail\VacationResponseServerCapability::class,
     );
 
     private $config;
