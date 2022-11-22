@@ -43,3 +43,7 @@
 - import_playbook: jscontacts.yml
   tags:
     jscontact
+
+- import_playbook: preferences.yml
+  tags:
+    preferences
