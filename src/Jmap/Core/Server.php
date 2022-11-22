@@ -26,6 +26,7 @@ class Server
         "sieve" => \OpenXPort\Jmap\SieveScript\SieveScriptsServerCapability::class,
         "jscontact" => \OpenXPort\Jmap\JSContact\ContactsServerCapability::class,
         "vacationResponse" => \OpenXPort\Jmap\Mail\VacationResponseServerCapability::class,
+        "forwards" => \OpenXPort\Jmap\Preferences\PreferencesForwardsServerCapability::class
     );
 
     private $config;

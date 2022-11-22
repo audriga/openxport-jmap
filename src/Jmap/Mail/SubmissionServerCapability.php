@@ -6,7 +6,7 @@ class SubmissionServerCapability extends \OpenXPort\Jmap\Core\ServerCapability
 {
     public function __construct()
     {
-        $this->capabilites = array();
+        $this->capabilities = array();
         $this->name = "urn:ietf:params:jmap:submission";
     }
 

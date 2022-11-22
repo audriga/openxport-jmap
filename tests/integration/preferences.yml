@@ -1,0 +1,44 @@
+# Test preferences API calls
+# Requires on the test instance:
+# * One forward
+---
+- hosts: mock_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Create test folder
+      ansible.builtin.file:
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: 127.0.0.1
+
+    - name: Get all Forwards for admin account
+      uri:
+        body: '{"using":["https://www.audriga.eu/jmap/preferences-forwards/"],
+          "methodCalls":[["Preferences/get", {"accountId":"{{ admin_user }}"},
+          "0"]]}'
+        body_format: json
+        force_basic_auth: true  # TODO remove once we return correct 401
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               preferences_forwards_get.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "Forwards do not contain any forwards.
+          \n{{ call_response.json }}"
+      when: "call_response.json.methodResponses[0][1] |
+        community.general.json_query('list[?forwards]') | length == 0"
+      failed_when: true
