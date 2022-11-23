@@ -2,7 +2,7 @@
 
 namespace OpenXPort\Jmap\Preferences;
 
-class PreferencesForwardsAccountCapability extends \OpenXPort\Jmap\Core\AccountCapability
+class ForwardsSubCapability extends \OpenXPort\Jmap\Core\Capability
 {
     public function __construct()
     {

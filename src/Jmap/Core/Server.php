@@ -26,7 +26,12 @@ class Server
         "sieve" => \OpenXPort\Jmap\SieveScript\SieveScriptsServerCapability::class,
         "jscontact" => \OpenXPort\Jmap\JSContact\ContactsServerCapability::class,
         "vacationResponse" => \OpenXPort\Jmap\Mail\VacationResponseServerCapability::class,
-        "forwards" => \OpenXPort\Jmap\Preferences\PreferencesForwardsServerCapability::class
+        "preferences" => \OpenXPort\Jmap\Preferences\PreferencesServerCapability::class
+    );
+
+    private $preferencesSubCapMap = array(
+        "forwards" => \OpenXPort\Jmap\Preferences\ForwardsSubCapability::class,
+        "blocklist" => \OpenXPort\Jmap\Preferences\BlocklistSubCapability::class
     );
 
     private $config;
@@ -51,9 +56,27 @@ class Server
         $this->session = new Session();
 
         $this->session->addCapability(new CoreServerCapability());
+
+        // Split capabilities into subCapabilities and actual capabilities
+        // We want the user to be able to configure each sub Capability in a similar fashion as a normal capability
+        $capabilities = array();
+        $preferencesCapabilities = array();
+
         foreach ($this->config['capabilities'] as $cap) {
+            if (in_array($cap, array_keys($this->preferencesSubCapMap))) {
+                    array_push($preferencesCapabilities, new $this->preferencesSubCapMap[$cap]());
+            } else {
+                array_push($capabilities, $cap);
+            }
+        }
+
+        // Init capabilities
+        foreach ($capabilities as $cap) {
             $this->session->addCapability(new $this->capMap[$cap]());
         }
+
+        // Init capabilities with sub-capabilities
+        $this->session->addCapability(new $this->capMap["preferences"]($preferencesCapabilities));
     }
 
     /* Process JMAP request and return JSON response */
