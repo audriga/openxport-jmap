@@ -2,14 +2,14 @@
 
 namespace OpenXPort\Jmap\Preferences;
 
-class PreferencesBlocklistAccountCapability extends \OpenXPort\Jmap\Core\AccountCapability
+class BlocklistSubCapability extends \OpenXPort\Jmap\Core\Capability
 {
     public function __construct()
     {
         $this->capabilities = array(
-            'allowIps' => true,
-            'allowDomains' => true,
-            'allowWildcards' => true
+            'allowIps' => false,
+            'allowDomains' => false,
+            'allowWildcards' => false,
         );
         $this->name = "https://www.audriga.eu/jmap/preferences-blocklist/";
     }
