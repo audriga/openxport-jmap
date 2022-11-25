@@ -4,6 +4,19 @@ OpenXPort Release Notes
 
 .. contents:: Topics
 
+v1.3.0
+======
+
+Release summary
+---------------
+Add support for VacationResponse/get and Preferences/get
+
+Details
+-------
+* Pin PSR/Log to version 1 for PHP < 8 compatibility
+* Implement support for VacationResponse/get method #6018
+* Add support for Preferences/get #6021
+
 v1.2.2
 =======
 
