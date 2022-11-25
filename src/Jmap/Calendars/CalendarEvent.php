@@ -43,6 +43,7 @@ class CalendarEvent implements JsonSerializable
     private $useDefaultAlerts;
     private $alerts;
     private $timeZone;
+    private $color;
 
     public function getId()
     {
