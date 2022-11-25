@@ -11,6 +11,7 @@ class Participant implements JsonSerializable
     private $email;
     private $sendTo;
     private $kind;
+    private $language;
     private $roles;
     private $locationId;
     private $participationStatus;
@@ -19,6 +20,9 @@ class Participant implements JsonSerializable
     private $expectReply;
     private $scheduleSequence;
     private $scheduleUpdated;
+    private $scheduleAgent;
+    private $scheduleForceSend;
+    private $scheduleStatus;
     private $invitedBy;
     private $delegatedTo;
     private $delegatedFrom;
@@ -73,6 +77,16 @@ class Participant implements JsonSerializable
     public function setKind($kind)
     {
         $this->kind = $kind;
+    }
+    
+    public function getLanguage()
+    {
+        return $this->language;
+    }
+
+    public function setLanguage($language)
+    {
+        $this->language = $language;
     }
 
     public function getRoles()
@@ -153,6 +167,36 @@ class Participant implements JsonSerializable
     public function setScheduleUpdated($scheduleUpdated)
     {
         $this->scheduleUpdated = $scheduleUpdated;
+    }
+
+    public function getScheduleAgent()
+    {
+        return $this->scheduleAgent;
+    }
+
+    public function setScheduleAgent($scheduleAgent)
+    {
+        $this->scheduleAgent = $scheduleAgent;
+    }
+
+    public function getScheduleForceSend()
+    {
+        return $this->scheduleForceSend;
+    }
+
+    public function setScheduleForceSend($scheduleForceSend)
+    {
+        $this->scheduleForceSend = $scheduleForceSend;
+    }
+
+    public function getScheduleStatus()
+    {
+        return $this->scheduleStatus;
+    }
+
+    public function setScheduleStatus($scheduleStatus)
+    {
+        $this->scheduleStatus = $scheduleStatus;
     }
 
     public function getInvitedBy()
