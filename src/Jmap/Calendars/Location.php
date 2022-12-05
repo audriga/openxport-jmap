@@ -8,10 +8,11 @@ use OpenXPort\Util\AdapterUtil;
 class Location implements JsonSerializable
 {
     private $type;
-    private $name;
+    private $title;
     private $description;
     private $relativeTo;
     private $timeZone;
+    private $locationTypes;
     private $coordinates;
     private $linkIds;
 
@@ -25,14 +26,14 @@ class Location implements JsonSerializable
         $this->type = $type;
     }
 
-    public function getName()
+    public function getTitle()
     {
-        return $this->name;
+        return $this->title;
     }
 
-    public function setName($name)
+    public function setTitle($title)
     {
-        $this->name = $name;
+        $this->title = $title;
     }
 
     public function getDescription()
@@ -65,6 +66,16 @@ class Location implements JsonSerializable
         $this->timeZone = $timeZone;
     }
 
+    public function getLocationTypes()
+    {
+        return $this->locationTypes;
+    }
+
+    public function setLocationTypes($locationTypes)
+    {
+        $this->locationTypes = $locationTypes;
+    }
+
     public function getCoordinates()
     {
         return $this->coordinates;
@@ -89,10 +100,11 @@ class Location implements JsonSerializable
     {
         return (object)[
             "@type" => $this->getType(),
-            "name" => $this->getName(),
+            "title" => $this->getTitle(),
             "description" => $this->getDescription(),
             "relativeTo" => $this->getRelativeTo(),
             "timeZone" => $this->getTimeZone(),
+            "locationTypes" => $this->getLocationTypes(),
             "coordinates" => $this->getCoordinates(),
             "linkIds" => $this->getLinkIds()
         ];
