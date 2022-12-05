@@ -47,6 +47,11 @@ class AbsoluteTrigger implements JsonSerializable
         }
 
         foreach ($json as $key => $value) {
+            // The "@type" poperty is defined as "type" in the custom classes.
+            if ($key == "@type") {
+                $key = "type";
+            }
+
             if (!property_exists($classInstance, $key)) {
                 // TODO: Should probably add a logger to each class that can be called here.
                 continue;

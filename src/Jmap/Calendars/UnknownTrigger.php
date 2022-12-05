@@ -35,6 +35,11 @@ class UnknownTrigger implements JsonSerializable
         }
 
         foreach ($json as $key => $value) {
+            // The "@type" poperty is defined as "type" in the custom classes.
+            if ($key == "@type") {
+                $key = "type";
+            }
+
             if (!property_exists($classInstance, $key)) {
                 // Skipping parameters is to be expected here.
                 continue;
