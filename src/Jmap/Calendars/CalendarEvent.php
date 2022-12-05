@@ -504,6 +504,12 @@ class CalendarEvent implements JsonSerializable
             if (array_key_exists($key, $objectVariables)) {
                 $classInstance->{"$setPropertyMethod"}($objectVariables[$key]::fromJson($value));
             } else {
+                // These properties are saved as associative arrays, so doing this prevents them from being
+                // saved as stdClass objects through json_decode().
+                if ($key == "keywords" || $key == "replyTo") {
+                    $value = (array) $value;
+                }
+
                 $classInstance->{"$setPropertyMethod"}($value);
             }
         }
