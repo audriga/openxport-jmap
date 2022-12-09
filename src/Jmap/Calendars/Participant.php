@@ -276,7 +276,7 @@ class Participant implements JsonSerializable
      * 
      * @param mixed $json String/Array containing a participant in the JSCalendar format.
      * 
-     * @return array Participant object or array containing any properties that can be
+     * @return array Id[Participant] array containing any properties that can be
      * parsed from the given JSON string/array.
      */
     public static function fromJson($json)

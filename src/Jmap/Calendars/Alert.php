@@ -67,7 +67,7 @@ class Alert implements JsonSerializable
      * 
      * @param string|array|object $json string/array/object containing an alert in the JSCalendar format.
      * 
-     * @return array Alert array containing any properties that can be
+     * @return array ID[Alert] array containing any properties that can be
      * parsed from the given JSON string/array/object.
      */
     public static function fromJson($json)
@@ -86,6 +86,12 @@ class Alert implements JsonSerializable
             $classInstance = new Alert();
 
             foreach ($object as $key => $value) {
+                // The "@type" poperty is defined as "type" in the custom classes.
+                if ($key == "@type") {
+                    $key = "type";
+                }
+
+
                 if (!property_exists($classInstance, $key)) {
                     // TODO: Should probably add a logger to each class that can be called here.
                     continue;
@@ -109,9 +115,9 @@ class Alert implements JsonSerializable
                         continue;
                     }
 
-                    if ($value->{"@type"} = "AbsoluteTrigger") {
+                    if ($value->{"@type"} == "AbsoluteTrigger") {
                         $value = AbsoluteTrigger::fromJson($value);
-                    } else if ($value->{"@type"} = "OffsetTrigger") {
+                    } else if ($value->{"@type"} == "OffsetTrigger") {
                         $value = OffsetTrigger::fromJson($value);
                     } else {
                         $value = UnknownTrigger::fromJson($value);

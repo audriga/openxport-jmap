@@ -464,7 +464,7 @@ class CalendarEvent implements JsonSerializable
             "locations" => "Location",
             "virtualLocations" => "VirtualLocation",
             "links" => "Link",
-            "recurrenceRule" => "RecurrenceRule",
+            "recurrenceRules" => "RecurrenceRule",
             "participants" => "Participant",
             "alerts" => "Alert"
         ];

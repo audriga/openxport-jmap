@@ -96,6 +96,61 @@ class Link implements JsonSerializable
         $this->title = $title;
     }
 
+    /**
+     * Parses a Link object from the given JSON representation.
+     * 
+     * @param mixed $json String/Array/Object containing a link in the JSCalendar format.
+     * 
+     * @return array Id[Link] array containing any properties that can be
+     * parsed from the given JSON string/array/object.
+     */
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json);
+        }
+
+        $links = [];
+
+
+        // In JSCalendar, links are stored in an Id[Link] array. Therefore we must loop through
+        // each entry in that array and create a Link object for that specific one.
+        foreach ($json as $id => $object) {
+
+            $classInstance = new Link();
+
+            foreach ($object as $key => $value) {
+                // The "@type" poperty is defined as "type" in the custom classes.
+                if ($key == "@type") {
+                    $key = "type";
+                }
+
+                if (!property_exists($classInstance, $key)) {
+                    // TODO: Should probably add a logger to each class that can be called here.
+                    continue;
+                }
+
+                // Since all of the properties are private, using this will allow acces to the setter
+                // functions of any given property. 
+                // Caution! In order for this to work, every setter method needs to match the property
+                // name. So for a var fooBar, the setter needs to be named setFooBar($fooBar).
+                $setPropertyMethod = "set" . ucfirst($key);
+
+                if (!method_exists($classInstance, $setPropertyMethod)) {
+                    // TODO: same as with property check, add a logger maybe.
+                    continue;
+                }
+
+                // Set the property in the class' instance.
+                $classInstance->{"$setPropertyMethod"}($value);
+            }
+
+            $links[$id] = $classInstance;
+        }
+
+        return $links;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {

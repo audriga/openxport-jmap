@@ -122,7 +122,7 @@ class Location implements JsonSerializable
      * 
      * @param mixed $json String/Array/Object containing a location in the JSCalendar format.
      * 
-     * @return array Location object or array containing any properties that can be
+     * @return array Id[Location] array containing any properties that can be
      * parsed from the given JSON string/array/object.
      */
     public static function fromJson($json)
