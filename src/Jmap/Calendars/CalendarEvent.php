@@ -32,7 +32,7 @@ class CalendarEvent implements JsonSerializable
     private $links;
     private $locale;
     private $keywords;
-    private $recurrenceRule;
+    private $recurrenceRules;
     private $recurrenceOverrides;
     private $excluded;
     private $priority;
@@ -265,14 +265,14 @@ class CalendarEvent implements JsonSerializable
         $this->keywords = $keywords;
     }
 
-    public function getRecurrenceRule()
+    public function getRecurrenceRules()
     {
-        return $this->recurrenceRule;
+        return $this->recurrenceRules;
     }
 
-    public function setRecurrenceRule($recurrenceRule)
+    public function setRecurrenceRules($recurrenceRules)
     {
-        $this->recurrenceRule = $recurrenceRule;
+        $this->recurrenceRules = $recurrenceRules;
     }
 
     public function getRecurrenceOverrides()
@@ -410,7 +410,7 @@ class CalendarEvent implements JsonSerializable
             "links" => $this->getLinks(),
             "locale" => $this->getLocale(),
             "keywords" => $this->getKeywords(),
-            "recurrenceRule" => $this->getRecurrenceRule(),
+            "recurrenceRules" => $this->getRecurrenceRules(),
             "recurrenceOverrides" => $this->getRecurrenceOverrides(),
             "excluded" => $this->getExcluded(),
             "priority" => $this->getPriority(),
