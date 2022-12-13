@@ -18,7 +18,7 @@ class Server
     private $capMap = array(
         "calendars" => \OpenXPort\Jmap\Calendar\CalendarsServerCapability::class,
         "contacts" => \OpenXPort\Jmap\Contact\ContactsServerCapability::class,
-        "debug" => \OpenXPort\Jmap\AudrigaDebug\AudrigaDebugServerCapability::class,
+        "debug" => \OpenXPort\Jmap\Audriga\DebugServerCapability::class,
         "files" => \OpenXPort\Jmap\Files\FilesServerCapability::class,
         "mail" => \OpenXPort\Jmap\Mail\SubmissionServerCapability::class,
         "tasks" => \OpenXPort\Jmap\Tasks\TasksServerCapability::class,
