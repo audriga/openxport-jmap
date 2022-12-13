@@ -27,6 +27,9 @@ class VacationResponse implements JsonSerializable
     /** @var string|null $htmlBody */
     private $htmlBody;
 
+    /** @var string|null $timeBetweenResponses */
+    private $timeBetweenResponses;
+
     public function getId()
     {
         return $this->id;
@@ -97,6 +100,16 @@ class VacationResponse implements JsonSerializable
         $this->htmlBody = $htmlBody;
     }
 
+    public function getTimeBetweenResponses()
+    {
+        return $this->timeBetweenResponses;
+    }
+
+    public function setTimeBetweenResponses($time)
+    {
+        $this->timeBetweenResponses = $time;
+    }
+
     public function jsonSerialize()
     {
         return (object)[
@@ -106,7 +119,8 @@ class VacationResponse implements JsonSerializable
             "toDate" => $this->getToDate(),
             "subject" => $this->getSubject(),
             "textBody" => $this->getTextBody(),
-            "htmlBody" => $this->getHtmlBody()
+            "htmlBody" => $this->getHtmlBody(),
+            "timeBetweenResponses" => $this->getTimeBetweenResponses()
         ];
     }
 }
