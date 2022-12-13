@@ -75,7 +75,7 @@
       copy:
         content: "{{ call_response.content }}"
         dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
-               identity_get.json"
+               vacationresponse_get.json"
       delegate_to: 127.0.0.1
 
     - debug:
@@ -89,5 +89,6 @@
         msg: "VacationReponse does not contain timeBetweenResponses.
           \n{{ call_response.json }}"
       when: "call_response.json.methodResponses[0][1] |
-        community.general.json_query('list[*].timeBetweenResponses') | length == 0"
+        community.general.json_query('list[*].timeBetweenResponses') |
+        length == 0"
       failed_when: true
