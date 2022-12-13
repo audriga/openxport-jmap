@@ -58,7 +58,7 @@
   tasks:
     - name: Call VacationResponse Get
       uri:
-        body: '{"using":["https://www.audriga.eu/jmap/vacationresponse/"],"methodCalls":
+        body: '{"using":["urn:ietf:params:jmap:vacationresponse"],"methodCalls":
           [["VacationResponse/get", {"accountId":"{{ admin_user }}"}, "0"]]}'
         body_format: json
         force_basic_auth: true  # TODO remove once we return correct 401
