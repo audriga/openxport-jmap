@@ -123,4 +123,15 @@ class VacationResponse implements JsonSerializable
             "timeBetweenResponses" => $this->getTimeBetweenResponses()
         ];
     }
+
+    /**
+     * Sanitize free text fields that could potentially contain Unicode chars.
+     * Only called in case an error is observed during JSON encoding.
+     */
+    public function sanitizeFreeText()
+    {
+        $this->subject = AdapterUtil::reencode($this->subject);
+        $this->textBody = AdapterUtil::reencode($this->textBody);
+        $this->htmlBody = AdapterUtil::reencode($this->htmlBody);
+    }
 }
