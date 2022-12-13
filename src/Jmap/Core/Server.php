@@ -73,6 +73,12 @@ class Server
         // Init capabilities
         foreach ($capabilities as $cap) {
             $this->session->addCapability(new $this->capMap[$cap]());
+
+            // We also add our own extension for VacationResponse
+            // TODO support leaving out our extension in future
+            if ($cap == "vacationResponse") {
+                $this->session->addCapability(new \OpenXPort\Jmap\Audriga\VacationResponseServerCapability());
+            }
         }
 
         // Init capabilities with sub-capabilities
