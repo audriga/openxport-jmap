@@ -10,7 +10,6 @@ class VacationResponseAccountCapability extends AccountCapability
     {
         $this->capabilities = array();
 
-        // TODO split into IETF capability and our extension
         $this->name = "https://www.audriga.eu/jmap/vacationresponse/";
     }
 }
