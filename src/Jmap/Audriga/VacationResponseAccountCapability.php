@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenXPort\Jmap\Mail;
+namespace OpenXPort\Jmap\Audriga;
 
 use OpenXPort\Jmap\Core\AccountCapability;
 
@@ -10,6 +10,6 @@ class VacationResponseAccountCapability extends AccountCapability
     {
         $this->capabilities = array();
 
-        $this->name = "urn:ietf:params:jmap:vacationresponse";
+        $this->name = "https://www.audriga.eu/jmap/vacationresponse/";
     }
 }

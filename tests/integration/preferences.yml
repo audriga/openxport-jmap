@@ -2,7 +2,7 @@
 # Requires on the test instance:
 # * One forward
 ---
-- hosts: mock_servers
+- hosts: mock_servers:api_proxy_roundcube_servers
   ignore_errors: true
   gather_facts: false
   tasks:

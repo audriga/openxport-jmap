@@ -1,8 +1,8 @@
 <?php
 
-namespace OpenXPort\Jmap\AudrigaDebug;
+namespace OpenXPort\Jmap\Audriga;
 
-class AudrigaDebugAccountCapability extends \OpenXPort\Jmap\Core\AccountCapability
+class DebugAccountCapability extends \OpenXPort\Jmap\Core\AccountCapability
 {
     public function __construct()
     {

@@ -18,7 +18,7 @@ class Server
     private $capMap = array(
         "calendars" => \OpenXPort\Jmap\Calendar\CalendarsServerCapability::class,
         "contacts" => \OpenXPort\Jmap\Contact\ContactsServerCapability::class,
-        "debug" => \OpenXPort\Jmap\AudrigaDebug\AudrigaDebugServerCapability::class,
+        "debug" => \OpenXPort\Jmap\Audriga\DebugServerCapability::class,
         "files" => \OpenXPort\Jmap\Files\FilesServerCapability::class,
         "mail" => \OpenXPort\Jmap\Mail\SubmissionServerCapability::class,
         "tasks" => \OpenXPort\Jmap\Tasks\TasksServerCapability::class,
@@ -73,6 +73,12 @@ class Server
         // Init capabilities
         foreach ($capabilities as $cap) {
             $this->session->addCapability(new $this->capMap[$cap]());
+
+            // We also add our own extension for VacationResponse
+            // TODO support leaving out our extension in future
+            if ($cap == "vacationResponse") {
+                $this->session->addCapability(new \OpenXPort\Jmap\Audriga\VacationResponseServerCapability());
+            }
         }
 
         // Init capabilities with sub-capabilities

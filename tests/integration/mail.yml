@@ -52,7 +52,7 @@
         community.general.json_query('list[*].replyTo[0].email') | length == 0"
       failed_when: true
 
-- hosts: mock_servers
+- hosts: mock_servers:api_proxy_roundcube_servers
   ignore_errors: true
   gather_facts: false
   tasks:
@@ -75,7 +75,7 @@
       copy:
         content: "{{ call_response.content }}"
         dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
-               identity_get.json"
+               vacationresponse_get.json"
       delegate_to: 127.0.0.1
 
     - debug:
@@ -83,4 +83,12 @@
           \n{{ call_response.json }}"
       when: "call_response.json.methodResponses[0][1] |
         community.general.json_query('list[*].isEnabled') | length == 0"
+      failed_when: true
+
+    - debug:
+        msg: "VacationReponse does not contain timeBetweenResponses.
+          \n{{ call_response.json }}"
+      when: "call_response.json.methodResponses[0][1] |
+        community.general.json_query('list[*].timeBetweenResponses') |
+        length == 0"
       failed_when: true

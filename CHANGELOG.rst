@@ -4,6 +4,17 @@ OpenXPort Release Notes
 
 .. contents:: Topics
 
+v1.4.0
+======
+
+Release summary
+---------------
+Support VacationResponse custom capability
+
+Details
+-------
+* Add timeBetweenResponses to VacationResponse via custom capability #6065
+
 v1.3.0
 ======
 

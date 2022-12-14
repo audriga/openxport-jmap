@@ -27,6 +27,9 @@ class VacationResponse implements JsonSerializable
     /** @var string|null $htmlBody */
     private $htmlBody;
 
+    /** @var string|null $timeBetweenResponses */
+    private $timeBetweenResponses;
+
     public function getId()
     {
         return $this->id;
@@ -97,6 +100,16 @@ class VacationResponse implements JsonSerializable
         $this->htmlBody = $htmlBody;
     }
 
+    public function getTimeBetweenResponses()
+    {
+        return $this->timeBetweenResponses;
+    }
+
+    public function setTimeBetweenResponses($time)
+    {
+        $this->timeBetweenResponses = $time;
+    }
+
     public function jsonSerialize()
     {
         return (object)[
@@ -106,7 +119,19 @@ class VacationResponse implements JsonSerializable
             "toDate" => $this->getToDate(),
             "subject" => $this->getSubject(),
             "textBody" => $this->getTextBody(),
-            "htmlBody" => $this->getHtmlBody()
+            "htmlBody" => $this->getHtmlBody(),
+            "timeBetweenResponses" => $this->getTimeBetweenResponses()
         ];
+    }
+
+    /**
+     * Sanitize free text fields that could potentially contain Unicode chars.
+     * Only called in case an error is observed during JSON encoding.
+     */
+    public function sanitizeFreeText()
+    {
+        $this->subject = AdapterUtil::reencode($this->subject);
+        $this->textBody = AdapterUtil::reencode($this->textBody);
+        $this->htmlBody = AdapterUtil::reencode($this->htmlBody);
     }
 }
