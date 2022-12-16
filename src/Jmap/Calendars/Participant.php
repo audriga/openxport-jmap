@@ -23,6 +23,7 @@ class Participant implements JsonSerializable
     private $scheduleAgent;
     private $scheduleForceSend;
     private $scheduleStatus;
+    private $sentBy;
     private $invitedBy;
     private $delegatedTo;
     private $delegatedFrom;
@@ -199,6 +200,16 @@ class Participant implements JsonSerializable
         $this->scheduleStatus = $scheduleStatus;
     }
 
+    public function getSentBy()
+    {
+        return $this->sentBy;
+    }
+
+    public function setSentBy($sentBy)
+    {
+        $this->sentBy = $sentBy;
+    }
+
     public function getInvitedBy()
     {
         return $this->invitedBy;
@@ -269,6 +280,7 @@ class Participant implements JsonSerializable
             "scheduleAgent" => $this->getScheduleAgent(),
             "scheduleForceSend" => $this->getScheduleForceSend(),
             "scheduleStatus" => $this->getScheduleStatus(),
+            "sentBy" => $this->getSentBy(),
             "invitedBy" => $this->getInvitedBy(),
             "delegatedTo" => $this->getDelegatedTo(),
             "delegatedFrom" => $this->getDelegatedFrom(),
