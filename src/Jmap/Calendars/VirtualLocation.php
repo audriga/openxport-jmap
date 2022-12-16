@@ -11,6 +11,7 @@ class VirtualLocation implements JsonSerializable
     private $name;
     private $description;
     private $uri;
+    private $features;
 
     public function getType()
     {
@@ -52,13 +53,24 @@ class VirtualLocation implements JsonSerializable
         $this->uri = $uri;
     }
 
+    public function getFeatures()
+    {
+        return $this->features;
+    }
+
+    public function setFeatures($features)
+    {
+        $this->features = $features;
+    }
+
     public function jsonSerialize()
     {
         return (object)[
             "@type" => $this->getType(),
             "name" => $this->getName(),
             "description" => $this->getDescription(),
-            "uri" => $this->getUri()
+            "uri" => $this->getUri(),
+            "features" => $this->getFeatures()
         ];
     }
 
