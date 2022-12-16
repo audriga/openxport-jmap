@@ -9,6 +9,7 @@ class Participant implements JsonSerializable
     private $type;
     private $name;
     private $email;
+    private $description;
     private $sendTo;
     private $kind;
     private $language;
@@ -58,6 +59,16 @@ class Participant implements JsonSerializable
     public function setEmail($email)
     {
         $this->email = $email;
+    }
+
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    public function setDescription($description)
+    {
+        $this->description = $description;
     }
 
     public function getSendTo()
@@ -266,6 +277,7 @@ class Participant implements JsonSerializable
             "@type" => $this->getType(),
             "name" => $this->getName(),
             "email" => $this->getEmail(),
+            "description" => $this->getDescription(),
             "sendTo" => $this->getSendTo(),
             "kind" => $this->getKind(),
             "language" => $this->getLanguage(),
