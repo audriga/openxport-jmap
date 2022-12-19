@@ -15,6 +15,7 @@ class Location implements JsonSerializable
     private $locationTypes;
     private $coordinates;
     private $links;
+    private $linkIds;
 
     public function getType()
     {
@@ -98,12 +99,22 @@ class Location implements JsonSerializable
 
     public function getLinkIds()
     {
-        trigger_error("Called method " . __METHOD__ . " is deprecated", E_USER_DEPRECATED);
+        trigger_error(
+            "Called method " . __METHOD__ . " is outdated, use getLinks instead.",
+            E_USER_DEPRECATED
+        );
+
+        return $this->linkIds;
     }
 
     public function setLinkIds($linkIds)
     {
-        trigger_error("Called method " . __METHOD__ . " is deprecated", E_USER_DEPRECATED);
+        trigger_error(
+            "Called method " . __METHOD__ . " is outdated, use setLinks instead.",
+            E_USER_DEPRECATED
+        );
+
+        $this->linkIds = $linkIds;
     }
 
     public function jsonSerialize()
@@ -116,7 +127,8 @@ class Location implements JsonSerializable
             "timeZone" => $this->getTimeZone(),
             "locationTypes" => $this->getLocationTypes(),
             "coordinates" => $this->getCoordinates(),
-            "links" => $this->getLinks()
+            "links" => $this->getLinks(),
+            "linkIds" => $this->getLinkIds()
         ];
     }
 
