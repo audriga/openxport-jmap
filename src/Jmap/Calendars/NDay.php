@@ -6,8 +6,19 @@ use JsonSerializable;
 
 class NDay implements JsonSerializable
 {
+    private $type;
     private $day;
     private $nthOfPeriod;
+
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
 
     public function getDay()
     {
@@ -33,6 +44,7 @@ class NDay implements JsonSerializable
     public function jsonSerialize()
     {
         return (object)[
+            "@type" => $this->getType(),
             "day" => $this->getDay(),
             "nthOfPeriod" => $this->getNthOfPeriod()
         ];

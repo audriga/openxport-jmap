@@ -33,6 +33,7 @@ class CalendarEvent implements JsonSerializable
     private $locale;
     private $keywords;
     private $recurrenceRule;
+    private $recurrenceRules;
     private $recurrenceOverrides;
     private $excluded;
     private $priority;
@@ -43,6 +44,7 @@ class CalendarEvent implements JsonSerializable
     private $useDefaultAlerts;
     private $alerts;
     private $timeZone;
+    private $color;
 
     public function getId()
     {
@@ -266,12 +268,32 @@ class CalendarEvent implements JsonSerializable
 
     public function getRecurrenceRule()
     {
+        trigger_error(
+            "Called method " . __METHOD__ . " is outdated, use " . __METHOD__ . "s instead.",
+            E_USER_DEPRECATED
+        );
+
         return $this->recurrenceRule;
     }
 
     public function setRecurrenceRule($recurrenceRule)
     {
+        trigger_error(
+            "Called method " . __METHOD__ . " is outdated, use " . __METHOD__ . "s instead.",
+            E_USER_DEPRECATED
+        );
+
         $this->recurrenceRule = $recurrenceRule;
+    }
+
+    public function getRecurrenceRules()
+    {
+        return $this->recurrenceRules;
+    }
+
+    public function setRecurrenceRules($recurrenceRules)
+    {
+        $this->recurrenceRules = $recurrenceRules;
     }
 
     public function getRecurrenceOverrides()
@@ -374,6 +396,16 @@ class CalendarEvent implements JsonSerializable
         $this->timeZone = $timeZone;
     }
 
+    public function getColor()
+    {
+        return $this->color;
+    }
+
+    public function setColor($color)
+    {
+        $this->color = $color;
+    }
+
     public function jsonSerialize()
     {
         return (object)[
@@ -400,6 +432,7 @@ class CalendarEvent implements JsonSerializable
             "locale" => $this->getLocale(),
             "keywords" => $this->getKeywords(),
             "recurrenceRule" => $this->getRecurrenceRule(),
+            "recurrenceRules" => $this->getRecurrenceRules(),
             "recurrenceOverrides" => $this->getRecurrenceOverrides(),
             "excluded" => $this->getExcluded(),
             "priority" => $this->getPriority(),

@@ -12,7 +12,9 @@ class Location implements JsonSerializable
     private $description;
     private $relativeTo;
     private $timeZone;
+    private $locationTypes;
     private $coordinates;
+    private $links;
     private $linkIds;
 
     public function getType()
@@ -65,6 +67,16 @@ class Location implements JsonSerializable
         $this->timeZone = $timeZone;
     }
 
+    public function getLocationTypes()
+    {
+        return $this->locationTypes;
+    }
+
+    public function setLocationTypes($locationTypes)
+    {
+        $this->locationTypes = $locationTypes;
+    }
+
     public function getCoordinates()
     {
         return $this->coordinates;
@@ -75,13 +87,33 @@ class Location implements JsonSerializable
         $this->coordinates = $coordinates;
     }
 
+    public function getLinks()
+    {
+        return $this->links;
+    }
+
+    public function setLinks($links)
+    {
+        $this->links = $links;
+    }
+
     public function getLinkIds()
     {
+        trigger_error(
+            "Called method " . __METHOD__ . " is outdated, use getLinks instead.",
+            E_USER_DEPRECATED
+        );
+
         return $this->linkIds;
     }
 
     public function setLinkIds($linkIds)
     {
+        trigger_error(
+            "Called method " . __METHOD__ . " is outdated, use setLinks instead.",
+            E_USER_DEPRECATED
+        );
+
         $this->linkIds = $linkIds;
     }
 
@@ -93,7 +125,9 @@ class Location implements JsonSerializable
             "description" => $this->getDescription(),
             "relativeTo" => $this->getRelativeTo(),
             "timeZone" => $this->getTimeZone(),
+            "locationTypes" => $this->getLocationTypes(),
             "coordinates" => $this->getCoordinates(),
+            "links" => $this->getLinks(),
             "linkIds" => $this->getLinkIds()
         ];
     }
