@@ -1,4 +1,8 @@
 # Integration tests
+## Dependencies
+* Ansible >= 3
+* [jmespath](https://github.com/jmespath/jmespath.py)
+
 ## Usage
 * Run against test instances via `ansible-playbook tests.yml`
 * Run against a specific QA instance via `ansible-playbook -i hosts_qa -l <qa_instance_name> tests.yml`.
