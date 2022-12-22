@@ -1,0 +1,29 @@
+# Sample hosts file copy+paste then edit
+[roundcube_servers:children]
+vanilla_roundcube_servers
+calendar_roundcube_servers
+jscontact_roundcube_servers
+
+[mock_servers:children]
+vanilla_mock_servers
+jscontact_mock_servers
+
+# Only support legacy contacts
+[vanilla_roundcube_servers]
+
+# JSContact and Calendar servers
+[calendar_roundcube_servers]
+calendar_roundcube_server_foo local_address=https://server.address/path/to/jmap.php download_address=https://server.address/path/to/download.php admin_user=admin_user admin_pass=some_pw normal_user=normal_user normal_pass=some_pw empty_user=empty_user empty_pass=some_pw
+
+# servers that support jscontacts
+#[jscontact_roundcube_servers]
+
+#[api_proxy_roundcube_servers]
+
+#[horde_servers]
+
+#[nextcloud_servers]
+
+#[vanilla_mock_servers]
+
+#[jscontact_mock_servers]
