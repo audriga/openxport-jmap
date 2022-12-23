@@ -505,6 +505,16 @@ class CalendarEvent implements JsonSerializable
                 $classInstance->{"$setPropertyMethod"}(
                     "OpenXPort\Jmap\Calendar\\$objectVariables[$key]"::fromJson($value)
                 );
+            } elseif ($key == "recurrenceOverrides") {
+                $recurrenceOverrides = [];
+
+                foreach ($value as $id => $override) {
+                    $patchObject = self::fromJson($override);
+
+                    $recurrenceOverrides[$id] = $patchObject;
+                }
+
+                $classInstance->setRecurrenceOverrides($recurrenceOverrides);
             } else {
                 // These properties are saved as associative arrays, so doing this prevents them from being
                 // saved as stdClass objects through json_decode().
