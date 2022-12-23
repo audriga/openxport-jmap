@@ -194,7 +194,7 @@ class Location implements JsonSerializable
      */
     public function sanitizeFreeText()
     {
-        $this->title = AdapterUtil::reencode($this->title);
+        $this->title = AdapterUtil::reencode($this->name);
         $this->description = AdapterUtil::reencode($this->description);
     }
 }
