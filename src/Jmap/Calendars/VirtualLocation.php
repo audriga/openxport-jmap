@@ -108,6 +108,10 @@ class VirtualLocation implements JsonSerializable
                     continue;
                 }
 
+                if ($key == "features") {
+                    $value = (array) $value;
+                }
+
                 // Set the property in the class' instance.
                 $classInstance->{"$setPropertyMethod"}($value);
             }
