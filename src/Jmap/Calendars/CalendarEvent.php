@@ -488,7 +488,7 @@ class CalendarEvent implements JsonSerializable
                 continue;
             }
 
-            // Since all of the properties are private, using this will allow acces to the setter
+            // Since all of the properties are private, using this will allow access to the setter
             // functions of any given property. 
             // Caution! In order for this to work, every setter method needs to match the property
             // name. So for a var fooBar, the setter needs to be named setFooBar($fooBar).
@@ -506,6 +506,9 @@ class CalendarEvent implements JsonSerializable
                     "OpenXPort\Jmap\Calendar\\$objectVariables[$key]"::fromJson($value)
                 );
             } elseif ($key == "recurrenceOverrides") {
+                // In the JSCalendar RFC, recurrenceOverrides are Instances of PatchObjects.
+                // Since all of the the properties, an override can have, are present in this
+                // class, we will use this one.
                 $recurrenceOverrides = [];
 
                 foreach ($value as $id => $override) {

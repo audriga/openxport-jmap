@@ -45,7 +45,7 @@ class UnknownTrigger implements JsonSerializable
                 continue;
             }
 
-            // Since all of the properties are private, using this will allow acces to the setter
+            // Since all of the properties are private, using this will allow access to the setter
             // functions of any given property. 
             // Caution! In order for this to work, every setter method needs to match the property
             // name. So for a var fooBar, the setter needs to be named setFooBar($fooBar).

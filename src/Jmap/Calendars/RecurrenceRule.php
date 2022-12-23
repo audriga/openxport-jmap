@@ -237,7 +237,13 @@ class RecurrenceRule implements JsonSerializable
             }
 
             // Access the setter method of the given property.
+            if ($key == "byDay") {
+                $classInstance->{"$setPropertyMethod"}(
+                    NDay::fromJson($value)
+                );
+            } else { 
             $classInstance->{"$setPropertyMethod"}($value);
+            }
         }
 
         return $classInstance;
