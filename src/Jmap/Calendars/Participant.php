@@ -316,6 +316,17 @@ class Participant implements JsonSerializable
                     continue;
                 }
 
+                if (in_array($key, array(
+                    "sendTo",
+                    "roles",
+                    "delegatedTo",
+                    "delegatedFrom",
+                    "memberOf",
+                    "links"
+                    ))) {
+                        $value = (array) $value;
+                    }
+
                 // Set the property in the class' instance.
                 $classInstance->{"$setPropertyMethod"}($value);
             }
