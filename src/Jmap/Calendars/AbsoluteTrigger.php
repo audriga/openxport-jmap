@@ -3,7 +3,6 @@
 namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
-use OpenXPort\Jmap\Calendar\AbsoluteTrigger as CalendarAbsoluteTrigger;
 
 class AbsoluteTrigger implements JsonSerializable
 {

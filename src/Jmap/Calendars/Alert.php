@@ -3,6 +3,7 @@
 namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
+use OpenXPort\Util\Logger;
 
 class Alert implements JsonSerializable
 {
@@ -128,10 +129,10 @@ class Alert implements JsonSerializable
                 $classInstance->{"$setPropertyMethod"}($value);
             }
 
-            $participants[$id] = $classInstance;
+            $alerts[$id] = $classInstance;
         }
 
-        return $participants;
+        return $alerts;
     }
 
     #[\ReturnTypeWillChange]

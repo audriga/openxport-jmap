@@ -74,6 +74,10 @@ class Relation implements JsonSerializable
                     continue;
                 }
 
+                if ($key == "relation") {
+                    $value = (array) $value;
+                }
+
                 // Set the property in the class' instance.
                 $classInstance->{"$setPropertyMethod"}($value);
             }
