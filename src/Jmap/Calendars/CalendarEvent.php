@@ -466,7 +466,8 @@ class CalendarEvent implements JsonSerializable
             "links" => "Link",
             "recurrenceRules" => "RecurrenceRule",
             "participants" => "Participant",
-            "alerts" => "Alert"
+            "alerts" => "Alert",
+            "relatedTo" => "Relation"
         ];
 
         if (is_string($json)) {
