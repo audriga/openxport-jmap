@@ -162,6 +162,10 @@ class Location implements JsonSerializable
                     continue;
                 }
 
+                if ($key == "links" || $key == "linkIds") {
+                    $value = Link::fromJson($value);
+                }
+
                 // Set the property in the class' instance.
                 $classInstance->{"$setPropertyMethod"}($value);
             }
@@ -194,7 +198,7 @@ class Location implements JsonSerializable
      */
     public function sanitizeFreeText()
     {
-        $this->title = AdapterUtil::reencode($this->name);
+        $this->name = AdapterUtil::reencode($this->name);
         $this->description = AdapterUtil::reencode($this->description);
     }
 }
