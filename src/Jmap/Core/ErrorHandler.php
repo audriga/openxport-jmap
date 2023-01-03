@@ -125,16 +125,22 @@ class ErrorHandler
     }
 
     // method-level errors
+    public static function buildMethodResponse($methodCallId, $args)
+    {
+        $invocation = array("error", $args, $methodCallId);
+
+        return array("methodResponses" => array($invocation), "sessionState" => "someSessionState");
+    }
+
     /* Generic error output used by exception handler */
     public static function raiseServerFail($methodCallId, $description)
     {
         http_response_code(500);
 
         $args = array("type" => "serverFail", "description" => $description);
-        $invocation = array("error", $args, $methodCallId);
-        $content = array("methodResponses" => array($invocation), "sessionState" => "someSessionState");
+        $response = self::buildMethodResponse($methodCallId, $args);
 
-        return json_encode($content, JSON_UNESCAPED_SLASHES, JSON_UNESCAPED_UNICODE);
+        return json_encode($response, JSON_UNESCAPED_SLASHES, JSON_UNESCAPED_UNICODE);
     }
 
     public static function raiseInvalidArgument($methodCallId, $description)
@@ -142,10 +148,9 @@ class ErrorHandler
         http_response_code(500);
 
         $args = array("type" => "invalidArguments", "description" => $description);
-        $invocation = array("error", $args, $methodCallId);
-        $content = array("methodResponses" => array($invocation), "sessionState" => "someSessionState");
+        $response = self::buildMethodResponse($methodCallId, $args);
 
-        return json_encode($content, JSON_UNESCAPED_SLASHES, JSON_UNESCAPED_UNICODE);
+        return json_encode($response, JSON_UNESCAPED_SLASHES, JSON_UNESCAPED_UNICODE);
     }
 
     public static function raiseUnknownMethod($methodCallId)
@@ -153,8 +158,9 @@ class ErrorHandler
         http_response_code(500);
 
         $args = array("type" => "unknownMethod");
-        $invocation = array("error", $args, $methodCallId);
-        $response = array("methodResponses" => array($invocation), "sessionState" => "0");
+
+        $response = self::buildMethodResponse($methodCallId, $args);
+
         return json_encode($response, JSON_UNESCAPED_SLASHES, JSON_UNESCAPED_UNICODE);
     }
 }
