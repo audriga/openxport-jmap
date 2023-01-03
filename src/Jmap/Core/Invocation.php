@@ -49,6 +49,7 @@ class Invocation implements JsonSerializable
         return $this->methodCallId;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return [$this->getName(), $this->getArguments(), $this->getMethodCallId()];
