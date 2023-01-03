@@ -406,6 +406,7 @@ class CalendarEvent implements JsonSerializable
         $this->color = $color;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

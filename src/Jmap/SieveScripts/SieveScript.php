@@ -58,6 +58,7 @@ class SieveScript implements JsonSerializable
         $this->isActive = $isActive;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

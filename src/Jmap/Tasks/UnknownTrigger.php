@@ -18,6 +18,7 @@ class UnknownTrigger implements JsonSerializable
         $this->type = $type;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

@@ -84,6 +84,7 @@ class Preferences implements JsonSerializable
         $this->forwards = $forwards;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

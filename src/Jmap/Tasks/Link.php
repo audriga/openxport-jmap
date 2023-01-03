@@ -95,6 +95,7 @@ class Link implements JsonSerializable
         $this->title = $title;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

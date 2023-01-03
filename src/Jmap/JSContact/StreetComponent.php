@@ -32,6 +32,7 @@ class StreetComponent extends TypeableEntity implements JsonSerializable
         $this->value = $value;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

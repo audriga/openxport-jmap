@@ -32,6 +32,7 @@ class EmailAddress implements JsonSerializable
         $this->email = $email;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

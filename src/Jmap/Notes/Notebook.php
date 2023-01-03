@@ -97,6 +97,7 @@ class Notebook implements JsonSerializable
         $this->shareWith = $shareWith;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

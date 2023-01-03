@@ -40,6 +40,7 @@ class NDay implements JsonSerializable
         $this->nthOfPeriod = $nthOfPeriod;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

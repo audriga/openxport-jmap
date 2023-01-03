@@ -45,6 +45,7 @@ class NameComponent extends TypeableEntity implements JsonSerializable
         $this->nth = $nth;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

@@ -62,6 +62,7 @@ class Alert implements JsonSerializable
         $this->action = $action;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

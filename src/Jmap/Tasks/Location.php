@@ -95,6 +95,7 @@ class Location implements JsonSerializable
         $this->links = $links;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

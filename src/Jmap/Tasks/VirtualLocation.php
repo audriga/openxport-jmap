@@ -51,6 +51,7 @@ class VirtualLocation implements JsonSerializable
         $this->uri = $uri;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

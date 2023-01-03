@@ -75,6 +75,7 @@ class File implements JsonSerializable
         $this->base64 = $base64;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

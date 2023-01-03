@@ -45,6 +45,7 @@ class Forward implements JsonSerializable
         $this->forwardTo = $forwardTo;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

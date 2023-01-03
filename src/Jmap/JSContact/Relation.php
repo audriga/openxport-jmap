@@ -19,6 +19,7 @@ class Relation extends TypeableEntity implements JsonSerializable
         $this->relation = $relation;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

@@ -51,6 +51,7 @@ class ContactGroup implements JsonSerializable
         $this->contactIds = $contactIds;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

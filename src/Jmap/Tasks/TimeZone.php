@@ -95,6 +95,7 @@ class TimeZone implements JsonSerializable
         $this->daylight = $daylight;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

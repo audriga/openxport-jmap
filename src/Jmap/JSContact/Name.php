@@ -42,6 +42,7 @@ class Name extends TypeableEntity implements JsonSerializable
         $this->locale = $locale;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[
