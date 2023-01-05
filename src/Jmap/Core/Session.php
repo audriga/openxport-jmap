@@ -80,6 +80,7 @@ class Session implements JsonSerializable
         return $methods;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize($withState = true)
     {
         $state = $withState ? $this->getState() : null;

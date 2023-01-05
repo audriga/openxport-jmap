@@ -282,6 +282,7 @@ class Participant implements JsonSerializable
         $this->percentComplete = $percentComplete;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

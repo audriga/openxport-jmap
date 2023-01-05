@@ -90,7 +90,7 @@ class Participant implements JsonSerializable
     {
         $this->kind = $kind;
     }
-    
+
     public function getLanguage()
     {
         return $this->language;
@@ -271,6 +271,7 @@ class Participant implements JsonSerializable
         $this->linkIds = $linkIds;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

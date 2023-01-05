@@ -32,6 +32,7 @@ class Organization extends TypeableEntity implements JsonSerializable
         $this->units = $units;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

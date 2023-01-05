@@ -428,6 +428,7 @@ class Card extends TypeableEntity implements JsonSerializable
         $this->maidenName = $maidenName;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

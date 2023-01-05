@@ -40,6 +40,7 @@ class OffsetTrigger implements JsonSerializable
         $this->relativeTo = $relativeTo;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

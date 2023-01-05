@@ -29,6 +29,7 @@ class AbsoluteTrigger implements JsonSerializable
         $this->when = $when;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

@@ -117,6 +117,7 @@ class Location implements JsonSerializable
         $this->linkIds = $linkIds;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

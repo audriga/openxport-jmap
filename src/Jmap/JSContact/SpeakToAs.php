@@ -32,6 +32,7 @@ class SpeakToAs extends TypeableEntity implements JsonSerializable
         $this->pronouns = $pronouns;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

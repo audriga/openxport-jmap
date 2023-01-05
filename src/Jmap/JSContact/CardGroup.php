@@ -80,6 +80,7 @@ class CardGroup extends TypeableEntity implements JsonSerializable
         $this->card = $card;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

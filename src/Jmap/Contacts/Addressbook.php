@@ -94,6 +94,7 @@ class AddressBook implements JsonSerializable
         $this->role = $role;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

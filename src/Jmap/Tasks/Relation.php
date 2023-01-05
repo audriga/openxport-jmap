@@ -29,6 +29,7 @@ class Relation implements JsonSerializable
         $this->relation = $relation;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

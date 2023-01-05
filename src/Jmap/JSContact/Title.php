@@ -32,6 +32,7 @@ class Title extends TypeableEntity implements JsonSerializable
         $this->organization = $organization;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

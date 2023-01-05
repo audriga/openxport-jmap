@@ -43,6 +43,7 @@ abstract class Capability implements JsonSerializable
         return $this->name;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) $this->getCapabilities();

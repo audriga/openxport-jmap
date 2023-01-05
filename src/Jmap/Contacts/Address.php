@@ -98,6 +98,7 @@ class Address implements JsonSerializable
         $this->isDefault = $isDefault;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

@@ -514,6 +514,7 @@ class Task implements JsonSerializable
         $this->timeZones = $timeZones;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

@@ -130,6 +130,7 @@ class StorageNode implements \JsonSerializable
     }
 
     # NOTE Sharing and permissions not implemented
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

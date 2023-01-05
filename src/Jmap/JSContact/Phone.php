@@ -77,6 +77,7 @@ class Phone extends TypeableEntity implements JsonSerializable
         $this->label = $label;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

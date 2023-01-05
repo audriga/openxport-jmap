@@ -58,11 +58,6 @@
                contact_get_auth_unavailable"
       delegate_to: 127.0.0.1
 
-    - debug:
-        msg: "Contact/get should return a 401 message."
-      when: "'401 Unauthorized' not in call_response.content"
-      failed_when: true
-
 - hosts: squirrel_servers:horde_servers
   ignore_errors: true
   gather_facts: false

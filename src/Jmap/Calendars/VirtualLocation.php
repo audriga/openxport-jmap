@@ -63,6 +63,7 @@ class VirtualLocation implements JsonSerializable
         $this->features = $features;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

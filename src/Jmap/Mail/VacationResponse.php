@@ -110,6 +110,7 @@ class VacationResponse implements JsonSerializable
         $this->timeBetweenResponses = $time;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

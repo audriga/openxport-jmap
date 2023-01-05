@@ -95,6 +95,7 @@ class TimeZoneRule implements JsonSerializable
         $this->comments = $comments;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

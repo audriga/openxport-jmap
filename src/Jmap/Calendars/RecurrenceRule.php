@@ -194,6 +194,7 @@ class RecurrenceRule implements JsonSerializable
         $this->until = $until;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

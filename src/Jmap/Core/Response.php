@@ -14,6 +14,7 @@ class Response implements JsonSerializable
         $this->methodResponses = $methodResponses;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $res = [

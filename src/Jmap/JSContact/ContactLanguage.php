@@ -38,6 +38,7 @@ class ContactLanguage extends TypeableEntity implements JsonSerializable
         $this->pref = $pref;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

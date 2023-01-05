@@ -4,6 +4,7 @@ namespace OpenXPort\Jmap\JSContact\Audriga;
 
 class Card extends \OpenXPort\Jmap\JSContact\Card
 {
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[

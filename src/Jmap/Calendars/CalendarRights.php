@@ -128,6 +128,7 @@ class CalendarRights implements JsonSerializable
         $this->mayDelete = $mayDelete;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)[
