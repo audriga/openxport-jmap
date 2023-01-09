@@ -3,6 +3,7 @@
 namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
+use OpenXport\Util\Logger;
 
 class Participant implements JsonSerializable
 {
@@ -30,6 +31,8 @@ class Participant implements JsonSerializable
     private $delegatedFrom;
     private $memberOf;
     private $linkIds;
+
+    private $customProperties;
 
     public function getType()
     {
@@ -270,6 +273,16 @@ class Participant implements JsonSerializable
     {
         $this->linkIds = $linkIds;
     }
+
+    public function addCustomProperty($propertyName, $value)
+    {
+        $this->customProperties[$propertyName] = $value;
+    }
+
+    public function getCustomProperties()
+    {
+        return $this->customProperties;
+    }
     
     /**
      * Parses a Participant object from the given JSON representation.
@@ -292,7 +305,7 @@ class Participant implements JsonSerializable
         // each entry in that array and create a Participant object for that specific one.
         foreach ($json as $id => $object) {
 
-            $classInstance = new Participant();
+            $classInstance = new self();
 
             foreach ($object as $key => $value) {
                 // The "@type" poperty is defined as "type" in the custom classes.
@@ -301,7 +314,10 @@ class Participant implements JsonSerializable
                 }
 
                 if (!property_exists($classInstance, $key)) {
-                    // TODO: Should probably add a logger to each class that can be called here.
+                    $logger = Logger::getInstance();
+                    $logger->warning("File contains property not existing in " . self::class . ": $key");
+    
+                    $classInstance->addCustomProperty($key, $value);
                     continue;
                 }
 
@@ -340,7 +356,7 @@ class Participant implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        $objectProperties = [
             "@type" => $this->getType(),
             "name" => $this->getName(),
             "email" => $this->getEmail(),
@@ -366,5 +382,11 @@ class Participant implements JsonSerializable
             "memberOf" => $this->getMemberOf(),
             "linkIds" => $this->getLinkIds()
         ];
+        
+        foreach ($this->getCustomProperties() as $name => $value) {
+            $objectProperties[$name] = $value;
+        }
+
+        return (object) $objectProperties;
     }
 }
