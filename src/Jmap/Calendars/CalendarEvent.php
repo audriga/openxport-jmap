@@ -414,6 +414,11 @@ class CalendarEvent implements JsonSerializable
         $this->customProperties[$propertyName] = $value;
     }
 
+    public function getCustomProperties()
+    {
+        return $this->customProperties;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
@@ -454,7 +459,7 @@ class CalendarEvent implements JsonSerializable
             "timeZone" => $this->getTimeZone()
         ];
 
-        foreach ($this->customProperties as $name => $value) {
+        foreach ($this->getCustomProperties() as $name => $value) {
             $objectProperties[$name] = $value;
         }
 
