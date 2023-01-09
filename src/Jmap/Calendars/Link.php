@@ -4,6 +4,7 @@ namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
 use OpenXPort\Util\AdapterUtil;
+use OpenXPort\Util\Logger;
 
 class Link implements JsonSerializable
 {
@@ -15,6 +16,8 @@ class Link implements JsonSerializable
     private $rel;
     private $display;
     private $title;
+
+    private $customProperties;
 
     public function getType()
     {
@@ -96,6 +99,16 @@ class Link implements JsonSerializable
         $this->title = $title;
     }
 
+    public function addCustomProperty($propertyName, $value)
+    {
+        $this->customProperties[$propertyName] = $value;
+    }
+
+    public function getCustomProperties()
+    {
+        return $this->customProperties;
+    }
+
     /**
      * Parses a Link object from the given JSON representation.
      * 
@@ -117,7 +130,7 @@ class Link implements JsonSerializable
         // each entry in that array and create a Link object for that specific one.
         foreach ($json as $id => $object) {
 
-            $classInstance = new Link();
+            $classInstance = new self();
 
             foreach ($object as $key => $value) {
                 // The "@type" poperty is defined as "type" in the custom classes.
@@ -126,7 +139,10 @@ class Link implements JsonSerializable
                 }
 
                 if (!property_exists($classInstance, $key)) {
-                    // TODO: Should probably add a logger to each class that can be called here.
+                    $logger = Logger::getInstance();
+                    $logger->warning("File contains property not existing in " . self::class . ": $key");
+    
+                    $classInstance->addCustomProperty($key, $value);
                     continue;
                 }
 
@@ -154,7 +170,7 @@ class Link implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        $objectProperties = [
             "@type" => $this->getType(),
             "href" => $this->getHref(),
             "cid" => $this->getCid(),
@@ -164,6 +180,12 @@ class Link implements JsonSerializable
             "display" => $this->getDisplay(),
             "title" => $this->getTitle()
         ];
+
+        foreach ($this->getCustomProperties() as $name => $value) {
+            $objectProperties[$name] = $value;
+        }
+
+        return (object) $objectProperties;
     }
 
     /**
