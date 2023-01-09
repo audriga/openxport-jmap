@@ -4,6 +4,7 @@ namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
 use OpenXPort\Util\AdapterUtil;
+use OpenXPort\Util\Logger;
 
 /**
  * Class which represents a JMAP Calendar Event (according to JSCalendar)
@@ -45,6 +46,8 @@ class CalendarEvent implements JsonSerializable
     private $alerts;
     private $timeZone;
     private $color;
+
+    private $customProperties;
 
     public function getId()
     {
@@ -406,10 +409,15 @@ class CalendarEvent implements JsonSerializable
         $this->color = $color;
     }
 
+    public function addCustomProperty($propertyName, $value)
+    {
+        $this->customProperties[$propertyName] = $value;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        $objectProperties = [
             "id" => $this->getId(),
             "calendarId" => $this->getCalendarId(),
             "participantId" => $this->getParticipantId(),
@@ -445,6 +453,12 @@ class CalendarEvent implements JsonSerializable
             "alerts" => $this->getAlerts(),
             "timeZone" => $this->getTimeZone()
         ];
+
+        foreach ($this->customProperties as $name => $value) {
+            $objectProperties[$name] = $value;
+        }
+
+        return (object) $objectProperties;
     }
 
     /**
@@ -457,7 +471,6 @@ class CalendarEvent implements JsonSerializable
      */
     public static function fromJson($json)
     {
-        $classInstance = new CalendarEvent();
 
         // Array of every variable that has a custom object type.
         $objectVariables = [
@@ -478,6 +491,8 @@ class CalendarEvent implements JsonSerializable
             return self::fromJsonArray($json);
         }
 
+        $classInstance = new self();
+
         foreach ($json as $key => $value) {
             // The "@type" poperty is defined as "type" in the custom classes.
             if ($key == "@type") {
@@ -485,7 +500,10 @@ class CalendarEvent implements JsonSerializable
             }
 
             if (!property_exists($classInstance, $key)) {
-                // TODO: Should probably add a logger to each class that can be called here.
+                $logger = Logger::getInstance();
+                $logger->warning("File contains property not existing in " . self::class . ": $key");
+
+                $classInstance->addCustomProperty($key, $value);
                 continue;
             }
 
