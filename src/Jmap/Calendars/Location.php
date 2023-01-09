@@ -4,6 +4,7 @@ namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
 use OpenXPort\Util\AdapterUtil;
+use OpenXPort\Util\Logger;
 
 class Location implements JsonSerializable
 {
@@ -16,6 +17,8 @@ class Location implements JsonSerializable
     private $coordinates;
     private $links;
     private $linkIds;
+
+    private $customProperties;
 
     public function getType()
     {
@@ -117,6 +120,16 @@ class Location implements JsonSerializable
         $this->linkIds = $linkIds;
     }
 
+    public function addCustomProperty($propertyName, $value)
+    {
+        $this->customProperties[$propertyName] = $value;
+    }
+
+    public function getCustomProperties()
+    {
+        return $this->customProperties;
+    }
+
     /**
      * Parses a Location object from the given JSON representation.
      * 
@@ -138,7 +151,7 @@ class Location implements JsonSerializable
         // each entry in that array and create a Location object for that specific one.
         foreach ($json as $id => $object) {
 
-            $classInstance = new Location();
+            $classInstance = new self();
 
             foreach ($object as $key => $value) {
                 // The "@type" poperty is defined as "type" in the custom classes.
@@ -147,7 +160,10 @@ class Location implements JsonSerializable
                 }
 
                 if (!property_exists($classInstance, $key)) {
-                    // TODO: Should probably add a logger to each class that can be called here.
+                    $logger = Logger::getInstance();
+                    $logger->warning("File contains property not existing in " . self::class . ": $key");
+    
+                    $classInstance->addCustomProperty($key, $value);
                     continue;
                 }
 
@@ -179,7 +195,7 @@ class Location implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        $objectProperties = [
             "@type" => $this->getType(),
             "name" => $this->getName(),
             "description" => $this->getDescription(),
@@ -190,6 +206,12 @@ class Location implements JsonSerializable
             "links" => $this->getLinks(),
             "linkIds" => $this->getLinkIds()
         ];
+
+        foreach ($this->getCustomProperties() as $name => $value) {
+            $objectProperties[$name] = $value;
+        }
+
+        return (object) $objectProperties;
     }
 
     /**
