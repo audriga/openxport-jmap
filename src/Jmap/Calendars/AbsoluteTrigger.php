@@ -44,7 +44,7 @@ class AbsoluteTrigger implements JsonSerializable
 
     /**
      * Parses a AbsoluteTrigger object from a given JSON representation of an absolute trigger.
-     * 
+     *
      * @param string|array|object $json Some form of JSON representation of an absolute trigger
      * in the JSCalendar format.
      * @return AbsoluteTrigger Instance of the AbsoluteTrigger class containing any properties that
@@ -73,7 +73,7 @@ class AbsoluteTrigger implements JsonSerializable
             }
 
             // Since all of the properties are private, using this will allow access to the setter
-            // functions of any given property. 
+            // functions of any given property.
             // Caution! In order for this to work, every setter method needs to match the property
             // name. So for a var fooBar, the setter needs to be named setFooBar($fooBar).
             $setPropertyMethod = "set" . ucfirst($key);
@@ -83,7 +83,8 @@ class AbsoluteTrigger implements JsonSerializable
             if (!method_exists($classInstance, $setPropertyMethod)) {
                 $logger = Logger::getInstance();
                 $logger->warning(
-                    self::class . " is missing a setter for $key. \"$key\": \"$value\" added to custom properties instead."
+                    self::class . " is missing a setter for $key. "
+                    . "\"$key\": \"$value\" added to custom properties instead."
                 );
 
                 $classInstance->addCustomProperty($key, $value);

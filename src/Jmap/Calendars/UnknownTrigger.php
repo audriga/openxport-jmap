@@ -33,7 +33,7 @@ class UnknownTrigger implements JsonSerializable
 
     /**
      * Parses a OffsetTrigger object from a given JSON representation of an unkown trigger type.
-     * 
+     *
      * @param string|array|object $json Some form of JSON representation of a trigger that is not
      * absolute or offset in the JSCalendar format.
      * @return UnknownTrigger Instance of the UnknownTrigger class containing the @type property
@@ -62,7 +62,7 @@ class UnknownTrigger implements JsonSerializable
             }
 
             // Since all of the properties are private, using this will allow access to the setter
-            // functions of any given property. 
+            // functions of any given property.
             // Caution! In order for this to work, every setter method needs to match the property
             // name. So for a var fooBar, the setter needs to be named setFooBar($fooBar).
             $setPropertyMethod = "set" . ucfirst($key);
@@ -72,7 +72,8 @@ class UnknownTrigger implements JsonSerializable
             if (!method_exists($classInstance, $setPropertyMethod)) {
                 $logger = Logger::getInstance();
                 $logger->warning(
-                    self::class . " is missing a setter for $key. \"$key\": \"$value\" added to custom properties instead."
+                    self::class . " is missing a setter for $key. "
+                    . "\"$key\": \"$value\" added to custom properties instead."
                 );
 
                 $classInstance->addCustomProperty($key, $value);

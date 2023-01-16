@@ -468,9 +468,9 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
 
     /**
      * Parses a CalendarEvent object from the given JSON representation.
-     * 
+     *
      * @param mixed $json String/Array containing a calendar event in the JSCalendar format.
-     * 
+     *
      * @return CalendarEvent CalendarEvent object containing any properties that can be
      * parsed from the given JSON string/array.
      */
@@ -492,7 +492,7 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
             $json = json_decode($json);
         }
 
-        if (is_array($json)){
+        if (is_array($json)) {
             return parent::fromJsonArray($json);
         }
 
@@ -513,7 +513,7 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
             }
 
             // Since all of the properties are private, using this will allow access to the setter
-            // functions of any given property. 
+            // functions of any given property.
             // Caution! In order for this to work, every setter method needs to match the property
             // name. So for a var fooBar, the setter needs to be named setFooBar($fooBar).
             $setPropertyMethod = "set" . ucfirst($key);
@@ -523,7 +523,8 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
             if (!method_exists($classInstance, $setPropertyMethod)) {
                 $logger = Logger::getInstance();
                 $logger->warning(
-                    self::class . " is missing a setter for $key. \"$key\": \"$value\" added to custom properties instead."
+                    self::class . " is missing a setter for $key. "
+                    . "\"$key\": \"$value\" added to custom properties instead."
                 );
 
                 $classInstance->addCustomProperty($key, $value);

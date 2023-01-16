@@ -206,12 +206,12 @@ class RecurrenceRule extends JSCalendarDataType implements JsonSerializable
     {
         return $this->customProperties;
     }
-    
+
     /**
      * Parses a CalendarEvent object from the given JSON representation.
-     * 
+     *
      * @param mixed $json String/Array containing a calendar event in the JSCalendar format.
-     * 
+     *
      * @return CalendarEvent CalendarEvent object containing any properties that can be
      * parsed from the given JSON string/array.
      */
@@ -223,7 +223,7 @@ class RecurrenceRule extends JSCalendarDataType implements JsonSerializable
             $json = json_decode($json);
         }
 
-        if (is_array($json)){
+        if (is_array($json)) {
             return parent::fromJsonArray($json);
         }
 
@@ -252,7 +252,8 @@ class RecurrenceRule extends JSCalendarDataType implements JsonSerializable
             if (!method_exists($classInstance, $setPropertyMethod)) {
                 $logger = Logger::getInstance();
                 $logger->warning(
-                    self::class . " is missing a setter for $key. \"$key\": \"$value\" added to custom properties instead."
+                    self::class . " is missing a setter for $key. "
+                    . "\"$key\": \"$value\" added to custom properties instead."
                 );
 
                 $classInstance->addCustomProperty($key, $value);
@@ -264,8 +265,8 @@ class RecurrenceRule extends JSCalendarDataType implements JsonSerializable
                 $classInstance->{"$setPropertyMethod"}(
                     NDay::fromJson($value)
                 );
-            } else { 
-            $classInstance->{"$setPropertyMethod"}($value);
+            } else {
+                $classInstance->{"$setPropertyMethod"}($value);
             }
         }
 

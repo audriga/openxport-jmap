@@ -111,9 +111,9 @@ class Link implements JsonSerializable
 
     /**
      * Parses a Link object from the given JSON representation.
-     * 
+     *
      * @param mixed $json String/Array/Object containing a link in the JSCalendar format.
-     * 
+     *
      * @return array Id[Link] array containing any properties that can be
      * parsed from the given JSON string/array/object.
      */
@@ -129,7 +129,6 @@ class Link implements JsonSerializable
         // In JSCalendar, links are stored in an Id[Link] array. Therefore we must loop through
         // each entry in that array and create a Link object for that specific one.
         foreach ($json as $id => $object) {
-
             $classInstance = new self();
 
             foreach ($object as $key => $value) {
@@ -141,13 +140,13 @@ class Link implements JsonSerializable
                 if (!property_exists($classInstance, $key)) {
                     $logger = Logger::getInstance();
                     $logger->warning("File contains property not existing in " . self::class . ": $key");
-    
+
                     $classInstance->addCustomProperty($key, $value);
                     continue;
                 }
 
                 // Since all of the properties are private, using this will allow acces to the setter
-                // functions of any given property. 
+                // functions of any given property.
                 // Caution! In order for this to work, every setter method needs to match the property
                 // name. So for a var fooBar, the setter needs to be named setFooBar($fooBar).
                 $setPropertyMethod = "set" . ucfirst($key);
@@ -157,9 +156,10 @@ class Link implements JsonSerializable
                 if (!method_exists($classInstance, $setPropertyMethod)) {
                     $logger = Logger::getInstance();
                     $logger->warning(
-                        self::class . " is missing a setter for $key. \"$key\": \"$value\" added to custom properties instead."
+                        self::class . " is missing a setter for $key. "
+                        . "\"$key\": \"$value\" added to custom properties instead."
                     );
-    
+
                     $classInstance->addCustomProperty($key, $value);
                     continue;
                 }

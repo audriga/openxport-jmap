@@ -77,9 +77,9 @@ class Alert implements JsonSerializable
 
     /**
      * Parses an Alert object from the given JSON representation.
-     * 
+     *
      * @param string|array|object $json string/array/object containing an alert in the JSCalendar format.
-     * 
+     *
      * @return array ID[Alert] array containing any properties that can be
      * parsed from the given JSON string/array/object.
      */
@@ -95,7 +95,6 @@ class Alert implements JsonSerializable
         // In JSCalendar, alerts are stored in an Id[Alert] array. Therefore we must loop through
         // each entry in that array and create an Alert object for that specific one.
         foreach ($json as $id => $object) {
-
             $classInstance = new self();
 
             foreach ($object as $key => $value) {
@@ -108,13 +107,13 @@ class Alert implements JsonSerializable
                 if (!property_exists($classInstance, $key)) {
                     $logger = Logger::getInstance();
                     $logger->warning("File contains property not existing in " . self::class . ": $key");
-    
+
                     $classInstance->addCustomProperty($key, $value);
                     continue;
                 }
 
                 // Since all of the properties are private, using this will allow acces to the setter
-                // functions of any given property. 
+                // functions of any given property.
                 // Caution! In order for this to work, every setter method needs to match the property
                 // name. So for a var fooBar, the setter needs to be named setFooBar($fooBar).
                 $setPropertyMethod = "set" . ucfirst($key);
@@ -124,9 +123,10 @@ class Alert implements JsonSerializable
                 if (!method_exists($classInstance, $setPropertyMethod)) {
                     $logger = Logger::getInstance();
                     $logger->warning(
-                        self::class . " is missing a setter for $key. \"$key\": \"$value\" added to custom properties instead."
+                        self::class . " is missing a setter for $key. "
+                        . "\"$key\": \"$value\" added to custom properties instead."
                     );
-    
+
                     $classInstance->addCustomProperty($key, $value);
                     continue;
                 }
@@ -135,11 +135,11 @@ class Alert implements JsonSerializable
                 if ($key == "trigger") {
                     if ($value->{"@type"} == "AbsoluteTrigger") {
                         $value = AbsoluteTrigger::fromJson($value);
-                    } else if ($value->{"@type"} == "OffsetTrigger") {
+                    } elseif ($value->{"@type"} == "OffsetTrigger") {
                         $value = OffsetTrigger::fromJson($value);
                     } else {
                         $value = UnknownTrigger::fromJson($value);
-                    } 
+                    }
                 }
 
                 // Set the property in the class' instance.
