@@ -3,10 +3,13 @@
 namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
+use OpenXPort\Util\Logger;
 
 class UnknownTrigger implements JsonSerializable
 {
     private $type;
+
+    private $customProperties;
 
     public function getType()
     {
@@ -16,6 +19,16 @@ class UnknownTrigger implements JsonSerializable
     public function setType($type)
     {
         $this->type = $type;
+    }
+
+    public function addCustomProperty($propertyName, $value)
+    {
+        $this->customProperties[$propertyName] = $value;
+    }
+
+    public function getCustomProperties()
+    {
+        return $this->customProperties;
     }
 
     /**
@@ -28,7 +41,7 @@ class UnknownTrigger implements JsonSerializable
      */
     public static function fromJson($json)
     {
-        $classInstance = new UnknownTrigger();
+        $classInstance = new self();
 
         if (is_string($json)) {
             $json = json_decode($json);
@@ -41,7 +54,10 @@ class UnknownTrigger implements JsonSerializable
             }
 
             if (!property_exists($classInstance, $key)) {
-                // Skipping parameters is to be expected here.
+                $logger = Logger::getInstance();
+                $logger->warning("Added value pair $key => $value to unknown trigger type.");
+
+                $classInstance->addCustomProperty($key, $value);
                 continue;
             }
 
@@ -66,8 +82,14 @@ class UnknownTrigger implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        $objectProperties = [
             "@type" => $this->getType()
         ];
+
+        foreach ($this->getCustomProperties() as $name => $value) {
+            $objectProperties[$name] = $value;
+        }
+
+        return (object) $objectProperties;
     }
 }
