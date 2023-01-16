@@ -3,11 +3,14 @@
 namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
+use OpenXPort\Util\Logger;
 
 class AbsoluteTrigger implements JsonSerializable
 {
     private $type;
     private $when;
+
+    private $customProperties;
 
     public function getType()
     {
@@ -29,6 +32,16 @@ class AbsoluteTrigger implements JsonSerializable
         $this->when = $when;
     }
 
+    public function addCustomProperty($propertyName, $value)
+    {
+        $this->customProperties[$propertyName] = $value;
+    }
+
+    public function getCustomProperties()
+    {
+        return $this->customProperties;
+    }
+
     /**
      * Parses a AbsoluteTrigger object from a given JSON representation of an absolute trigger.
      * 
@@ -39,7 +52,7 @@ class AbsoluteTrigger implements JsonSerializable
      */
     public static function fromJson($json)
     {
-        $classInstance = new AbsoluteTrigger();
+        $classInstance = new self();
 
         if (is_string($json)) {
             $json = json_decode($json);
@@ -52,7 +65,10 @@ class AbsoluteTrigger implements JsonSerializable
             }
 
             if (!property_exists($classInstance, $key)) {
-                // TODO: Should probably add a logger to each class that can be called here.
+                $logger = Logger::getInstance();
+                $logger->warning("File contains property not existing in " . self::class . ": $key");
+
+                $classInstance->addCustomProperty($key, $value);
                 continue;
             }
 
@@ -77,9 +93,15 @@ class AbsoluteTrigger implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        $objectProperties = [
             "@type" => $this->getType(),
             "when" => $this->getWhen()
         ];
+
+        foreach ($this->getCustomProperties() as $name => $value) {
+            $objectProperties[$name] = $value;
+        }
+
+        return (object) $objectProperties;
     }
 }

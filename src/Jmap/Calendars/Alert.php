@@ -13,6 +13,8 @@ class Alert implements JsonSerializable
     private $relatedTo;
     private $action;
 
+    private $customProperties;
+
     public function getType()
     {
         return $this->type;
@@ -63,6 +65,16 @@ class Alert implements JsonSerializable
         $this->action = $action;
     }
 
+    public function addCustomProperty($propertyName, $value)
+    {
+        $this->customProperties[$propertyName] = $value;
+    }
+
+    public function getCustomProperties()
+    {
+        return $this->customProperties;
+    }
+
     /**
      * Parses an Alert object from the given JSON representation.
      * 
@@ -84,7 +96,7 @@ class Alert implements JsonSerializable
         // each entry in that array and create an Alert object for that specific one.
         foreach ($json as $id => $object) {
 
-            $classInstance = new Alert();
+            $classInstance = new self();
 
             foreach ($object as $key => $value) {
                 // The "@type" poperty is defined as "type" in the custom classes.
@@ -94,7 +106,10 @@ class Alert implements JsonSerializable
 
 
                 if (!property_exists($classInstance, $key)) {
-                    // TODO: Should probably add a logger to each class that can be called here.
+                    $logger = Logger::getInstance();
+                    $logger->warning("File contains property not existing in " . self::class . ": $key");
+    
+                    $classInstance->addCustomProperty($key, $value);
                     continue;
                 }
 
@@ -138,12 +153,18 @@ class Alert implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        $objectProperties = [
             "@type" => $this->getType(),
             "trigger" => $this->getTrigger(),
             "acknowledged" => $this->getAcknowledged(),
             "relatedTo" => $this->getRelatedTo(),
             "action" => $this->getAction()
         ];
+
+        foreach ($this->getCustomProperties() as $name => $value) {
+            $objectProperties[$name] = $value;
+        }
+
+        return (object) $objectProperties;
     }
 }

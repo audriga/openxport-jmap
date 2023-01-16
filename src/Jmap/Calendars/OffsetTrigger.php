@@ -4,12 +4,15 @@ namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
 use OpenXPort\Jmap\Task\OffsetTrigger as TaskOffsetTrigger;
+use OpenXPort\Util\Logger;
 
 class OffsetTrigger implements JsonSerializable
 {
     private $type;
     private $offset;
     private $relativeTo;
+
+    private $customProperties;
 
     public function getType()
     {
@@ -41,6 +44,16 @@ class OffsetTrigger implements JsonSerializable
         $this->relativeTo = $relativeTo;
     }
 
+    public function addCustomProperty($propertyName, $value)
+    {
+        $this->customProperties[$propertyName] = $value;
+    }
+
+    public function getCustomProperties()
+    {
+        return $this->customProperties;
+    }
+
     /**
      * Parses a OffsetTrigger object from a given JSON representation of an offset trigger.
      * 
@@ -51,7 +64,7 @@ class OffsetTrigger implements JsonSerializable
      */
     public static function fromJson($json)
     {
-        $classInstance = new OffsetTrigger();
+        $classInstance = new self();
 
         if (is_string($json)) {
             $json = json_decode($json);
@@ -64,7 +77,10 @@ class OffsetTrigger implements JsonSerializable
             }
 
             if (!property_exists($classInstance, $key)) {
-                // TODO: Should probably add a logger to each class that can be called here.
+                $logger = Logger::getInstance();
+                $logger->warning("File contains property not existing in " . self::class . ": $key");
+
+                $classInstance->addCustomProperty($key, $value);
                 continue;
             }
 
@@ -89,10 +105,16 @@ class OffsetTrigger implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        $objectProperties  = [
             "@type" => $this->getType(),
             "offset" => $this->getOffset(),
             "relativeTo" => $this->getRelativeTo()
         ];
+
+        foreach ($this->getCustomProperties() as $name => $value) {
+            $objectProperties[$name] = $value;
+        }
+
+        return (object) $objectProperties;
     }
 }
