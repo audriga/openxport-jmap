@@ -5,7 +5,7 @@ namespace OpenXPort\Jmap\Calendar;
 use JsonSerializable;
 use OpenXPort\Util\Logger;
 
-class RecurrenceRule implements JsonSerializable
+class RecurrenceRule extends JSCalendarDataType implements JsonSerializable
 {
     private $type;
     private $frequency;
@@ -224,7 +224,7 @@ class RecurrenceRule implements JsonSerializable
         }
 
         if (is_array($json)){
-            return self::fromJsonArray($json);
+            return parent::fromJsonArray($json);
         }
 
         foreach ($json as $key => $value) {
@@ -242,7 +242,7 @@ class RecurrenceRule implements JsonSerializable
             }
 
             // Since all of the properties are private, using this will allow access to the setter
-            // functions of any given property. 
+            // functions of any given property.
             // Caution! In order for this to work, every setter method needs to match the property
             // name. So for a var fooBar, the setter needs to be named setFooBar($fooBar).
             $setPropertyMethod = "set" . ucfirst($key);
@@ -270,21 +270,6 @@ class RecurrenceRule implements JsonSerializable
         }
 
         return $classInstance;
-    }
-
-    /**
-     * Used by fromJson() to parse an array of JSON RecurrenceRule objects, as they are stored in a
-     * recurrenceRule[] array in the JSCalendar format.
-     */
-     private static function fromJsonArray(array $json)
-    {
-        $jsonEntries = [];
-
-        foreach ($json as $entry) {
-            array_push($jsonEntries, self::fromJson($entry));
-        }
-
-        return $jsonEntries;
     }
 
     #[\ReturnTypeWillChange]
