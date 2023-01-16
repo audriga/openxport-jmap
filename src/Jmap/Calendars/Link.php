@@ -152,8 +152,15 @@ class Link implements JsonSerializable
                 // name. So for a var fooBar, the setter needs to be named setFooBar($fooBar).
                 $setPropertyMethod = "set" . ucfirst($key);
 
+                // As custom properties are already added to the object this will only happen if there is a
+                // mistake in the class as in a missing or misspelled setter.
                 if (!method_exists($classInstance, $setPropertyMethod)) {
-                    // TODO: same as with property check, add a logger maybe.
+                    $logger = Logger::getInstance();
+                    $logger->warning(
+                        self::class . " is missing a setter for $key. \"$key\": \"$value\" added to custom properties instead."
+                    );
+    
+                    $classInstance->addCustomProperty($key, $value);
                     continue;
                 }
 

@@ -55,7 +55,7 @@ class UnknownTrigger implements JsonSerializable
 
             if (!property_exists($classInstance, $key)) {
                 $logger = Logger::getInstance();
-                $logger->warning("Added value pair $key => $value to unknown trigger type.");
+                $logger->info("Added value pair $key => $value to unknown trigger type.");
 
                 $classInstance->addCustomProperty($key, $value);
                 continue;
@@ -67,8 +67,15 @@ class UnknownTrigger implements JsonSerializable
             // name. So for a var fooBar, the setter needs to be named setFooBar($fooBar).
             $setPropertyMethod = "set" . ucfirst($key);
 
+            // As custom properties are already added to the object this will only happen if there is a
+            // mistake in the class as in a missing or misspelled setter.
             if (!method_exists($classInstance, $setPropertyMethod)) {
-                // TODO: this shouldn't happen on the other hand, add a logger.
+                $logger = Logger::getInstance();
+                $logger->warning(
+                    self::class . " is missing a setter for $key. \"$key\": \"$value\" added to custom properties instead."
+                );
+
+                $classInstance->addCustomProperty($key, $value);
                 continue;
             }
 

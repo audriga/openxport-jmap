@@ -119,25 +119,27 @@ class Alert implements JsonSerializable
                 // name. So for a var fooBar, the setter needs to be named setFooBar($fooBar).
                 $setPropertyMethod = "set" . ucfirst($key);
 
+                // As custom properties are already added to the object this will only happen if there is a
+                // mistake in the class as in a missing or misspelled setter.
                 if (!method_exists($classInstance, $setPropertyMethod)) {
-                    // TODO: same as with property check, add a logger maybe.
+                    $logger = Logger::getInstance();
+                    $logger->warning(
+                        self::class . " is missing a setter for $key. \"$key\": \"$value\" added to custom properties instead."
+                    );
+    
+                    $classInstance->addCustomProperty($key, $value);
                     continue;
                 }
 
                 // Triggers need to be parsed from their own fromJson() method.
                 if ($key == "trigger") {
-
-                    if (!property_exists($value, "@type")) {
-                        continue;
-                    }
-
                     if ($value->{"@type"} == "AbsoluteTrigger") {
                         $value = AbsoluteTrigger::fromJson($value);
                     } else if ($value->{"@type"} == "OffsetTrigger") {
                         $value = OffsetTrigger::fromJson($value);
                     } else {
                         $value = UnknownTrigger::fromJson($value);
-                    }
+                    } 
                 }
 
                 // Set the property in the class' instance.
