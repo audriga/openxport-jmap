@@ -9,7 +9,7 @@ use OpenXPort\Util\Logger;
 /**
  * Class which represents a JMAP Calendar Event (according to JSCalendar)
  */
-class CalendarEvent implements JsonSerializable
+class CalendarEvent extends JSCalendarDataType implements JsonSerializable
 {
     private $id;
     private $calendarId;
@@ -493,7 +493,7 @@ class CalendarEvent implements JsonSerializable
         }
 
         if (is_array($json)){
-            return self::fromJsonArray($json);
+            return parent::fromJsonArray($json);
         }
 
         $classInstance = new self();
@@ -561,20 +561,6 @@ class CalendarEvent implements JsonSerializable
         }
 
         return $classInstance;
-    }
-
-    /**
-     * Used by fromJson() to parse an array of JSON CalendarEvent properties.
-     */
-     private static function fromJsonArray(array $json)
-    {
-        $jsonEntries = [];
-
-        foreach ($json as $entry) {
-            array_push($jsonEntries, self::fromJson($entry));
-        }
-
-        return $jsonEntries;
     }
 
     /**

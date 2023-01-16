@@ -5,7 +5,7 @@ namespace OpenXPort\Jmap\Calendar;
 use JsonSerializable;
 use OpenXPort\Util\Logger;
 
-class NDay implements JsonSerializable
+class NDay extends JSCalendarDataType implements JsonSerializable
 {
     private $type;
     private $day;
@@ -71,7 +71,7 @@ class NDay implements JsonSerializable
         }
 
         if (is_array($json)) {
-            return self::fromJsonArray($json);
+            return parent::fromJsonArray($json);
         }
 
         foreach ($json as $key => $value) {
@@ -111,21 +111,6 @@ class NDay implements JsonSerializable
         }
 
         return $classInstance;
-    }
-
-    /**
-     * Used by fromJson() to parse an array of JSON NDay objects, as they are stored in a
-     * nDay[] array in the JSCalendar format.
-     */
-    private static function fromJsonArray(array $json)
-    {
-        $jsonEntries = [];
-
-        foreach ($json as $entry) {
-            array_push($jsonEntries, self::fromJson($entry));
-        }
-
-        return $jsonEntries;
     }
 
     #[\ReturnTypeWillChange]
