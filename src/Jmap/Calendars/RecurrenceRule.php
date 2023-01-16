@@ -3,6 +3,7 @@
 namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
+use OpenXPort\Util\Logger;
 
 class RecurrenceRule implements JsonSerializable
 {
@@ -23,6 +24,8 @@ class RecurrenceRule implements JsonSerializable
     private $bySetPosition;
     private $count;
     private $until;
+
+    private $customProperties;
 
     public function getType()
     {
@@ -193,6 +196,16 @@ class RecurrenceRule implements JsonSerializable
     {
         $this->until = $until;
     }
+
+    public function addCustomProperty($propertyName, $value)
+    {
+        $this->customProperties[$propertyName] = $value;
+    }
+
+    public function getCustomProperties()
+    {
+        return $this->customProperties;
+    }
     
     /**
      * Parses a CalendarEvent object from the given JSON representation.
@@ -221,7 +234,10 @@ class RecurrenceRule implements JsonSerializable
             }
 
             if (!property_exists($classInstance, $key)) {
-                // TODO: Should probably add a logger to each class that can be called here.
+                $logger = Logger::getInstance();
+                $logger->warning("File contains property not existing in " . self::class . ": $key");
+
+                $classInstance->addCustomProperty($key, $value);
                 continue;
             }
 
@@ -267,7 +283,7 @@ class RecurrenceRule implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        $objectProperties = [
             "@type" => $this->getType(),
             "frequency" => $this->getFrequency(),
             "interval" => $this->getInterval(),
@@ -286,5 +302,11 @@ class RecurrenceRule implements JsonSerializable
             "count" => $this->getCount(),
             "until" => $this->getUntil()
         ];
+
+        foreach ($this->getCustomProperties() as $name => $value) {
+            $objectProperties[$name] = $value;
+        }
+
+        return (object) $objectProperties;
     }
 }
