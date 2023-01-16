@@ -3,11 +3,14 @@
 namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
+use OpenXPort\Util\Logger;
 
 class Relation implements JsonSerializable
 {
     private $type;
     private $relation;
+
+    private $customProperties;
 
     public function getType()
     {
@@ -27,6 +30,15 @@ class Relation implements JsonSerializable
     public function setRelation($relation)
     {
         $this->relation = $relation;
+    }
+
+    public function addCustomProperty($propertyName, $value)
+    {
+        $this->customProperties[$propertyName] = $value;
+    }
+
+    public function getCustomProperties() {
+        return $this->customProperties;
     }
 
     /**
@@ -50,7 +62,7 @@ class Relation implements JsonSerializable
         // each entry in that array and create a Relation object for that specific one.
         foreach ($json as $string => $object) {
 
-            $classInstance = new Relation();
+            $classInstance = new self();
 
             foreach ($object as $key => $value) {
                 // The "@type" poperty is defined as "type" in the custom classes.
@@ -59,7 +71,10 @@ class Relation implements JsonSerializable
                 }
 
                 if (!property_exists($classInstance, $key)) {
-                    // TODO: Should probably add a logger to each class that can be called here.
+                    $logger = Logger::getInstance();
+                    $logger->warning("File contains property not existing in " . self::class . ": $key");
+    
+                    $classInstance->addCustomProperty($key, $value);
                     continue;
                 }
 
@@ -91,9 +106,15 @@ class Relation implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        $objectProperties = [
             "@type" => $this->getType(),
             "relation" => $this->getRelation()
         ];
+
+        foreach ($this->getCustomProperties() as $name => $value) {
+            $objectProperties[$name] = $value;
+        }
+
+        return (object) $objectProperties;
     }
 }
