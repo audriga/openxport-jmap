@@ -3,12 +3,15 @@
 namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
+use OpenXPort\Util\Logger;
 
 class NDay implements JsonSerializable
 {
     private $type;
     private $day;
     private $nthOfPeriod;
+
+    private $customProperties;
 
     public function getType()
     {
@@ -41,6 +44,16 @@ class NDay implements JsonSerializable
         $this->nthOfPeriod = $nthOfPeriod;
     }
 
+    public function addCustomProperty($propertyName, $value)
+    {
+        $this->customProperties[$propertyName] = $value;
+    }
+
+    public function getCustomProperties()
+    {
+        return $this->customProperties;
+    }
+
     /**
      * Parses a NDay object from a given JSON representation of a day.
      * 
@@ -51,7 +64,7 @@ class NDay implements JsonSerializable
      */
     public static function fromJson($json)
     {
-        $classInstance = new NDay();
+        $classInstance = new self();
 
         if (is_string($json)) {
             $json = json_decode($json);
@@ -68,7 +81,10 @@ class NDay implements JsonSerializable
             }
 
             if (!property_exists($classInstance, $key)) {
-                // TODO: Should probably add a logger to each class that can be called here.
+                $logger = Logger::getInstance();
+                $logger->warning("File contains property not existing in " . self::class . ": $key");
+
+                $classInstance->addCustomProperty($key, $value);
                 continue;
             }
 
@@ -108,10 +124,16 @@ class NDay implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        $objectProperties = [
             "@type" => $this->getType(),
             "day" => $this->getDay(),
             "nthOfPeriod" => $this->getNthOfPeriod()
         ];
+
+        foreach ($this->getCustomProperties() as $name => $value) {
+            $objectProperties[$name] = $value;
+        }
+
+        return (object) $objectProperties;
     }
 }

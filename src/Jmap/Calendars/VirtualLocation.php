@@ -4,6 +4,7 @@ namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
 use OpenXPort\Util\AdapterUtil;
+use OpenXPort\Util\Logger;
 
 class VirtualLocation implements JsonSerializable
 {
@@ -12,6 +13,8 @@ class VirtualLocation implements JsonSerializable
     private $description;
     private $uri;
     private $features;
+
+    private $customProperties;
 
     public function getType()
     {
@@ -63,6 +66,16 @@ class VirtualLocation implements JsonSerializable
         $this->features = $features;
     }
 
+    public function addCustomProperty($propertyName, $value)
+    {
+        $this->customProperties[$propertyName] = $value;
+    }
+
+    public function getCustomProperties()
+    {
+        return $this->customProperties;
+    }
+
     /**
      * Parses a VirtualLocation object from the given JSON representation.
      * 
@@ -84,7 +97,7 @@ class VirtualLocation implements JsonSerializable
         // each entry in that array and create a VirtualLocation object for that specific one.
         foreach ($json as $id => $object) {
 
-            $classInstance = new VirtualLocation();
+            $classInstance = new self();
 
             foreach ($object as $key => $value) {
             // The "@type" poperty is defined as "type" in the custom classes.
@@ -92,10 +105,13 @@ class VirtualLocation implements JsonSerializable
                 $key = "type";
             }
 
-                if (!property_exists($classInstance, $key)) {
-                    // TODO: Should probably add a logger to each class that can be called here.
-                    continue;
-                }
+            if (!property_exists($classInstance, $key)) {
+                $logger = Logger::getInstance();
+                $logger->warning("File contains property not existing in " . self::class . ": $key");
+
+                $classInstance->addCustomProperty($key, $value);
+                continue;
+            }
 
                 // Since all of the properties are private, using this will allow acces to the setter
                 // functions of any given property. 
@@ -125,13 +141,19 @@ class VirtualLocation implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        $objectProperties = [
             "@type" => $this->getType(),
             "name" => $this->getName(),
             "description" => $this->getDescription(),
             "uri" => $this->getUri(),
             "features" => $this->getFeatures()
         ];
+
+        foreach ($this->getCustomProperties() as $name => $value) {
+            $objectProperties[$name] = $value;
+        }
+
+        return (object) $objectProperties;
     }
 
     /**
