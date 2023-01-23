@@ -3,6 +3,7 @@
 namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
+use OpenXPort\Util\Logger;
 
 class Alert implements JsonSerializable
 {
@@ -11,6 +12,8 @@ class Alert implements JsonSerializable
     private $acknowledged;
     private $relatedTo;
     private $action;
+
+    private $customProperties;
 
     public function getType()
     {
@@ -62,15 +65,108 @@ class Alert implements JsonSerializable
         $this->action = $action;
     }
 
+    public function addCustomProperty($propertyName, $value)
+    {
+        $this->customProperties[$propertyName] = $value;
+    }
+
+    public function getCustomProperties()
+    {
+        return $this->customProperties;
+    }
+
+    /**
+     * Parses an Alert object from the given JSON representation.
+     *
+     * @param string|array|object $json string/array/object containing an alert in the JSCalendar format.
+     *
+     * @return array ID[Alert] array containing any properties that can be
+     * parsed from the given JSON string/array/object.
+     */
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json);
+        }
+
+        $alerts = [];
+
+
+        // In JSCalendar, alerts are stored in an Id[Alert] array. Therefore we must loop through
+        // each entry in that array and create an Alert object for that specific one.
+        foreach ($json as $id => $object) {
+            $classInstance = new self();
+
+            foreach ($object as $key => $value) {
+                // The "@type" poperty is defined as "type" in the custom classes.
+                if ($key == "@type") {
+                    $key = "type";
+                }
+
+
+                if (!property_exists($classInstance, $key)) {
+                    $logger = Logger::getInstance();
+                    $logger->warning("File contains property not existing in " . self::class . ": $key");
+
+                    $classInstance->addCustomProperty($key, $value);
+                    continue;
+                }
+
+                // Since all of the properties are private, using this will allow acces to the setter
+                // functions of any given property.
+                // Caution! In order for this to work, every setter method needs to match the property
+                // name. So for a var fooBar, the setter needs to be named setFooBar($fooBar).
+                $setPropertyMethod = "set" . ucfirst($key);
+
+                // As custom properties are already added to the object this will only happen if there is a
+                // mistake in the class as in a missing or misspelled setter.
+                if (!method_exists($classInstance, $setPropertyMethod)) {
+                    $logger = Logger::getInstance();
+                    $logger->warning(
+                        self::class . " is missing a setter for $key. "
+                        . "\"$key\": \"$value\" added to custom properties instead."
+                    );
+
+                    $classInstance->addCustomProperty($key, $value);
+                    continue;
+                }
+
+                // Triggers need to be parsed from their own fromJson() method.
+                if ($key == "trigger") {
+                    if ($value->{"@type"} == "AbsoluteTrigger") {
+                        $value = AbsoluteTrigger::fromJson($value);
+                    } elseif ($value->{"@type"} == "OffsetTrigger") {
+                        $value = OffsetTrigger::fromJson($value);
+                    } else {
+                        $value = UnknownTrigger::fromJson($value);
+                    }
+                }
+
+                // Set the property in the class' instance.
+                $classInstance->{"$setPropertyMethod"}($value);
+            }
+
+            $alerts[$id] = $classInstance;
+        }
+
+        return $alerts;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        $objectProperties = [
             "@type" => $this->getType(),
             "trigger" => $this->getTrigger(),
             "acknowledged" => $this->getAcknowledged(),
             "relatedTo" => $this->getRelatedTo(),
             "action" => $this->getAction()
         ];
+
+        foreach ($this->getCustomProperties() as $name => $value) {
+            $objectProperties[$name] = $value;
+        }
+
+        return (object) $objectProperties;
     }
 }
