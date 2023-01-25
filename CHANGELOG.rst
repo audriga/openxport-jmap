@@ -4,6 +4,20 @@ OpenXPort Release Notes
 
 .. contents:: Topics
 
+v1.5.0
+======
+
+Release summary
+---------------
+Support full JSCalendar deserialization and add a new way to use the error handler.
+
+Details
+-------
+* Add method that does not return serialized JSON #5561
+* Appointments: Add missing JSCalendar properties #6047
+* Appointments: Proper deserialization #5994
+* Tests: Add sample hosts file for Ansible integration tests
+
 v1.4.0
 ======
 
