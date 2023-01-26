@@ -2,7 +2,7 @@
 # Requires on the test instance:
 # * One contact with a first name
 ---
-- hosts: jscontact_mock_servers:roundcube_servers
+- hosts: jscontact_mock_servers:roundcube_servers:nextcloud_servers
   ignore_errors: true
   gather_facts: false
   tasks:
@@ -43,7 +43,11 @@
         msg: "Response contains Rumen from shared addressbook.\n{{ call_response.json }}"
       when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?fullName == `Rumen`]') | length > 0"
       failed_when: true
-    
+
+- hosts: jscontact_mock_servers:roundcube_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
     - name: Get all CardGroups in JSContact format for admin account
       uri:
         body: '{"using":["https://www.audriga.eu/jmap/jscontact/"],"methodCalls":[["CardGroup/get", {"accountId":"{{ admin_user }}"}, "0"]]}'
