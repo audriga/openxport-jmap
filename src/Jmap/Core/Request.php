@@ -30,7 +30,9 @@ class Request
             return Invocation::fromJson($methodCall);
         }, $methodCalls);
 
-        $this->createdIds = $requestJson->createdIds;
+        if (property_exists($requestJson, "createdIds")) {
+            $this->createdIds = $requestJson->createdIds;
+        }
     }
 
     public function getCapabilities()
