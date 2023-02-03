@@ -1,6 +1,6 @@
 # Test auth-related calls
 ---
-- hosts: squirrel_servers:horde_servers:nextcloud_servers
+- hosts: squirrel_servers:horde_servers
   ignore_errors: true
   gather_facts: false
   tasks:

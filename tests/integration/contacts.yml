@@ -4,7 +4,7 @@
 # * One contact group
 # * One shared addressbook with a contact with first name "Rumen"
 ---
-- hosts: all:!roundcube_servers:!jscontact_mock_servers
+- hosts: all:!roundcube_servers:!jscontact_mock_servers:!nextcloud_servers
   ignore_errors: true
   gather_facts: false
   tasks:
@@ -86,7 +86,7 @@
         - never
         - normal_user
 
-- hosts: all:!roundcube_servers:!jscontact_mock_servers
+- hosts: all:!roundcube_servers:!jscontact_mock_servers:!nextcloud_servers
   ignore_errors: true
   gather_facts: false
   tasks:
@@ -116,7 +116,7 @@
       when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].contactIds') | length == 0"
       failed_when: true
 
-- hosts: horde_servers:nextcloud_servers:vanilla_mock_servers
+- hosts: horde_servers:vanilla_mock_servers
   ignore_errors: true
   gather_facts: false
   tasks:

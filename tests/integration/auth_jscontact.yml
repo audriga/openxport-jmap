@@ -2,7 +2,7 @@
 # JSContact
 # Same requirements as in contacts.yml
 ---
-- hosts: roundcube_servers
+- hosts: roundcube_servers:nextcloud_servers
   ignore_errors: true
   gather_facts: false
   tasks:
@@ -62,9 +62,15 @@
 
     - debug:
         msg: "Contact/get should return a 401 message."
-      when: "'401 Unauthorized' not in call_response.content"
+      when: "'Unauthorized' not in call_response.content
+        and 'HTTP Error 401: Unauthorized' not in call_response.msg"
       failed_when: true
 
+# Nextcloud does not yet support admin auth
+- hosts: roundcube_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
     - name: Test admin auth with admin credentials and contact call
       uri:
         body: '{"using":["https://www.audriga.eu/jmap/jscontact/"],
