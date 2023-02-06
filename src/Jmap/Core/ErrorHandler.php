@@ -26,9 +26,6 @@ class ErrorHandler
 
     public function exceptionsErrorHandler($severity, $message, $filename, $lineno)
     {
-        # Continue logging errors in log
-        error_log($message);
-
         // Obtain an instance of the logger which is currently at use by us (i.e. our own logger and not the one from
         // PHP's internal logging)
         // Use this logger below to log to our own destinations, like log files or Graylog
@@ -68,8 +65,8 @@ class ErrorHandler
             throw new \ErrorException($message, 0, $severity, $filename, $lineno);
         }
 
-        # Bypass internal error handler
-        return true;
+        # Forward to internal error handler
+        return false;
     }
 
     public function exceptionHandler($exception)
