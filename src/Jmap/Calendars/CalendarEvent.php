@@ -534,8 +534,9 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
             // Access the setter method of the given property. If the property is an Object in the JSCalendar
             // spec itself, call that class' fromJson method to parse the JSON object accordingly.
             if (array_key_exists($key, $objectVariables)) {
+                $className = "OpenXPort\Jmap\Calendar\\$objectVariables[$key]";
                 $classInstance->{"$setPropertyMethod"}(
-                    "OpenXPort\Jmap\Calendar\\$objectVariables[$key]"::fromJson($value)
+                    $className::fromJson($value)
                 );
             } elseif ($key == "recurrenceOverrides") {
                 // In the JSCalendar RFC, recurrenceOverrides are Instances of PatchObjects.
