@@ -12,6 +12,8 @@ class AddressBookSetMethod extends SetMethod
         $methodName = $methodCall->getName();
         $adapter = $dataAdapters["AddressBooks"];
         $mapper = $dataMappers["AddressBooks"];
+        $created = [];
+        $destroyed = [];
 
         if (isset($arguments["create"]) && !is_null($arguments["create"])) {
             $bookMap = $mapper->mapFromJmap($arguments["create"], $adapter);
