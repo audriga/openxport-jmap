@@ -12,6 +12,8 @@ class CardSetMethod extends SetMethod
         $methodName = $methodCall->getName();
         $adapter = $dataAdapters["Cards"];
         $mapper = $dataMappers["Cards"];
+        $created = [];
+        $destroyed = [];
 
         if (isset($arguments["create"]) && !is_null($arguments["create"])) {
             $contactMap = $mapper->mapFromJmap($arguments["create"], $adapter);
