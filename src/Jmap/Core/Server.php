@@ -124,7 +124,7 @@ class Server
             try {
                 // Resolve the method
                 $method = $methodsAvailable[$methodName];
-                if (!class_exists($method)) {
+                if (is_null($method) || !class_exists($method)) {
                     echo ErrorHandler::raiseUnknownMethod($methodCallId);
                     return;
                 }
