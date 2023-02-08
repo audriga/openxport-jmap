@@ -125,7 +125,7 @@ class Server
                 // Resolve the method
                 $method = $methodsAvailable[$methodName];
                 if (is_null($method) || !class_exists($method)) {
-                    echo ErrorHandler::raiseUnknownMethod($methodCallId);
+                    echo ErrorHandler::raiseUnknownMethod($methodCall->getMethodCallId());
                     return;
                 }
 
@@ -140,7 +140,7 @@ class Server
                 array_push($responses, $methodResponse);
             } catch (OutOfBoundsException $exception) {
                 // TODO support multiple methods. push to array instead
-                echo ErrorHandler::raiseUnknownMethod($methodCallId);
+                echo ErrorHandler::raiseUnknownMethod($methodCall->getMethodCallId());
                 return;
             }
         }
