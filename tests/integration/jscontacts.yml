@@ -74,7 +74,7 @@
       when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].members') | length == 0"
       failed_when: true
 
-- hosts: roundcube_servers:!calendar_roundcube_servers
+- hosts: roundcube_servers:nextcloud_servers:!calendar_roundcube_servers
   ignore_errors: true
   gather_facts: false
   tasks:
@@ -96,7 +96,7 @@
       copy:
         content: "{{ call_response.content }}"
         dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
-               card_set_destroy.json"
+               card_set_destroy_invalid.json"
       delegate_to: 127.0.0.1
 
     - debug:
@@ -104,7 +104,7 @@
       when: "call_response.json.methodResponses[0][1] | community.general.json_query('notDestroyed.\"9999999\".type')  != 'invalidProperties'"
       failed_when: true
 
-- hosts: jscontact_mock_servers
+- hosts: jscontact_mock_servers:nextcloud_servers
   ignore_errors: true
   gather_facts: false
   tasks:
@@ -179,5 +179,78 @@
       copy:
         content: "{{ call_response.content }}"
         dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
-               card_set_delete.json"
+               card_set_destroy.json"
       delegate_to: 127.0.0.1
+
+- hosts: nextcloud_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Create an Address Book
+      uri:
+        body: '{"using":["https://www.audriga.eu/jmap/jscontact/"],"methodCalls":[["AddressBook/set", {"accountId":"{{ admin_user }}", "create":{"asd": {"name": "ansible-book"}}}, "0"]]}'
+        body_format: json
+        force_basic_auth: true #TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      failed_when: "'AddressBook/set' not in call_response.content"
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               addressbook_set_create.json"
+      delegate_to: 127.0.0.1
+
+    - name: Delete it again
+      uri:
+        body: '{"using":["https://www.audriga.eu/jmap/jscontact/"],"methodCalls":[["AddressBook/set", {"accountId":"{{ admin_user }}", "destroy":["{{ call_response.json.methodResponses[0][1].created.asd.id }}"]}, "0"]]}'
+        body_format: json
+        force_basic_auth: true #TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      failed_when: "'AddressBook/set' not in call_response.content"
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               addressbook_set_destroy.json"
+      delegate_to: 127.0.0.1
+    - name: Delete unknown address book
+      uri:
+        body: '{"using":["https://www.audriga.eu/jmap/jscontact/"],"methodCalls":[["AddressBook/set", {"accountId":"{{ admin_user }}", "destroy":["9999999"]}, "0"]]}'
+        body_format: json
+        force_basic_auth: true #TODO once we return correct 401 we can remove this
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               addressbook_set_destroy_invalid.json"
+      delegate_to: 127.0.0.1
+
+    - debug:
+        msg: "AddressBook 999999 not seen as invalid.\n{{ call_response.json | to_yaml }}"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('notDestroyed.\"9999999\".type')  != 'invalidProperties'"
+      failed_when: true
