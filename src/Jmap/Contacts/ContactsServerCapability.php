@@ -17,6 +17,7 @@ class ContactsServerCapability extends \OpenXPort\Jmap\Core\ServerCapability
             "Contact/set" => Methods\ContactSetMethod::class,
             "ContactGroup/get" => Methods\ContactGroupGetMethod::class,
             "AddressBook/get" => Methods\AddressBookGetMethod::class,
+            "AddressBook/set" => Methods\AddressBookSetMethod::class,
         );
     }
 }
