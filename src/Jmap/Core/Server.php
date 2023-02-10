@@ -79,6 +79,12 @@ class Server
             if ($cap == "vacationResponse") {
                 $this->session->addCapability(new \OpenXPort\Jmap\Audriga\VacationResponseServerCapability());
             }
+
+            // Also add contacts capability in case jscontact is configured
+            // TODO this is a workaround as long as we need to support jscontact
+            if ($cap == "jscontact") {
+                $this->session->addCapability(new \OpenXPort\Jmap\Contact\ContactsServerCapability());
+            }
         }
 
         // Init capabilities with sub-capabilities
