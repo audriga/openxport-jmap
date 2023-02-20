@@ -1,26 +1,26 @@
 <?php
 
-namespace OpenXPort\Jmap\JSContact\Methods;
+namespace OpenXPort\Jmap\Contact\Methods;
 
 use OpenXPort\Jmap\Core\Methods\SetMethod;
 
-class CardSetMethod extends SetMethod
+class AddressBookSetMethod extends SetMethod
 {
     public function handle($methodCall, $dataAccessors, $dataAdapters, $dataMappers)
     {
         $arguments = $methodCall->getArguments();
         $methodName = $methodCall->getName();
-        $adapter = $dataAdapters["Cards"];
-        $mapper = $dataMappers["Cards"];
+        $adapter = $dataAdapters["AddressBooks"];
+        $mapper = $dataMappers["AddressBooks"];
         $created = [];
         $destroyed = [];
 
         if (isset($arguments["create"]) && !is_null($arguments["create"])) {
-            $contactMap = $mapper->mapFromJmap($arguments["create"], $adapter);
-            $created = $dataAccessors["Cards"]->create($contactMap);
+            $bookMap = $mapper->mapFromJmap($arguments["create"], $adapter);
+            $created = $dataAccessors["AddressBooks"]->create($bookMap);
         }
         if (isset($arguments["destroy"]) && !is_null($arguments["destroy"])) {
-            $destroyed = $dataAccessors["Cards"]->destroy($arguments["destroy"]);
+            $destroyed = $dataAccessors["AddressBooks"]->destroy($arguments["destroy"]);
         }
 
         return $this->buildMethodResponse($created, $destroyed, $methodCall);

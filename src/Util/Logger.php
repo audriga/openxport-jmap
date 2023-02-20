@@ -27,6 +27,9 @@ class Logger
      */
     public static function init($oxpConfig, $jmapRequest)
     {
+        $logger = null;
+        $graylogException = null;
+
         if ($jmapRequest && in_array("https://www.audriga.eu/jmap/debug/", $jmapRequest->getCapabilities())) {
             $logger = new ArrayLogger($oxpConfig["logLevel"]);
             $logger->info("Array Logger has been successfully initialized");

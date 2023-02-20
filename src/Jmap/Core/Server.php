@@ -79,6 +79,12 @@ class Server
             if ($cap == "vacationResponse") {
                 $this->session->addCapability(new \OpenXPort\Jmap\Audriga\VacationResponseServerCapability());
             }
+
+            // Also add contacts capability in case jscontact is configured
+            // TODO this is a workaround as long as we need to support jscontact
+            if ($cap == "jscontact") {
+                $this->session->addCapability(new \OpenXPort\Jmap\Contact\ContactsServerCapability());
+            }
         }
 
         // Init capabilities with sub-capabilities
@@ -124,8 +130,8 @@ class Server
             try {
                 // Resolve the method
                 $method = $methodsAvailable[$methodName];
-                if (!class_exists($method)) {
-                    echo ErrorHandler::raiseUnknownMethod($methodCallId);
+                if (is_null($method) || !class_exists($method)) {
+                    echo ErrorHandler::raiseUnknownMethod($methodCall->getMethodCallId());
                     return;
                 }
 
@@ -140,7 +146,7 @@ class Server
                 array_push($responses, $methodResponse);
             } catch (OutOfBoundsException $exception) {
                 // TODO support multiple methods. push to array instead
-                echo ErrorHandler::raiseUnknownMethod($methodCallId);
+                echo ErrorHandler::raiseUnknownMethod($methodCall->getMethodCallId());
                 return;
             }
         }
