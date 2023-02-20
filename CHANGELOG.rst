@@ -4,6 +4,21 @@ OpenXPort Release Notes
 
 .. contents:: Topics
 
+v1.6.0
+======
+
+Release summary
+---------------
+Includes a variety of fixes, brings support for AddressBook/set
+
+Details
+-------
+* Split compound expressions for PHP < 7 #5867
+* Fix error handling #6140
+* Contacts: Support AddressBook/set (destroy and create) #6120
+* Fix a bunch of warnings found during testing
+* Support both JMAP Contact and jscontact capability if jscontact is configured
+
 v1.5.0
 ======
 
