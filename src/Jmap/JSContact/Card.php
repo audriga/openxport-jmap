@@ -431,7 +431,7 @@ class Card extends TypeableEntity implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             // Metadata properties
             "@type" => $this->getAtType(),
             "id" => $this->getId(),
@@ -471,6 +471,8 @@ class Card extends TypeableEntity implements JsonSerializable
             "notes" => $this->getNotes(),
             "categories" => $this->getCategories(),
             "timeZones" => $this->getTimeZones()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }
