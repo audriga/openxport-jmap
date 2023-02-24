@@ -12,6 +12,9 @@ class Name extends TypeableEntity implements JsonSerializable
     /** @var string $locale (optional) - NOTE deprecated in draft-ietf-calext-jscontact-vcard-06 */
     private $locale;
 
+    /** @var array $sortAs (optional) */
+    private $sortAs;
+
     public function getType()
     {
         return $this->type;
@@ -44,13 +47,25 @@ class Name extends TypeableEntity implements JsonSerializable
         $this->locale = $locale;
     }
 
+    public function getSortAs()
+    {
+        return $this->sortAs;
+    }
+
+    public function setSortAs($sortAs)
+    {
+        $this->sortAs = $sortAs;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->type,
+            "@type" => $this->atType,
+            "type" => $this->type,
             "components" => $this->components,
-            "locale" => $this->locale
+            "locale" => $this->locale,
+            "sortAs" => $this->sortAs
         ], function ($val) {
             return !is_null($val);
         });
