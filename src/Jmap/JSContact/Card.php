@@ -14,6 +14,10 @@ use JsonSerializable;
  */
 class Card extends TypeableEntity implements JsonSerializable
 {
+    /* === JMAP-specific properties === */
+    /** @var string $id (mandatory) */
+    private $addressBookId;
+
     /* === Metadata properties === */
 
     /** @var string $id (mandatory) (This property is not part of the JSContact spec and is added by audriga) */
@@ -147,6 +151,15 @@ class Card extends TypeableEntity implements JsonSerializable
     /** @var string|null $maidenName (optional) */
     private $maidenName;
 
+    public function getAddressBookId()
+    {
+        return $this->addressBookId;
+    }
+
+    public function setAddressBookId($addressBookId)
+    {
+        $this->addressBookId = $addressBookId;
+    }
 
     public function getId()
     {
@@ -432,6 +445,9 @@ class Card extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
+            // JMAP-specific properties
+            "addressBookId" => $this->getAddressBookId(),
+
             // Metadata properties
             "@type" => $this->getAtType(),
             "id" => $this->getId(),
