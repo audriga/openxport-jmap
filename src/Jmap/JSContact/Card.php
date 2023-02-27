@@ -494,7 +494,7 @@ class Card extends TypeableEntity implements JsonSerializable
             "emails" => $this->getEmails(),
             "onlineServices" => $this->getOnlineServices(),
             "phones" => $this->getPhones(),
-            "online" => $this->getOnline(),
+            "online" => $this->online,
             "photos" => $this->getPhotos(),
             "preferredContactMethod" => $this->getPreferredContactMethod(),
             "preferredContactLanguages" => $this->getPreferredContactLanguages(),
