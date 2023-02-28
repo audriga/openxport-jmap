@@ -135,7 +135,7 @@ class Card extends TypeableEntity implements JsonSerializable
 
     /** @var array<string, Anniversary> $anniversaries (optional)
      * The string keys of the array are of type Id
-     * (see https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09#section-1.5.2)
+     * (see https://www.ietf.org/archive/id/draft-ietf-calext-jscontact-07.html#name-anniversaries)
     */
     private $anniversaries;
 

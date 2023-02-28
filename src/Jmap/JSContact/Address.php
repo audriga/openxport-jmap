@@ -48,6 +48,11 @@ class Address extends TypeableEntity implements JsonSerializable
     /** @var string $label (optional) */
     private $label;
 
+    public function __construct()
+    {
+        $this->atType = "Address";
+    }
+
     public function getFullAddress()
     {
         return $this->fullAddress;
@@ -160,31 +165,41 @@ class Address extends TypeableEntity implements JsonSerializable
 
     public function getLabel()
     {
+        trigger_error(
+            "Called method " . __METHOD__ . " is outdated and will be removed in the future.",
+            E_USER_DEPRECATED
+        );
         return $this->label;
     }
 
     public function setLabel($label)
     {
+        trigger_error(
+            "Called method " . __METHOD__ . " is outdated and will be removed in the future.",
+            E_USER_DEPRECATED
+        );
         $this->label = $label;
     }
 
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
-            "@type" => $this->getAtType(),
-            "fullAddress" => $this->getFullAddress(),
-            "street" => $this->getStreet(),
-            "locality" => $this->getLocality(),
-            "region" => $this->getRegion(),
-            "country" => $this->getCountry(),
-            "postcode" => $this->getPostcode(),
-            "countryCode" => $this->getCountryCode(),
-            "coordinates" => $this->getCoordinates(),
-            "timeZone" => $this->getTimeZone(),
-            "contexts" => $this->getContexts(),
-            "pref" => $this->getPref(),
-            "label" => $this->getLabel()
-        ];
+        return (object) array_filter([
+            "@type" => $this->atType,
+            "label" => $this->label,
+            "street" => $this->street,
+            "locality" => $this->locality,
+            "region" => $this->region,
+            "country" => $this->country,
+            "postcode" => $this->postcode,
+            "countryCode" => $this->countryCode,
+            "coordinates" => $this->coordinates,
+            "timeZone" => $this->timeZone,
+            "contexts" => $this->contexts,
+            "fullAddress" => $this->fullAddress,
+            "pref" => $this->pref
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }
