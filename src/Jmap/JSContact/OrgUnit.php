@@ -4,26 +4,17 @@ namespace OpenXPort\Jmap\JSContact;
 
 use JsonSerializable;
 
-class Organization extends TypeableEntity implements JsonSerializable
+class OrgUnit extends TypeableEntity implements JsonSerializable
 {
     /** @var string $name (optional) */
     private $name;
 
-    /** @var OrgUnit[] $units (optional) */
-    private $units;
-
     /** @var string $sortAs (optional) */
     private $sortAs;
 
-    /** @var array<string, boolean> $contexts (optional)
-     * The string keys of the array are of type Context
-     * (see https://www.ietf.org/archive/id/draft-ietf-calext-jscontact-07.html#section-2.2.4-3.5)
-     */
-    private $contexts;
-
     public function __construct()
     {
-        $this->atType = "Organization";
+        $this->atType = "OrgUnit";
     }
 
     public function getName()
@@ -36,16 +27,6 @@ class Organization extends TypeableEntity implements JsonSerializable
         $this->name = $name;
     }
 
-    public function getUnits()
-    {
-        return $this->units;
-    }
-
-    public function setUnits($units)
-    {
-        $this->units = $units;
-    }
-
     public function getSortAs()
     {
         return $this->sortAs;
@@ -56,25 +37,13 @@ class Organization extends TypeableEntity implements JsonSerializable
         $this->sortAs = $sortAs;
     }
 
-    public function getContexts()
-    {
-        return $this->contexts;
-    }
-
-    public function setContexts($contexts)
-    {
-        $this->contexts = $contexts;
-    }
-
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) array_filter([
             "@type" => $this->atType,
             "name" => $this->name,
-            "units" => $this->units,
             "sortAs" => $this->sortAs,
-            "contexts" => $this->contexts,
         ], function ($val) {
             return !is_null($val);
         });
