@@ -43,7 +43,7 @@ class Server
      * @param AbstractAdapter $dataAdapters The adapter classes used for data transformation
      * @param AbstractMapper $dataMappers The data mapper classes used for mapping data between formats
      */
-    public function __construct($dataAccessors, $dataAdapters, $dataMappers, $config)
+    public function __construct($dataAccessors, $dataAdapters, $dataMappers, $config, $session = null)
     {
         $this->dataAccessors = $dataAccessors;
         $this->dataAdapters = $dataAdapters;
@@ -52,8 +52,12 @@ class Server
 
         $this->config = $config;
 
-        // Init session
-        $this->session = new Session();
+        // Init session if none present
+        if (is_null($session)) {
+            $this->session = new Session();
+        } else {
+            $this->session = $session;
+        }
 
         $this->session->addCapability(new CoreServerCapability());
 

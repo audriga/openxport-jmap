@@ -6,16 +6,19 @@ use JsonSerializable;
 
 class Session implements JsonSerializable
 {
+    private $logger;
     private $capabilities;
     private $accounts;
     private $primaryAccounts;
     private $username;
     private $apiUrl;
     private $downloadUrl;
+    private $uploadUrl;
     private $eventSourceUrl;
 
-    public function __construct($username = null)
+    public function __construct($username = null, $uploadUrl = "", $downloadUrl = "")
     {
+        $this->logger = \OpenXPort\Util\Logger::getInstance();
         $this->capabilities = array();
 
         // TODO pass through available accounts in future version
@@ -23,10 +26,33 @@ class Session implements JsonSerializable
 
         $this->primaryAccounts = array();
 
+        $this->username = $username;
+
         // No support for Push
         $this->eventSourceUrl = "";
 
-        $this->username = $username;
+        if (!empty($uploadUrl)) {
+            if (!strpos($uploadUrl, 'accountId')) {
+                $this->logger->error("downloadUrl does not contain accountId");
+            }
+        }
+        $this->uploadUrl = $uploadUrl;
+
+        if (!empty($downloadUrl)) {
+            if (!strpos($downloadUrl, 'accountId')) {
+                $this->logger->error("downloadUrl does not contain accountId");
+            }
+            if (!strpos($downloadUrl, 'blobId')) {
+                $this->logger->error("downloadUrl does not contain blobId");
+            }
+            if (!strpos($downloadUrl, 'type')) {
+                $this->logger->error("downloadUrl does not contain type");
+            }
+            if (!strpos($downloadUrl, 'name')) {
+                $this->logger->error("downloadUrl does not contain name");
+            }
+        }
+        $this->downloadUrl = $downloadUrl;
     }
 
      /**
@@ -65,9 +91,30 @@ class Session implements JsonSerializable
 
         // Append the requested resource location to the URL
         // (and remove well-known in case its in)
-        $this->apiUrl .= rtrim($_SERVER['REQUEST_URI'], '/.well-known/jmap');
+        $this->apiUrl .= str_replace('/.well-known/jmap', '', $baseUrl . $_SERVER['REQUEST_URI']);
+
 
         return $this->apiUrl;
+    }
+
+    public function setDownloadUrl($downloadUrl)
+    {
+        $this->downloadUrl = $downloadUrl;
+    }
+
+    public function getDownloadUrl()
+    {
+        return $this->downloadUrl;
+    }
+
+    public function setUploadUrl($uploadUrl)
+    {
+        $this->uploadUrl = $uploadUrl;
+    }
+
+    public function getUploadUrl()
+    {
+        return $this->uploadUrl;
     }
 
     /**
@@ -104,8 +151,8 @@ class Session implements JsonSerializable
             "primaryAccounts" => (object) $this->primaryAccounts,
             "username" => $this->username,
             "apiUrl" => $this->getApiUrl(),
-            "downloadUrl" => null,
-            "uploadUrl" => null,
+            "downloadUrl" => $this->getDownloadUrl(),
+            "uploadUrl" => $this->uploadUrl,
             "eventSourceUrl" => $this->eventSourceUrl,
             "state" => $state
         ];
