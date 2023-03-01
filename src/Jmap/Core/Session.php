@@ -9,8 +9,12 @@ class Session implements JsonSerializable
     private $capabilities;
     private $accounts;
     private $primaryAccounts;
+    private $username;
+    private $apiUrl;
+    private $downloadUrl;
+    private $eventSourceUrl;
 
-    public function __construct()
+    public function __construct($username = null)
     {
         $this->capabilities = array();
 
@@ -18,6 +22,11 @@ class Session implements JsonSerializable
         $this->accounts = array();
 
         $this->primaryAccounts = array();
+
+        // No support for Push
+        $this->eventSourceUrl = "";
+
+        $this->username = $username;
     }
 
      /**
@@ -43,6 +52,10 @@ class Session implements JsonSerializable
 
     public function getApiUrl()
     {
+        if (!is_null($this->apiUrl)) {
+            return $this->apiUrl;
+        }
+
         if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
             $baseUrl = "https://";
         } else {
@@ -51,9 +64,10 @@ class Session implements JsonSerializable
         $baseUrl .= $_SERVER['HTTP_HOST'];
 
         // Append the requested resource location to the URL
-        $baseUrl .= $_SERVER['REQUEST_URI'];
+        // (and remove well-known in case its in)
+        $this->apiUrl .= rtrim($_SERVER['REQUEST_URI'], '/.well-known/jmap');
 
-        return $baseUrl;
+        return $this->apiUrl;
     }
 
     /**
@@ -88,11 +102,11 @@ class Session implements JsonSerializable
             "capabilities" => (object) $this->capabilities,
             "accounts" => (object) $this->accounts,
             "primaryAccounts" => (object) $this->primaryAccounts,
-            "username" => null,
+            "username" => $this->username,
             "apiUrl" => $this->getApiUrl(),
             "downloadUrl" => null,
             "uploadUrl" => null,
-            "eventSourceUrl" => null,
+            "eventSourceUrl" => $this->eventSourceUrl,
             "state" => $state
         ];
     }
