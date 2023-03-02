@@ -33,7 +33,7 @@ class Session implements JsonSerializable
 
         if (!empty($uploadUrl)) {
             if (!strpos($uploadUrl, 'accountId')) {
-                $this->logger->error("downloadUrl does not contain accountId");
+                $this->logger->error("uploadUrl does not contain accountId");
             }
         }
         $this->uploadUrl = $uploadUrl;
