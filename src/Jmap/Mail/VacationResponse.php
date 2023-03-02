@@ -113,7 +113,7 @@ class VacationResponse implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "id" => $this->getId(),
             "isEnabled" => $this->getIsEnabled(),
             "fromDate" => $this->getFromDate(),
@@ -122,7 +122,9 @@ class VacationResponse implements JsonSerializable
             "textBody" => $this->getTextBody(),
             "htmlBody" => $this->getHtmlBody(),
             "timeBetweenResponses" => $this->getTimeBetweenResponses()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 
     /**

@@ -48,6 +48,11 @@ class Address extends TypeableEntity implements JsonSerializable
     /** @var string $label (optional) */
     private $label;
 
+    public function __construct()
+    {
+        $this->atType = "Address";
+    }
+
     public function getFullAddress()
     {
         return $this->fullAddress;
@@ -158,22 +163,28 @@ class Address extends TypeableEntity implements JsonSerializable
         $this->pref = $pref;
     }
 
+    /* Deprecated in newest JSContact spec */
     public function getLabel()
     {
         return $this->label;
     }
 
+    /* Deprecated in newest JSContact spec */
     public function setLabel($label)
     {
+        trigger_error(
+            "Called method " . __METHOD__ . " is outdated and will be removed in the future.",
+            E_USER_DEPRECATED
+        );
         $this->label = $label;
     }
 
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getAtType(),
-            "fullAddress" => $this->getFullAddress(),
+            "label" => $this->getLabel(),
             "street" => $this->getStreet(),
             "locality" => $this->getLocality(),
             "region" => $this->getRegion(),
@@ -183,8 +194,10 @@ class Address extends TypeableEntity implements JsonSerializable
             "coordinates" => $this->getCoordinates(),
             "timeZone" => $this->getTimeZone(),
             "contexts" => $this->getContexts(),
-            "pref" => $this->getPref(),
-            "label" => $this->getLabel()
-        ];
+            "fullAddress" => $this->getFullAddress(),
+            "pref" => $this->getPref()
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

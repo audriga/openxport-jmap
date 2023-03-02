@@ -100,16 +100,13 @@ class Location implements JsonSerializable
         $this->links = $links;
     }
 
+    /* Deprecated in newest JMAP Calendar spec */
     public function getLinkIds()
     {
-        trigger_error(
-            "Called method " . __METHOD__ . " is outdated, use getLinks instead.",
-            E_USER_DEPRECATED
-        );
-
         return $this->linkIds;
     }
 
+    /* Deprecated in newest JSContact spec */
     public function setLinkIds($linkIds)
     {
         trigger_error(
@@ -218,7 +215,9 @@ class Location implements JsonSerializable
             $objectProperties[$name] = $value;
         }
 
-        return (object) $objectProperties;
+        return (object) array_filter($objectProperties, function ($val) {
+            return !is_null($val);
+        });
     }
 
     /**

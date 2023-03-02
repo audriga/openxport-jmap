@@ -43,10 +43,12 @@ class OffsetTrigger implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getType(),
             "offset" => $this->getOffset(),
             "relativeTo" => $this->getRelativeTo()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

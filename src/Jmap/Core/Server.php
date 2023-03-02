@@ -97,6 +97,7 @@ class Server
         header('Content-Type: application/json');
 
         if (strcmp($_SERVER['REQUEST_METHOD'], "GET") === 0) {
+            $this->logger->info("Returning session.");
             echo $this->serializeAsJson($this->session);
         } elseif (strcmp($_SERVER['REQUEST_METHOD'], "POST") === 0) {
             // Take JSON POST body and decode it in order to feed it into "Server::handleJmapRequest()"

@@ -48,10 +48,12 @@ class Forward implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "isEnabled" => $this->getIsEnabled(),
             "forwardAction" => $this->getForwardAction(),
             "forwardTo" => $this->getForwardTo()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

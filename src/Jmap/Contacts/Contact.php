@@ -328,7 +328,7 @@ class Contact implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "id" => $this->getId(),
             "addressBookId" => $this->getAddressBookId(),
             "isFlagged" => $this->getIsFlagged(),
@@ -355,7 +355,9 @@ class Contact implements JsonSerializable
             "gender" => $this->getGender(),
             "relatedTo" => $this->getRelatedTo(),
             "role" => $this->getRole()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 
     /**

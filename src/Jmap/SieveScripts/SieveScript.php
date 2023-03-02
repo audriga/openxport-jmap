@@ -61,11 +61,13 @@ class SieveScript implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "id" => $this->getId(),
             "name" => $this->getName(),
             "blobId" => $this->getBlobId(),
             "isActive" => $this->getIsActive()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

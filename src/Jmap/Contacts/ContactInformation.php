@@ -57,12 +57,14 @@ class ContactInformation implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "type" => $this->getType(),
             "label" => $this->getLabel(),
             "value" => $this->getValue(),
             "isDefault" => $this->getIsDefault()
-            ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 
     /**

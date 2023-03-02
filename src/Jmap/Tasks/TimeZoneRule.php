@@ -98,7 +98,7 @@ class TimeZoneRule implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getType(),
             "start" => $this->getStart(),
             "offsetFrom" => $this->getOffsetFrom(),
@@ -107,6 +107,8 @@ class TimeZoneRule implements JsonSerializable
             "recurrenceOverrides" => $this->getRecurrenceOverrides(),
             "names" => $this->getNames(),
             "comments" => $this->getComments()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

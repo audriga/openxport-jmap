@@ -133,7 +133,7 @@ class StorageNode implements \JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "id" => $this->id,
             "parentId" => $this->parentId,
             "blobId" => $this->blobId,
@@ -143,7 +143,9 @@ class StorageNode implements \JsonSerializable
             "created" => $this->created,
             "modified" => $this->modified,
             "description" => $this->description
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 
     /**

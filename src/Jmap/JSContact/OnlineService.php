@@ -4,40 +4,49 @@ namespace OpenXPort\Jmap\JSContact;
 
 use JsonSerializable;
 
-class Resource extends TypeableEntity implements JsonSerializable
+class OnlineService extends TypeableEntity implements JsonSerializable
 {
-    /** @var string $resource (mandatory) */
-    private $resource;
+    /** @var string $user (mandatory) */
+    private $user;
 
-    /** @var string $type (optional) */
+    /** @var string $type (mandatory) */
     private $type;
 
-    /** @var string @mediaType (optional) */
-    private $mediaType;
+    /** @var string $service (optional)
+     *  This SHOULD be the canonical service name including capitalization. Examples are GitHub, kakao, Mastodon.
+     * */
+    private $service;
 
     /** @var array<string, boolean> $contexts (optional)
      * The string keys of the array are of type Context
-     * (see https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09#section-1.5.1)
+     * (see https://www.ietf.org/archive/id/draft-ietf-calext-jscontact-07.html#section-2.3.2-3.5)
      */
     private $contexts;
 
     /** @var int $pref (optional)
      * The int here is the Preference type
-     * (see https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09#section-1.5.4)
+     * (see https://www.ietf.org/archive/id/draft-ietf-calext-jscontact-07.html#section-2.3.2-3.6)
      */
     private $pref;
 
     /** @var string $label (optional) */
     private $label;
 
-    public function getResource()
+    public function __construct($user, $type)
     {
-        return $this->resource;
+        $this->user = $user;
+        $this->type = $type;
+        $this->atType = "OnlineService";
     }
 
-    public function setResource($resource)
+    public function getUser()
     {
-        $this->resource = $resource;
+        return $this->user;
+    }
+
+    public function setUser($user)
+    {
+        $this->user = $user;
     }
 
     public function getType()
@@ -50,14 +59,14 @@ class Resource extends TypeableEntity implements JsonSerializable
         $this->type = $type;
     }
 
-    public function getMediaType()
+    public function getService()
     {
-        return $this->mediaType;
+        return $this->service;
     }
 
-    public function setMediaType($mediaType)
+    public function setService($service)
     {
-        $this->mediaType = $mediaType;
+        $this->service = $service;
     }
 
     public function getContexts()
@@ -95,9 +104,9 @@ class Resource extends TypeableEntity implements JsonSerializable
     {
         return (object) array_filter([
             "@type" => $this->getAtType(),
-            "resource" => $this->getResource(),
+            "user" => $this->getUser(),
             "type" => $this->getType(),
-            "mediaType" => $this->getMediaType(),
+            "service" => $this->getService(),
             "contexts" => $this->getContexts(),
             "pref" => $this->getPref(),
             "label" => $this->getLabel()

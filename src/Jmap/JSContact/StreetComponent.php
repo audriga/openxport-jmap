@@ -12,6 +12,13 @@ class StreetComponent extends TypeableEntity implements JsonSerializable
     /** @var string $value (mandatory) */
     private $value;
 
+    public function __construct($type = null, $value = null)
+    {
+        $this->atType = "StreetComponent";
+        $this->type = $type;
+        $this->value = $value;
+    }
+
     public function getType()
     {
         return $this->type;
@@ -35,10 +42,12 @@ class StreetComponent extends TypeableEntity implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getAtType(),
             "type" => $this->getType(),
             "value" => $this->getValue()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

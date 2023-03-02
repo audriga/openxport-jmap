@@ -98,7 +98,7 @@ class Location implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getType(),
             "name" => $this->getName(),
             "description" => $this->getDescription(),
@@ -107,6 +107,8 @@ class Location implements JsonSerializable
             "timeZone" => $this->getTimeZone(),
             "coordinates" => $this->getCoordinates(),
             "links" => $this->getLinks()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

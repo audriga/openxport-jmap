@@ -54,11 +54,13 @@ class VirtualLocation implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getType(),
             "name" => $this->getName(),
             "description" => $this->getDescription(),
             "uri" => $this->getUri()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

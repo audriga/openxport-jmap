@@ -61,12 +61,14 @@ class PersonalInformation extends TypeableEntity implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getAtType(),
             "type" => $this->getType(),
             "value" => $this->getValue(),
             "level" => $this->getLevel(),
             "label" => $this->getLabel()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

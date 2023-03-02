@@ -139,7 +139,7 @@ class Note implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "id" => $this->getId(),
             "notebookId" => $this->getNotebookId(),
             "created" => $this->getCreated(),
@@ -150,6 +150,8 @@ class Note implements JsonSerializable
             "keywords" => $this->getKeywords(),
             "categories" => $this->getCategories(),
             "color" => $this->getColor()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

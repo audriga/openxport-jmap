@@ -99,7 +99,7 @@ class Calendar implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "id" => $this->getId(),
             "name" => $this->getName(),
             "description" => $this->getDescription(),
@@ -108,7 +108,9 @@ class Calendar implements JsonSerializable
             "isVisible" => $this->getIsVisible(),
             "shareWith" => $this->getShareWith(),
             "role" => $this->getRole()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 
     /**

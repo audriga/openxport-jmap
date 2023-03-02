@@ -54,11 +54,13 @@ class ContactGroup implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "id" => $this->getId(),
             "addressBookId" => $this->getAddressBookId(),
             "name" => $this->getName(),
             "contactIds" => $this->getContactIds()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

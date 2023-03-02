@@ -83,13 +83,15 @@ class CardGroup extends TypeableEntity implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getAtType(),
             "id" => $this->getId(),
             "uid" => $this->getUid(),
             "members" => $this->getMembers(),
             "name" => $this->getName(),
             "card" => $this->getCard()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

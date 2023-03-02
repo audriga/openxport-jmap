@@ -100,7 +100,7 @@ class Notebook implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "id" => $this->getId(),
             "name" => $this->getName(),
             "isSubscribed" => $this->getIsSubscribed(),
@@ -108,6 +108,8 @@ class Notebook implements JsonSerializable
             "role" => $this->getRole(),
             "description" => $this->getDescription(),
             "shareWith" => $this->getShareWith()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

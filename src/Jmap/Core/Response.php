@@ -28,6 +28,8 @@ class Response implements JsonSerializable
             $res["logs"] = $logger->getEntries();
         }
 
-        return $res;
+        return (object) array_filter($res, function ($val) {
+            return !is_null($val);
+        });
     }
 }

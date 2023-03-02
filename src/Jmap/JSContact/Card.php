@@ -14,6 +14,10 @@ use JsonSerializable;
  */
 class Card extends TypeableEntity implements JsonSerializable
 {
+    /* === JMAP-specific properties === */
+    /** @var string $id (mandatory) */
+    private $addressBookId;
+
     /* === Metadata properties === */
 
     /** @var string $id (mandatory) (This property is not part of the JSContact spec and is added by audriga) */
@@ -62,13 +66,19 @@ class Card extends TypeableEntity implements JsonSerializable
     private $speakToAs;
 
 
-    /* === Contact and Resource properties === */
+    /* === Contact properties === */
 
     /** @var array<string, EmailAddress> $emails (optional)
      * The string keys of the array are of type Id
      * (see https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09#section-1.5.2)
     */
     private $emails;
+
+    /** @var array<string, OnlineService> $onlineServices (optional)
+     * The string keys of the array are of type Id
+     * (see https://www.ietf.org/archive/id/draft-ietf-calext-jscontact-07.html#name-onlineservices)
+    */
+    private $onlineServices;
 
     /** @var array<string, Phone> $phones (optional)
      * The string keys of the array are of type Id
@@ -79,16 +89,20 @@ class Card extends TypeableEntity implements JsonSerializable
     /** @var array<string, Resource> $online (optional)
      * The string keys of the array are of type Id
      * (see https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09#section-1.5.2)
+     * @deprecated
     */
     private $online;
 
     /** @var array<string, File> $photos (optional)
      * The string keys of the array are of type Id
      * (see https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09#section-1.5.2)
+     * @deprecated
     */
     private $photos;
 
-    /** @var string $preferredContactMethod (optional) */
+    /** @var string $preferredContactMethod (optional)
+     * @deprecated
+     * */
     private $preferredContactMethod;
 
     /** @var array<string, ContactLanguage[]> $preferredContactLanguages (optional)
@@ -97,6 +111,7 @@ class Card extends TypeableEntity implements JsonSerializable
      * preferences for this language.
      * A valid ContactLanguage object MUST have at least one
      * of its properties set.
+     * @deprecated
     */
     private $preferredContactLanguages;
 
@@ -120,7 +135,7 @@ class Card extends TypeableEntity implements JsonSerializable
 
     /** @var array<string, Anniversary> $anniversaries (optional)
      * The string keys of the array are of type Id
-     * (see https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09#section-1.5.2)
+     * (see https://www.ietf.org/archive/id/draft-ietf-calext-jscontact-07.html#name-anniversaries)
     */
     private $anniversaries;
 
@@ -147,6 +162,15 @@ class Card extends TypeableEntity implements JsonSerializable
     /** @var string|null $maidenName (optional) */
     private $maidenName;
 
+    public function getAddressBookId()
+    {
+        return $this->addressBookId;
+    }
+
+    public function setAddressBookId($addressBookId)
+    {
+        $this->addressBookId = $addressBookId;
+    }
 
     public function getId()
     {
@@ -298,6 +322,16 @@ class Card extends TypeableEntity implements JsonSerializable
         $this->emails = $emails;
     }
 
+    public function getOnlineServices()
+    {
+        return $this->onlineServices;
+    }
+
+    public function setOnlineServices($services)
+    {
+        $this->onlineServices = $services;
+    }
+
     public function getPhones()
     {
         return $this->phones;
@@ -308,13 +342,16 @@ class Card extends TypeableEntity implements JsonSerializable
         $this->phones = $phones;
     }
 
+    /* Deprecated in newest JSContact spec */
     public function getOnline()
     {
         return $this->online;
     }
 
+    /* Deprecated in newest JSContact spec */
     public function setOnline($online)
     {
+        trigger_error("Called method " . __METHOD__ . " is outdated, use onlineServices instead.", E_USER_DEPRECATED);
         $this->online = $online;
     }
 
@@ -431,7 +468,10 @@ class Card extends TypeableEntity implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
+            // JMAP-specific properties
+            "addressBookId" => $this->getAddressBookId(),
+
             // Metadata properties
             "@type" => $this->getAtType(),
             "id" => $this->getId(),
@@ -451,8 +491,9 @@ class Card extends TypeableEntity implements JsonSerializable
             "titles" => $this->getTitles(),
             "speakToAs" => $this->getSpeakToAs(),
 
-            // Contact and Resource properties
+            // Contact properties
             "emails" => $this->getEmails(),
+            "onlineServices" => $this->getOnlineServices(),
             "phones" => $this->getPhones(),
             "online" => $this->getOnline(),
             "photos" => $this->getPhotos(),
@@ -471,6 +512,8 @@ class Card extends TypeableEntity implements JsonSerializable
             "notes" => $this->getNotes(),
             "categories" => $this->getCategories(),
             "timeZones" => $this->getTimeZones()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

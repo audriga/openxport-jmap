@@ -35,10 +35,12 @@ class Title extends TypeableEntity implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getAtType(),
             "title" => $this->getTitle(),
             "organization" => $this->getOrganization()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

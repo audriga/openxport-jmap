@@ -6,9 +6,6 @@ use JsonSerializable;
 
 class Anniversary extends TypeableEntity implements JsonSerializable
 {
-    /** @var string $type (optional) */
-    private $type;
-
     /** @var string $date (mandatory)
      * The date of this anniversary, in the form "YYYY-MM-DD"
      * (any part may be all 0s for unknown)
@@ -16,11 +13,20 @@ class Anniversary extends TypeableEntity implements JsonSerializable
     */
     private $date;
 
+    /** @var string $type (optional) */
+    private $type;
+
     /** @var Address $place (optional) */
     private $place;
 
     /** @var string $label (optional) */
     private $label;
+
+    public function __construct($date = null)
+    {
+        $this->atType = "Anniversary";
+        $this->date = $date;
+    }
 
     public function getType()
     {
@@ -52,25 +58,33 @@ class Anniversary extends TypeableEntity implements JsonSerializable
         $this->place = $place;
     }
 
+    /* Deprecated in newest JSContact spec */
     public function getLabel()
     {
         return $this->label;
     }
 
+    /* Deprecated in newest JSContact spec */
     public function setLabel($label)
     {
+        trigger_error(
+            "Called method " . __METHOD__ . " is outdated and will be removed in the future.",
+            E_USER_DEPRECATED
+        );
         $this->label = $label;
     }
 
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getAtType(),
             "type" => $this->getType(),
             "date" => $this->getDate(),
             "place" => $this->getPlace(),
             "label" => $this->getLabel()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }
