@@ -41,9 +41,9 @@ class OrgUnit extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->atType,
-            "name" => $this->name,
-            "sortAs" => $this->sortAs,
+            "@type" => $this->getAtType(),
+            "name" => $this->getName(),
+            "sortAs" => $this->getSortAs(),
         ], function ($val) {
             return !is_null($val);
         });

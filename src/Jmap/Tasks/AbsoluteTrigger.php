@@ -32,9 +32,11 @@ class AbsoluteTrigger implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getType(),
             "when" => $this->getWhen()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

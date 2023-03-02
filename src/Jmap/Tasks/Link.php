@@ -98,7 +98,7 @@ class Link implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getType(),
             "href" => $this->getHref(),
             "cid" => $this->getCid(),
@@ -107,6 +107,8 @@ class Link implements JsonSerializable
             "rel" => $this->getRel(),
             "display" => $this->getDisplay(),
             "title" => $this->getTitle()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

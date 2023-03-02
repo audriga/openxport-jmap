@@ -101,7 +101,7 @@ class Address implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "type" => $this->getType(),
             "label" => $this->getLabel(),
             "street" => $this->getStreet(),
@@ -110,7 +110,9 @@ class Address implements JsonSerializable
             "postcode" => $this->getPostcode(),
             "country" => $this->getCountry(),
             "isDefault" => $this->getIsDefault()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 
     /**

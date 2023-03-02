@@ -342,12 +342,13 @@ class Card extends TypeableEntity implements JsonSerializable
         $this->phones = $phones;
     }
 
+    /* Deprecated in newest JSContact spec */
     public function getOnline()
     {
-        trigger_error("Called method " . __METHOD__ . " is outdated, use onlineServices instead.", E_USER_DEPRECATED);
         return $this->online;
     }
 
+    /* Deprecated in newest JSContact spec */
     public function setOnline($online)
     {
         trigger_error("Called method " . __METHOD__ . " is outdated, use onlineServices instead.", E_USER_DEPRECATED);
@@ -494,7 +495,7 @@ class Card extends TypeableEntity implements JsonSerializable
             "emails" => $this->getEmails(),
             "onlineServices" => $this->getOnlineServices(),
             "phones" => $this->getPhones(),
-            "online" => $this->online,
+            "online" => $this->getOnline(),
             "photos" => $this->getPhotos(),
             "preferredContactMethod" => $this->getPreferredContactMethod(),
             "preferredContactLanguages" => $this->getPreferredContactLanguages(),

@@ -70,11 +70,11 @@ class Organization extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->atType,
-            "name" => $this->name,
-            "units" => $this->units,
-            "sortAs" => $this->sortAs,
-            "contexts" => $this->contexts,
+            "@type" => $this->getAtType(),
+            "name" => $this->getName(),
+            "units" => $this->getUnits(),
+            "sortAs" => $this->getSortAs(),
+            "contexts" => $this->getContexts(),
         ], function ($val) {
             return !is_null($val);
         });

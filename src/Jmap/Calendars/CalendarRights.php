@@ -131,7 +131,7 @@ class CalendarRights implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "mayReadFreeBusy" => $this->getMayReadFreeBusy(),
             "mayReadItems" => $this->getMayReadItems(),
             "mayAddItems" => $this->getMayAddItems(),
@@ -143,6 +143,8 @@ class CalendarRights implements JsonSerializable
             "mayRemoveAll" => $this->getMayRemoveAll(),
             "mayAdmin" => $this->getMayAdmin(),
             "mayDelete" => $this->getMayDelete()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

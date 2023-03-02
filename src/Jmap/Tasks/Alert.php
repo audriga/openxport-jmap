@@ -65,12 +65,14 @@ class Alert implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getType(),
             "trigger" => $this->getTrigger(),
             "acknowledged" => $this->getAcknowledged(),
             "relatedTo" => $this->getRelatedTo(),
             "action" => $this->getAction()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

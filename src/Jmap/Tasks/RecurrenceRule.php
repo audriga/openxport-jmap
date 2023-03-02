@@ -197,7 +197,7 @@ class RecurrenceRule implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getType(),
             "frequency" => $this->getFrequency(),
             "interval" => $this->getInterval(),
@@ -215,6 +215,8 @@ class RecurrenceRule implements JsonSerializable
             "bySetPosition" => $this->getBySetPosition(),
             "count" => $this->getCount(),
             "until" => $this->getUntil()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

@@ -285,7 +285,7 @@ class Participant implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getType(),
             "name" => $this->getName(),
             "email" => $this->getEmail(),
@@ -311,6 +311,8 @@ class Participant implements JsonSerializable
             "progress" => $this->getProgress(),
             "progressUpdated" => $this->getProgressUpdated(),
             "percentComplete" => $this->getPercentComplete()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

@@ -517,7 +517,7 @@ class Task implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "id" => $this->getId(),
             "taskListId" => $this->getTaskListId(),
             "isDraft" => $this->getIsDraft(),
@@ -564,7 +564,9 @@ class Task implements JsonSerializable
             "localizations" => $this->getLocalizations(),
             "timeZone" => $this->getTimeZone(),
             "timeZones" => $this->getTimeZones()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 
     /**

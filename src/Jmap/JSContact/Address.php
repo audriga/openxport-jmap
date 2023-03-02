@@ -163,15 +163,13 @@ class Address extends TypeableEntity implements JsonSerializable
         $this->pref = $pref;
     }
 
+    /* Deprecated in newest JSContact spec */
     public function getLabel()
     {
-        trigger_error(
-            "Called method " . __METHOD__ . " is outdated and will be removed in the future.",
-            E_USER_DEPRECATED
-        );
         return $this->label;
     }
 
+    /* Deprecated in newest JSContact spec */
     public function setLabel($label)
     {
         trigger_error(
@@ -185,19 +183,19 @@ class Address extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->atType,
-            "label" => $this->label,
-            "street" => $this->street,
-            "locality" => $this->locality,
-            "region" => $this->region,
-            "country" => $this->country,
-            "postcode" => $this->postcode,
-            "countryCode" => $this->countryCode,
-            "coordinates" => $this->coordinates,
-            "timeZone" => $this->timeZone,
-            "contexts" => $this->contexts,
-            "fullAddress" => $this->fullAddress,
-            "pref" => $this->pref
+            "@type" => $this->getAtType(),
+            "label" => $this->getLabel(),
+            "street" => $this->getStreet(),
+            "locality" => $this->getLocality(),
+            "region" => $this->getRegion(),
+            "country" => $this->getCountry(),
+            "postcode" => $this->getPostcode(),
+            "countryCode" => $this->getCountryCode(),
+            "coordinates" => $this->getCoordinates(),
+            "timeZone" => $this->getTimeZone(),
+            "contexts" => $this->getContexts(),
+            "fullAddress" => $this->getFullAddress(),
+            "pref" => $this->getPref()
         ], function ($val) {
             return !is_null($val);
         });

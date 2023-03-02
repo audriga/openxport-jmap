@@ -93,7 +93,7 @@ class Resource extends TypeableEntity implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getAtType(),
             "resource" => $this->getResource(),
             "type" => $this->getType(),
@@ -101,6 +101,8 @@ class Resource extends TypeableEntity implements JsonSerializable
             "contexts" => $this->getContexts(),
             "pref" => $this->getPref(),
             "label" => $this->getLabel()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

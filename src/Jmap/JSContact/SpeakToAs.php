@@ -35,10 +35,12 @@ class SpeakToAs extends TypeableEntity implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getAtType(),
             "grammaticalGender" => $this->getGrammaticalGender(),
             "pronouns" => $this->getPronouns()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

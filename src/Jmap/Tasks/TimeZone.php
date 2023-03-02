@@ -98,7 +98,7 @@ class TimeZone implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getType(),
             "tzId" => $this->getTzId(),
             "updated" => $this->getUpdated(),
@@ -107,6 +107,8 @@ class TimeZone implements JsonSerializable
             "aliases" => $this->getAliases(),
             "standard" => $this->getStandard(),
             "daylight" => $this->getDaylight()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

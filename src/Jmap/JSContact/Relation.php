@@ -22,9 +22,11 @@ class Relation extends TypeableEntity implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "@type" => $this->getAtType(),
             "relation" => $this->getRelation()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

@@ -78,13 +78,15 @@ class File implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "blobId" => $this->getBlobId(),
             "type" => $this->getType(),
             "name" => $this->getName(),
             "size" => $this->getSize(),
             "base64" => $this->getBase64()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 
     /**

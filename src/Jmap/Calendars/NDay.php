@@ -127,6 +127,8 @@ class NDay extends JSCalendarDataType implements JsonSerializable
             $objectProperties[$name] = $value;
         }
 
-        return (object) $objectProperties;
+        return (object) array_filter($objectProperties, function ($val) {
+            return !is_null($val);
+        });
     }
 }

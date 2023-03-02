@@ -98,7 +98,7 @@ class TaskList implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "id" => $this->getId(),
             "role" => $this->getRole(),
             "name" => $this->getName(),
@@ -106,7 +106,9 @@ class TaskList implements JsonSerializable
             "color" => $this->getColor(),
             "sortOrder" => $this->getSortOrder(),
             "shareWith" => $this->getShareWith()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 
     /**

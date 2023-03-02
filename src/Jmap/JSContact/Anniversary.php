@@ -58,15 +58,13 @@ class Anniversary extends TypeableEntity implements JsonSerializable
         $this->place = $place;
     }
 
+    /* Deprecated in newest JSContact spec */
     public function getLabel()
     {
-        trigger_error(
-            "Called method " . __METHOD__ . " is outdated and will be removed in the future.",
-            E_USER_DEPRECATED
-        );
         return $this->label;
     }
 
+    /* Deprecated in newest JSContact spec */
     public function setLabel($label)
     {
         trigger_error(
@@ -80,11 +78,11 @@ class Anniversary extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->atType,
-            "type" => $this->type,
-            "date" => $this->date,
-            "place" => $this->place,
-            "label" => $this->label
+            "@type" => $this->getAtType(),
+            "type" => $this->getType(),
+            "date" => $this->getDate(),
+            "place" => $this->getPlace(),
+            "label" => $this->getLabel()
         ], function ($val) {
             return !is_null($val);
         });

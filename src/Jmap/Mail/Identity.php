@@ -111,7 +111,7 @@ class Identity implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "id" => $this->getId(),
             "name" => $this->getName(),
             "email" => $this->getEmail(),
@@ -120,7 +120,9 @@ class Identity implements JsonSerializable
             "textSignature" => $this->getTextSignature(),
             "htmlSignature" => $this->getHtmlSignature(),
             "mayDelete" => $this->getMayDelete()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 
     /**

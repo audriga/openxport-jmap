@@ -87,13 +87,15 @@ class Preferences implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "id" => $this->getId(),
             "blocklistMail" => $this->getBlocklistMail(),
             "blocklistIp" => $this->getBlocklistIp(),
             "allowlistMail" => $this->getAllowlistMail(),
             "allowlistIp" => $this->getAllowlistIp(),
             "forwards" => $this->getForwards()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

@@ -269,16 +269,13 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
         $this->keywords = $keywords;
     }
 
+    /* Deprecated in newest JSCalendar spec */
     public function getRecurrenceRule()
     {
-        trigger_error(
-            "Called method " . __METHOD__ . " is outdated, use " . __METHOD__ . "s instead.",
-            E_USER_DEPRECATED
-        );
-
         return $this->recurrenceRule;
     }
 
+    /* Deprecated in newest JSCalendar spec */
     public function setRecurrenceRule($recurrenceRule)
     {
         trigger_error(
@@ -463,7 +460,9 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
             $objectProperties[$name] = $value;
         }
 
-        return (object) $objectProperties;
+        return (object) array_filter($objectProperties, function ($val) {
+            return !is_null($val);
+        });
     }
 
     /**

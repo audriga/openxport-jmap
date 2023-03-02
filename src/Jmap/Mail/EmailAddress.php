@@ -35,9 +35,11 @@ class EmailAddress implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "name" => $this->getName(),
             "email" => $this->getEmail()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

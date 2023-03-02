@@ -7,7 +7,7 @@ class Card extends \OpenXPort\Jmap\JSContact\Card
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             // Metadata properties
             "@type" => $this->getAtType(),
             "id" => $this->getId(),
@@ -50,6 +50,8 @@ class Card extends \OpenXPort\Jmap\JSContact\Card
 
             // Extended properties (added by audriga)
             CardExtensionsUtil::VSPE_PREFIX_ROUNDCUBE . "maidenName" => $this->getMaidenName()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 }

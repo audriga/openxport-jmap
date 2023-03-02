@@ -35,12 +35,13 @@ class Name extends TypeableEntity implements JsonSerializable
         $this->components = $components;
     }
 
+    /* Deprecated in newest JSContact spec */
     public function getLocale()
     {
-        trigger_error("Name.locale property will not be supported in a future version.", E_USER_DEPRECATED);
         return $this->locale;
     }
 
+    /* Deprecated in newest JSContact spec */
     public function setLocale($locale)
     {
         trigger_error("Name.locale property will not be supported in a future version.", E_USER_DEPRECATED);
@@ -61,11 +62,11 @@ class Name extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->atType,
-            "type" => $this->type,
-            "components" => $this->components,
-            "locale" => $this->locale,
-            "sortAs" => $this->sortAs
+            "@type" => $this->getAtType(),
+            "type" => $this->getType(),
+            "components" => $this->getComponents(),
+            "locale" => $this->getLocale(),
+            "sortAs" => $this->getSortAs()
         ], function ($val) {
             return !is_null($val);
         });

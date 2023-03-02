@@ -97,14 +97,16 @@ class AddressBook implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        return (object)[
+        return (object) array_filter([
             "id" => $this->getId(),
             "name" => $this->getName(),
             "description" => $this->getDescription(),
             "color" => $this->getColor(),
             "shareWith" => $this->getShareWith(),
             "role" => $this->getRole()
-        ];
+        ], function ($val) {
+            return !is_null($val);
+        });
     }
 
     /**
