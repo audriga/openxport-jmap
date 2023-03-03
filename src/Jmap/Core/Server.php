@@ -36,14 +36,22 @@ class Server
 
     private $config;
 
+    /** @var Session */
+    private $session;
+
     /**
      * The constructor method of the Server class
      *
-     * @param AbstractDataAccess $dataAccessors The data access classes used for working with data
-     * @param AbstractAdapter $dataAdapters The adapter classes used for data transformation
-     * @param AbstractMapper $dataMappers The data mapper classes used for mapping data between formats
+     * @param \OpenXPort\DataAccess\AbstractDataAccess[] $dataAccessors
+     * The data access classes used for working with data
+     *
+     * @param \OpenXPort\Adapter\AbstractAdapter[] $dataAdapters
+     * The adapter classes used for data transformation
+     *
+     * @param \OpenXPort\Mapper\AbstractMapper[] $dataMappers
+     * The data mapper classes used for mapping data between formats
      */
-    public function __construct($dataAccessors, $dataAdapters, $dataMappers, $config)
+    public function __construct($dataAccessors, $dataAdapters, $dataMappers, $config, $session = null)
     {
         $this->dataAccessors = $dataAccessors;
         $this->dataAdapters = $dataAdapters;
@@ -52,8 +60,12 @@ class Server
 
         $this->config = $config;
 
-        // Init session
-        $this->session = new Session();
+        // Complain in case the provided session obect is null
+        if (is_null($session)) {
+            $this->logger->error("The provided session object is null");
+        } else {
+            $this->session = $session;
+        }
 
         $this->session->addCapability(new CoreServerCapability());
 
@@ -145,7 +157,7 @@ class Server
                     $this->dataMappers
                 );
                 array_push($responses, $methodResponse);
-            } catch (OutOfBoundsException $exception) {
+            } catch (\OutOfBoundsException $exception) {
                 // TODO support multiple methods. push to array instead
                 echo ErrorHandler::raiseUnknownMethod($methodCall->getMethodCallId());
                 return;
