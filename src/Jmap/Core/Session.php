@@ -21,11 +21,6 @@ class Session implements JsonSerializable
         $this->logger = \OpenXPort\Util\Logger::getInstance();
         $this->capabilities = array();
 
-        // TODO pass through available accounts in future version
-        $this->accounts = array();
-
-        $this->primaryAccounts = array();
-
         $this->username = $username;
 
         // No support for Push
@@ -65,6 +60,9 @@ class Session implements JsonSerializable
         if (in_array("urn:ietf:params:jmap:core", array_keys($primaryAccounts))) {
             $this->logger->error("\"urn:ietf:params:jmap:core\" found as key in primaryAccounts");
         }
+
+        $this->accounts = $accounts;
+        $this->primaryAccounts = $primaryAccounts;
     }
 
      /**
