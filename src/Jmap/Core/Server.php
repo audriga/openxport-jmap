@@ -50,8 +50,6 @@ class Server
      *
      * @param \OpenXPort\Mapper\AbstractMapper[] $dataMappers
      * The data mapper classes used for mapping data between formats
-     *
-     * @throws \Exception If the provided session object is null
      */
     public function __construct($dataAccessors, $dataAdapters, $dataMappers, $config, $session = null)
     {
@@ -64,7 +62,7 @@ class Server
 
         // Complain in case the provided session obect is null
         if (is_null($session)) {
-            throw new \Exception("The provided session object is null");
+            $this->logger->error("The provided session object is null");
         } else {
             $this->session = $session;
         }
