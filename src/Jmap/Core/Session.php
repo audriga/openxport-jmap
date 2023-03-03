@@ -16,7 +16,7 @@ class Session implements JsonSerializable
     private $uploadUrl;
     private $eventSourceUrl;
 
-    public function __construct($username = null, $uploadUrl = "", $downloadUrl = "")
+    public function __construct($accounts, $primaryAccounts, $username = null, $uploadUrl = "", $downloadUrl = "")
     {
         $this->logger = \OpenXPort\Util\Logger::getInstance();
         $this->capabilities = array();
@@ -53,6 +53,18 @@ class Session implements JsonSerializable
             }
         }
         $this->downloadUrl = $downloadUrl;
+
+        if (!isset($accounts) || empty($accounts)) {
+            $this->logger->error("accounts is empty");
+        }
+
+        if (!isset($primaryAccounts) || empty($primaryAccounts)) {
+            $this->logger->error("primaryAccounts is empty");
+        }
+
+        if (in_array("urn:ietf:params:jmap:core", array_keys($primaryAccounts))) {
+            $this->logger->error("\"urn:ietf:params:jmap:core\" found as key in primaryAccounts");
+        }
     }
 
      /**
