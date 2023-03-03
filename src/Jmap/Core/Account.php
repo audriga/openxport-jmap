@@ -43,6 +43,11 @@ class Account implements JsonSerializable
         return $this->isReadOnly;
     }
 
+    public function setIsReadOnly($isReadOnly)
+    {
+        $this->isReadOnly = $isReadOnly;
+    }
+
     public function getAccountCapabilities()
     {
         return $this->accountCapabilities;
