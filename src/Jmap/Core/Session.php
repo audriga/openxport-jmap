@@ -137,6 +137,11 @@ class Session implements JsonSerializable
         return $this->primaryAccounts;
     }
 
+    public function getUsername()
+    {
+        return $this->username;
+    }
+
     /**
      * Make sure we support all passed capabilities in $usedCapabilities and return an array of methods
      *
@@ -169,7 +174,7 @@ class Session implements JsonSerializable
             "capabilities" => (object) $this->capabilities,
             "accounts" => (object) $this->accounts,
             "primaryAccounts" => (object) $this->primaryAccounts,
-            "username" => $this->username,
+            "username" => $this->getUsername(),
             "apiUrl" => $this->getApiUrl(),
             "downloadUrl" => $this->getDownloadUrl(),
             "uploadUrl" => $this->uploadUrl,
