@@ -129,6 +129,16 @@ class Session implements JsonSerializable
         return $this->uploadUrl;
     }
 
+    public function getAccounts()
+    {
+        return $this->accounts;
+    }
+
+    public function getPrimaryAccounts()
+    {
+        return $this->primaryAccounts;
+    }
+
     /**
      * Make sure we support all passed capabilities in $usedCapabilities and return an array of methods
      *
