@@ -62,7 +62,8 @@ class Server
 
         // Complain in case the provided session obect is null
         if (is_null($session)) {
-            $this->logger->error("The provided session object is null");
+            $this->logger->warning("The provided session object is null.");
+            $this->session = new \OpenXPort\Jmap\Core\Session();
         } else {
             $this->session = $session;
         }

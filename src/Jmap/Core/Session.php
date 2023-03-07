@@ -16,8 +16,13 @@ class Session implements JsonSerializable
     private $uploadUrl;
     private $eventSourceUrl;
 
-    public function __construct($accounts, $primaryAccounts, $username = null, $uploadUrl = "", $downloadUrl = "")
-    {
+    public function __construct(
+        $accounts = [],
+        $primaryAccounts = [],
+        $username = null,
+        $uploadUrl = "",
+        $downloadUrl = ""
+    ) {
         $this->logger = \OpenXPort\Util\Logger::getInstance();
         $this->capabilities = array();
 

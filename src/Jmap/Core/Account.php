@@ -57,7 +57,8 @@ class Account implements JsonSerializable
     {
         $this->accountCapabilities = $accountCapabilities;
     }
-    
+
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object)array_filter([
