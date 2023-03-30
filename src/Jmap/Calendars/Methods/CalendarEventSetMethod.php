@@ -3,6 +3,7 @@
 namespace OpenXPort\Jmap\Calendar\Methods;
 
 use OpenXPort\Jmap\Core\Methods\SetMethod;
+use OpenXPort\Jmap\Calendar\CalendarEvent;
 
 class CalendarEventSetMethod extends SetMethod
 {
@@ -16,7 +17,8 @@ class CalendarEventSetMethod extends SetMethod
         $destroyed = [];
 
         if (isset($arguments["create"]) && !is_null($arguments["create"])) {
-            $calendarEventMap = $mapper->mapFromJmap($arguments["create"], $adapter);
+            $jsCalendarEvent = CalendarEvent::fromJson($arguments["create"]);
+            $calendarEventMap = $mapper->mapFromJmap($jsCalendarEvent, $adapter);
             $created = $dataAccessors["CalendarEvents"]->create($calendarEventMap);
         }
         if (isset($arguments["destroy"]) && !is_null($arguments["destroy"])) {
