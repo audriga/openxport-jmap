@@ -17,8 +17,8 @@ class CalendarEventSetMethod extends SetMethod
         $destroyed = [];
 
         if (isset($arguments["create"]) && !is_null($arguments["create"])) {
-            $eventToCreate = get_object_vars($arguments["create"]);
-            $calendarId = array_keys($eventToCreate)[0];
+            $eventToCreate = $arguments["create"];
+            $creationId = array_keys((array)$eventToCreate)[0];
 
             // Since we now support deserialization, we can use that here.
             //
@@ -26,8 +26,8 @@ class CalendarEventSetMethod extends SetMethod
             //
             // TODO: Since we now deserialize and serialize all over the place,
             // it might be worth to consider doing this earlier.
-            $jsCalendarEvent = CalendarEvent::fromJson($eventToCreate[$calendarId]);
-            $jsCalendar = [$calendarId => $jsCalendarEvent];
+            $jsCalendarEvent = CalendarEvent::fromJson(reset($eventToCreate));
+            $jsCalendar = [$creationId => $jsCalendarEvent];
 
             $calendarEventMap = $mapper->mapFromJmap($jsCalendar, $adapter);
             $created = $dataAccessors["CalendarEvents"]->create($calendarEventMap);
