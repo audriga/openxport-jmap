@@ -7,6 +7,13 @@ namespace OpenXPort\Jmap\Core;
  */
 class ErrorHandler
 {
+    // NOTE: Do not use verbose output on public-facing setups. This may leak debug info via API.
+    private $verboseOutput;
+
+    public function __construct($verboseOutput = true)
+    {
+        $this->verboseOutput = $verboseOutput;
+    }
     /**
      * Checks for a fatal error, work around for set_error_handler not working on fatal errors.
      */
@@ -14,12 +21,18 @@ class ErrorHandler
     {
         $error = error_get_last();
         if (in_array($error["type"], array(E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_RECOVERABLE_ERROR))) {
-            die(self::raiseServerFail(
-                0,  // TODO support methodCallId somehow in the future
-                "ERROR " . $error["type"] . ":" .
+            $output = "";
+            if ($this->verboseOutput) {
+                $output = "ERROR " . $error["type"] . ":" .
                 " - Message: " . $error["message"] .
                 " - File " . $error["file"] .
-                " - Line " . $error["line"]
+                " - Line " . $error["line"];
+            } else {
+                $output = $error["message"];
+            }
+            die(self::raiseServerFail(
+                0,  // TODO support methodCallId somehow in the future
+                $output
             ));
         }
     }
@@ -71,12 +84,19 @@ class ErrorHandler
 
     public function exceptionHandler($exception)
     {
-        echo self::raiseServerFail(
-            0,  // TODO support methodCallId somehow in the future
-            "EXCEPTION " . $exception->getCode() . ":" .
+        $output = "";
+        if ($this->verboseOutput) {
+            $output = "EXCEPTION " . $exception->getCode() . ":" .
             " - Message " . $exception->getMessage() .
             " - File " . $exception->getFile() .
-            " - Line " . $exception->getLine()
+            " - Line " . $exception->getLine();
+        } else {
+            $output = $exception->getMessage();
+        }
+
+        echo self::raiseServerFail(
+            0,  // TODO support methodCallId somehow in the future
+            $output
         );
     }
 
