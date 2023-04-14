@@ -59,7 +59,7 @@
 
     - debug:
         msg: "CalendarEvents does contain a RecurrenceRule property that is false."
-      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].recurrenceRule[?until == `false`] || list[*].recurrenceRules[?until == `false`]') | length == 0"
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].recurrenceRule[?until == `false`][] || list[*].recurrenceRules[?until == `false`][]') | length > 0"
       failed_when: true
 
     - debug:
