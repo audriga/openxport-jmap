@@ -238,7 +238,7 @@
             "CalendarEvent/set",
             {"accountId":"{{ admin_user }}", "destroy":[
               "{{ call_response.json.methodResponses[0][1].created.asd.id }}"
-            ]}
+            ]
         },
         "0"]]
       }'
