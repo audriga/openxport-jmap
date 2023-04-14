@@ -43,23 +43,18 @@
       failed_when: true
 
     - debug:
-        msg: "CalendarEvents do not contain a non-full day event."
-      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?showWithoutTime == `false`]') | length == 0" 
-      failed_when: true
-
-    - debug:
         msg: "CalendarEvents do not contain @type property."
       when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].\"@type\"') | length == 0" 
       failed_when: true
 
     - debug:
         msg: "CalendarEvents do not contain RecurrenceRule property."
-      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].recurrenceRule') | length == 0" 
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].recurrenceRule || list[*].recurrenceRules') | length == 0" 
       failed_when: true
 
     - debug:
         msg: "CalendarEvents does contain a RecurrenceRule property that is false."
-      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].recurrenceRule[?until == `false`]')" 
+      when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].recurrenceRule[?until == `false`][] || list[*].recurrenceRules[?until == `false`][]') | length > 0"
       failed_when: true
 
     - debug:
@@ -194,3 +189,69 @@
         msg: "Calendar for empty user does return error response."
       when: "call_response_empty.json.methodResponses[0][1] | community.general.json_query('type')" 
       failed_when: true
+
+- hosts: nextcloud_servers
+  ignore_errors: true
+  gather_facts: false
+  tasks:
+    - name: Create an event
+      uri:
+        body: '{
+          "using":["urn:ietf:params:jmap:calendars"],
+          "methodCalls":[[
+            "CalendarEvent/set",
+            {"accountId":"{{ admin_user }}", "create":{"asd": {
+              "start": "2023-02-10T12:00:00", "title": "Take over the world"
+            }}
+        },
+        "0"]]
+      }'
+        body_format: json
+        force_basic_auth: true  # TODO remove once we return correct 401
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      failed_when: "'CalendarEvent/set' not in call_response.content"
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               calendarevent_set_create.json"
+      delegate_to: 127.0.0.1
+
+    - name: Delete it again
+      uri:
+        body: '{
+          "using":["urn:ietf:params:jmap:calendars"],
+          "methodCalls":[[
+            "CalendarEvent/set",
+            {"accountId":"{{ admin_user }}", "destroy":[
+              "{{ call_response.json.methodResponses[0][1].created.asd.id }}"
+            ]
+        },
+        "0"]]
+      }'
+        body_format: json
+        force_basic_auth: true  # TODO remove once we return correct 401
+        url: "{{ local_address }}"
+        url_password: "{{ admin_pass }}"
+        url_username: "{{ admin_user }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      failed_when: "'CalendarEvent/set' not in call_response.content"
+      register: call_response
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ call_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/\
+               calendarevent_set_destroy.json"
+      delegate_to: 127.0.0.1

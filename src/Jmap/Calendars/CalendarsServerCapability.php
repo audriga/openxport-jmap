@@ -15,6 +15,7 @@ class CalendarsServerCapability extends \OpenXPort\Jmap\Core\ServerCapability
     {
         return array(
             "CalendarEvent/get" => Methods\CalendarEventGetMethod::class,
+            "CalendarEvent/set" => Methods\CalendarEventSetMethod::class,
             "Calendar/get" => Methods\CalendarGetMethod::class
         );
     }
