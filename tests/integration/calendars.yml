@@ -42,11 +42,6 @@
       when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?showWithoutTime == `true`]') | length == 0" 
       failed_when: true
 
-    #- debug:
-    #    msg: "CalendarEvents do not contain a non-full day event."
-    #  when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[?showWithoutTime == `false`]') | length == 0"
-    #  failed_when: true
-
     - debug:
         msg: "CalendarEvents do not contain @type property."
       when: "call_response.json.methodResponses[0][1] | community.general.json_query('list[*].\"@type\"') | length == 0" 
