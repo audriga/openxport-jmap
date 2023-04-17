@@ -43,7 +43,7 @@ abstract class SetMethod implements \OpenXPort\Jmap\Core\Method
                         "description" => "There was an error when destroying the object");
                     $notDestroyed[$destroyId] = $setError;
                 } else {
-                    array_push($destroyed, $destroyId);
+                    array_push($destroyed, (string) $destroyId);
                 }
             }
         }
