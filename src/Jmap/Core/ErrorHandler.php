@@ -146,7 +146,7 @@ class ErrorHandler
     {
         $invocation = array("error", $args, $methodCallId);
 
-        return array("methodResponses" => array($invocation), "sessionState" => "someSessionState");
+        return array("methodResponses" => array($invocation), "sessionState" => "");
     }
 
     /* Generic error output used by exception handler */

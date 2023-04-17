@@ -10,8 +10,8 @@ abstract class SetMethod implements \OpenXPort\Jmap\Core\Method
     {
         $accountId = $methodCall->getArguments()["accountId"];
 
-        // TODO would be id/number values
-        $newState = "1234";
+        // TODO We would need to support the Session->getState() somehow
+        $newState = "";
         $created = [];
         $destroyed = [];
         $notCreated = [];
