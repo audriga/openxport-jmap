@@ -88,7 +88,9 @@ class Session implements JsonSerializable
      */
     public function getState()
     {
-        return mb_substr(sha1(serialize($this->jsonSerialize(false))), 0, 12);
+        // TODO Make methods reuse this method of calculating state.
+        // return mb_substr(sha1(serialize($this->jsonSerialize(false))), 0, 12);
+        return "";
     }
 
     public function getApiUrl()

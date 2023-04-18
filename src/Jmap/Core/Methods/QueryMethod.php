@@ -9,7 +9,7 @@ abstract class QueryMethod implements \OpenXPort\Jmap\Core\Method
     protected function buildMethodResponse($list, $methodCall)
     {
         $args = array(
-            "queryState" => "someState",
+            "queryState" => "",
             "ids" => $list,
             "notFound" => [],
             "accountId" => $methodCall->getArguments()["accountId"],

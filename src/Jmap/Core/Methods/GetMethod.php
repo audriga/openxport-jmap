@@ -9,7 +9,7 @@ abstract class GetMethod implements \OpenXPort\Jmap\Core\Method
     protected function buildMethodResponse($list, $methodCall)
     {
         $accountId = $methodCall->getArguments()["accountId"];
-        $args = array("state" => "someState", "list" => $list, "notFound" => [], "accountId" => $accountId);
+        $args = array("state" => "", "list" => $list, "notFound" => [], "accountId" => $accountId);
 
         return new Invocation($methodCall->getName(), $args, $methodCall->getMethodCallId());
     }
