@@ -456,8 +456,10 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
             "timeZone" => $this->getTimeZone()
         ];
 
-        foreach ($this->getCustomProperties() as $name => $value) {
-            $objectProperties[$name] = $value;
+        if (AdapterUtil::isSetNotNullAndNotEmpty($this->getCustomProperties())) {
+            foreach ($this->getCustomProperties() as $name => $value) {
+                $objectProperties[$name] = $value;
+            }
         }
 
         return (object) array_filter($objectProperties, function ($val) {
