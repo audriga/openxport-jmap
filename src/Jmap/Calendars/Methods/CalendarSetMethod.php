@@ -3,6 +3,7 @@
 namespace OpenXPort\Jmap\Calendar\Methods;
 
 use OpenXPort\Jmap\Core\Methods\SetMethod;
+use OpenXPort\Jmap\Calendar\Calendar;
 
 class CalendarSetMethod extends SetMethod
 {
@@ -16,7 +17,19 @@ class CalendarSetMethod extends SetMethod
         $destroyed = [];
 
         if (isset($arguments["create"]) && !is_null($arguments["create"])) {
-            $calendarMap = $mapper->mapFromJmap($arguments["create"], $adapter);
+            $calendarToCreate = $arguments["create"];
+            $creationId = array_keys((array)$calendarToCreate)[0];
+
+            // Since we now support deserialization, we can use that here.
+            //
+            // This is a bit sketchy so I will rework this at some point.
+            //
+            // TODO: Since we now deserialize and serialize all over the place,
+            // it might be worth to consider doing this earlier.
+            $calendar = Calendar::fromJson($calendarToCreate->{$creationId});
+            $calendars = [$creationId => $calendar];
+
+            $calendarMap = $mapper->mapFromJmap($calendars, $adapter);
             $created = $dataAccessors["Calendars"]->create($calendarMap);
         }
         if (isset($arguments["destroy"]) && !is_null($arguments["destroy"])) {
