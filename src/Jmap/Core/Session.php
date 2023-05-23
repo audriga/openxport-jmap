@@ -59,7 +59,7 @@ class Session implements JsonSerializable
         }
 
         if (!isset($primaryAccounts) || empty($primaryAccounts)) {
-            $this->logger->error("primaryAccounts is empty");
+            $this->logger->info("primaryAccounts is empty");
         }
 
         if (in_array("urn:ietf:params:jmap:core", array_keys($primaryAccounts))) {
