@@ -4,6 +4,23 @@ OpenXPort Release Notes
 
 .. contents:: Topics
 
+v1.7.0
+======
+
+Release summary
+---------------
+Adds more properties to Session, Contacts and Calendar classes
+
+Details
+-------
+* Do not print properties with null or empty values
+* Always return empty state
+* Fill in more values for the Session object for stricter clients #6173
+* Extend Account class #5120
+* Support configuring ErrorHandler output verbosity #6052
+* Contacts: Add/fix various properties #6120
+* Calendars: Add /set Methods for Calendar and CalendarEvent #6088
+
 v1.6.0
 ======
 
