@@ -84,18 +84,23 @@ class AdapterUtil
         $outputDateFormat,
         $alternativeInputDateFormat = null
     ) {
+        self::$logger = Logger::getInstance();
+
         // Check if the datetime string is set, not null and not empty
         if (self::isSetAndNotNull($dateTime) && !empty($dateTime)) {
             // Try to parse it with the initial input format
             $dateObject = \DateTime::createFromFormat($inputDateFormat, $dateTime);
 
             // If initial parsing failed and we have an alternative format, try parsing with the alternative format
-            if ($dateObject === false && !is_null($alternativeInputDateFormat)) {
+            if ($dateObject === false) {
+                if (is_null($alternativeInputDateFormat)) {
+                    self::$logger->error("Parsing of datetime " . $dateTime . " failed");
+                    return null;
+                }
                 $dateObject = \DateTime::createFromFormat($alternativeInputDateFormat, $dateTime);
 
                 // If parsing failed with the alternative format, return null
                 if ($dateObject === false) {
-                    self::$logger = Logger::getInstance();
                     self::$logger->error("Parsing of datetime " . $dateTime . " failed");
                     return null;
                 }
