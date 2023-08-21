@@ -4,6 +4,17 @@ OpenXPort Release Notes
 
 .. contents:: Topics
 
+v1.7.1
+======
+
+Release summary
+---------------
+Hotfix to parse Microsoft Exchange vCards
+
+Details
+-------
+* Return null in case no alt encoding was specified #6453
+
 v1.7.0
 ======
 
