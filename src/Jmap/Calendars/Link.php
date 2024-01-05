@@ -188,8 +188,10 @@ class Link implements JsonSerializable
             "title" => $this->getTitle()
         ];
 
-        foreach ($this->getCustomProperties() as $name => $value) {
-            $objectProperties[$name] = $value;
+        if (!is_null($this->getCustomProperties())) {
+            foreach ($this->getCustomProperties() as $name => $value) {
+                $objectProperties[$name] = $value;
+            }
         }
 
         return (object) array_filter($objectProperties, function ($val) {
