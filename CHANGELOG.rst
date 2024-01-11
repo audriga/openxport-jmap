@@ -4,6 +4,17 @@ OpenXPort Release Notes
 
 .. contents:: Topics
 
+v1.7.2
+======
+
+Release summary
+---------------
+Fix warning related to custom properties of Calendar Link
+
+Details
+-------
+* Calendars: Fix warning related to custom properties of Link
+
 v1.7.1
 ======
 
