@@ -29,7 +29,7 @@ class Address extends TypeableEntity implements JsonSerializable
 
     /**
      * contexts: String[Boolean] (optional).
-     * Keys are Context values, all values MUST be true. 
+     * Keys are Context values, all values MUST be true.
      *
      * @var array<string,bool>|null
      */
@@ -50,7 +50,7 @@ class Address extends TypeableEntity implements JsonSerializable
 
     public function __construct()
     {
-        // @type MUST be "Address" if set. 
+        // @type MUST be "Address" if set.
         $this->setAtType('Address');
     }
 
@@ -180,18 +180,18 @@ class Address extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type"           => $this->getAtType(),       // MUST be "Address" if present.
-            "components"      => $this->getComponents(),
-            "isOrdered"       => $this->getIsOrdered(),
+            "@type"            => $this->getAtType(),       // MUST be "Address" if present.
+            "components"       => $this->getComponents(),
+            "isOrdered"        => $this->getIsOrdered(),
             "defaultSeparator" => $this->getDefaultSeparator(),
-            "full"            => $this->getFullAddress(),
-            "countryCode"     => $this->getCountryCode(),
-            "coordinates"     => $this->getCoordinates(),
-            "timeZone"        => $this->getTimeZone(),
-            "contexts"        => $this->getContexts(),
-            "pref"            => $this->getPref(),
-            "phoneticScript"  => $this->getPhoneticScript(),
-            "phoneticSystem"  => $this->getPhoneticSystem(),
+            "full"             => $this->getFullAddress(),
+            "countryCode"      => $this->getCountryCode(),
+            "coordinates"      => $this->getCoordinates(),
+            "timeZone"         => $this->getTimeZone(),
+            "contexts"         => $this->getContexts(),
+            "pref"             => $this->getPref(),
+            "phoneticScript"   => $this->getPhoneticScript(),
+            "phoneticSystem"   => $this->getPhoneticSystem(),
         ], function ($val) {
             return !is_null($val);
         });
