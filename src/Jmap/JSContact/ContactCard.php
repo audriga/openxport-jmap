@@ -540,12 +540,12 @@ class ContactCard extends TypeableEntity implements JsonSerializable
             "media"              => $this->getMedia(),
             "preferredLanguages" => $this->getPreferredLanguages(),
 
-            "addresses"    => $this->getAddresses(),
-            "pronouns"     => $this->getPronouns(),
-            "localizations"=> $this->getLocalizations(),
-            "anniversaries"=> $this->getAnniversaries(),
-            "personalInfo" => $this->getPersonalInfo(),
-            "notes"        => $this->getNotes(),
+            "addresses"     => $this->getAddresses(),
+            "pronouns"      => $this->getPronouns(),
+            "localizations" => $this->getLocalizations(),
+            "anniversaries" => $this->getAnniversaries(),
+            "personalInfo"  => $this->getPersonalInfo(),
+            "notes"         => $this->getNotes(),
         ], function ($val) {
             return !is_null($val);
         });

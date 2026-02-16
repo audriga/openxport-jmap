@@ -18,7 +18,7 @@ class AddressComponent extends TypeableEntity implements JsonSerializable
      * kind: String (mandatory).
      * Enumerated values (RFC 9553, AddressComponent kind): room, apartment,
      * floor, building, number, name, block, subdistrict, district, locality,
-     * region, postcode, country, direction, landmark, postOfficeBox, separator. 
+     * region, postcode, country, direction, landmark, postOfficeBox, separator.
      *
      * @var string
      */
@@ -27,7 +27,7 @@ class AddressComponent extends TypeableEntity implements JsonSerializable
     /**
      * phonetic: String (optional).
      * Pronunciation of this component; requires phoneticScript or
-     * phoneticSystem on the parent Address to be set. 
+     * phoneticSystem on the parent Address to be set.
      *
      * @var string|null
      */
@@ -35,7 +35,7 @@ class AddressComponent extends TypeableEntity implements JsonSerializable
 
     public function __construct()
     {
-        // @type MUST be "AddressComponent" if set. 
+        // @type MUST be "AddressComponent" if set.
         $this->setAtType('AddressComponent');
     }
 

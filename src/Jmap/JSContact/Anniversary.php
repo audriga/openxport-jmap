@@ -8,7 +8,7 @@ class Anniversary extends TypeableEntity implements JsonSerializable
 {
     /**
      * kind: String (mandatory).
-     * Enum: birth | death | wedding. 
+     * Enum: birth | death | wedding.
      *
      * @var string
      */
@@ -16,7 +16,7 @@ class Anniversary extends TypeableEntity implements JsonSerializable
 
     /**
      * date: PartialDate|Timestamp (mandatory).
-     * Either a PartialDate object (year/month/day) or a Timestamp object. 
+     * Either a PartialDate object (year/month/day) or a Timestamp object.
      *
      * @var mixed
      */
@@ -34,7 +34,7 @@ class Anniversary extends TypeableEntity implements JsonSerializable
 
     public function __construct($date = null, $kind = null)
     {
-        $this->setAtType('Anniversary');   // MUST be "Anniversary" if set. 
+        $this->setAtType('Anniversary');   // MUST be "Anniversary" if set.
         $this->date = $date;
         $this->kind = $kind;
     }
@@ -73,7 +73,7 @@ class Anniversary extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->getAtType(),   // MUST be "Anniversary" if present. 
+            "@type" => $this->getAtType(),   // MUST be "Anniversary" if present.
             "kind"  => $this->getKind(),
             "date"  => $this->getDate(),
             "place" => $this->getPlace(),

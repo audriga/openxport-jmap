@@ -29,7 +29,7 @@ class Nickname extends TypeableEntity implements JsonSerializable
 
     public function __construct()
     {
-        // @type MUST be "Nickname" if set. 
+        // @type MUST be "Nickname" if set.
         $this->setAtType('Nickname');
     }
 
@@ -73,7 +73,7 @@ class Nickname extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type"    => $this->getAtType(),   // MUST be "Nickname" if present. 
+            "@type"    => $this->getAtType(),   // MUST be "Nickname" if present.
             "name"     => $this->getName(),
             "contexts" => $this->getContexts(),
             "pref"     => $this->getPref(),

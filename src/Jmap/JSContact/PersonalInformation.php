@@ -8,7 +8,7 @@ class PersonalInformation extends TypeableEntity implements JsonSerializable
 {
     /**
      * kind: String (mandatory).
-     * Enum: expertise | hobby | interest. 
+     * Enum: expertise | hobby | interest.
      *
      * @var string
      */
@@ -23,7 +23,7 @@ class PersonalInformation extends TypeableEntity implements JsonSerializable
 
     /**
      * level: String (optional).
-     * Enum: high | medium | low. 
+     * Enum: high | medium | low.
      *
      * @var string|null
      */
@@ -45,7 +45,7 @@ class PersonalInformation extends TypeableEntity implements JsonSerializable
 
     public function __construct()
     {
-        // @type MUST be "PersonalInfo" if set. 
+        // @type MUST be "PersonalInfo" if set.
         $this->setAtType('PersonalInfo');
     }
 
@@ -93,11 +93,11 @@ class PersonalInformation extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type"  => $this->getAtType(),   // MUST be "PersonalInfo" if present. 
+            "@type"  => $this->getAtType(),   // MUST be "PersonalInfo" if present.
             "kind"   => $this->getKind(),
             "value"  => $this->getValue(),
             "level"  => $this->getLevel(),
-            "listAs" => $this->getListAs()
+            "listAs" => $this->getListAs(),
         ], function ($val) {
             return !is_null($val);
         });

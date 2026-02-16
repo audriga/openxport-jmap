@@ -8,7 +8,7 @@ class Relation extends TypeableEntity implements JsonSerializable
 {
     /**
      * relation: String[Boolean] (optional; default: empty Object).
-     * Keys are relation types (friend, parent, spouse, ...). 
+     * Keys are relation types (friend, parent, spouse, ...).
      *
      * @var array<string,bool>|null
      */
@@ -16,7 +16,7 @@ class Relation extends TypeableEntity implements JsonSerializable
 
     public function __construct()
     {
-        // @type MUST be "Relation" if set. 
+        // @type MUST be "Relation" if set.
         $this->setAtType('Relation');
     }
 

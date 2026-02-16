@@ -180,10 +180,10 @@ class Address extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type"           => $this->getAtType(),       // MUST be "Address" if present. 
+            "@type"           => $this->getAtType(),       // MUST be "Address" if present.
             "components"      => $this->getComponents(),
             "isOrdered"       => $this->getIsOrdered(),
-            "defaultSeparator"=> $this->getDefaultSeparator(),
+            "defaultSeparator" => $this->getDefaultSeparator(),
             "full"            => $this->getFullAddress(),
             "countryCode"     => $this->getCountryCode(),
             "coordinates"     => $this->getCoordinates(),

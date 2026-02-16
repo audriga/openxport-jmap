@@ -8,7 +8,7 @@ class LanguagePref extends TypeableEntity implements JsonSerializable
 {
     /**
      * language: String (mandatory).
-     * MUST be a language tag as in RFC 5646 (e.g. "en", "fr-CA"). [web:58]
+     * MUST be a language tag as in RFC 5646 (e.g. "en", "fr-CA").
      *
      * @var string
      */
@@ -30,7 +30,7 @@ class LanguagePref extends TypeableEntity implements JsonSerializable
 
     public function __construct()
     {
-        // @type MUST be "LanguagePref" if set. 
+        // @type MUST be "LanguagePref" if set.
         $this->setAtType('LanguagePref');
     }
 
@@ -74,7 +74,7 @@ class LanguagePref extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type"    => $this->getAtType(),   // MUST be "LanguagePref" if present. 
+            "@type"    => $this->getAtType(),   // MUST be "LanguagePref" if present.
             "language" => $this->getLanguage(),
             "contexts" => $this->getContexts(),
             "pref"     => $this->getPref(),

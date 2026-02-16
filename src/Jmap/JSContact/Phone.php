@@ -8,7 +8,7 @@ class Phone extends TypeableEntity implements JsonSerializable
 {
     /**
      * number: String (mandatory).
-     * Phone number as URI or free text. 
+     * Phone number as URI or free text.
      *
      * @var string
      */
@@ -44,7 +44,7 @@ class Phone extends TypeableEntity implements JsonSerializable
 
     public function __construct()
     {
-        // @type MUST be "Phone" if set. 
+        // @type MUST be "Phone" if set.
         $this->setAtType('Phone');
     }
 
@@ -114,7 +114,7 @@ class Phone extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type"    => $this->getAtType(),   // MUST be "Phone" if present. 
+            "@type"    => $this->getAtType(),   // MUST be "Phone" if present.
             "number"   => $this->getNumber(),
             "features" => $this->getFeatures(),
             "contexts" => $this->getContexts(),

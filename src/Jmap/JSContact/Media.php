@@ -7,21 +7,21 @@ use JsonSerializable;
 /**
  * Media: resource such as photo, logo, or sound associated with the Card.
  *
- * JSContact RFC 9553, Section 2.6.4 (Media) and Section 1.4.4 (Resource). 
- * JMAP Contacts adds optional blobId for media stored as a Blob. 
+ * JSContact RFC 9553, Section 2.6.4 (Media) and Section 1.4.4 (Resource).
+ * JMAP Contacts adds optional blobId for media stored as a Blob.
  */
 class Media extends TypeableEntity implements JsonSerializable
 {
     /**
      * kind: String (mandatory).
-     * Enum: photo | sound | logo. [web:58]
+     * Enum: photo | sound | logo.
      *
      * @var string
      */
     private $kind;
 
     /**
-     * uri: String (optional in JMAP context when blobId is used, otherwise mandatory Resource.uri). 
+     * uri: String (optional in JMAP context when blobId is used, otherwise mandatory Resource.uri).
      *
      * @var string|null
      */
@@ -58,7 +58,7 @@ class Media extends TypeableEntity implements JsonSerializable
 
     /**
      * blobId: Id (optional, JMAP Contacts extension).
-     * Id of the Blob representing the binary contents of the resource. 
+     * Id of the Blob representing the binary contents of the resource.
      *
      * @var string|null
      */
@@ -66,7 +66,7 @@ class Media extends TypeableEntity implements JsonSerializable
 
     public function __construct()
     {
-        // @type MUST be "Media" if set. [web:58]
+        // @type MUST be "Media" if set.
         $this->setAtType('Media');
     }
 
@@ -150,7 +150,7 @@ class Media extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type"     => $this->getAtType(),   // MUST be "Media" if present. [web:58]
+            "@type"     => $this->getAtType(),   // MUST be "Media" if present.
             "kind"      => $this->getKind(),
             "uri"       => $this->getUri(),
             "mediaType" => $this->getMediaType(),

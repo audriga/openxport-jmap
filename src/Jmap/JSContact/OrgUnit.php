@@ -22,7 +22,7 @@ class OrgUnit extends TypeableEntity implements JsonSerializable
 
     public function __construct()
     {
-        // @type MUST be "OrgUnit" if set. [web:58]
+        // @type MUST be "OrgUnit" if set.
         $this->setAtType('OrgUnit');
     }
 
@@ -50,7 +50,7 @@ class OrgUnit extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type"  => $this->getAtType(),  // MUST be "OrgUnit" if present. 
+            "@type"  => $this->getAtType(),  // MUST be "OrgUnit" if present.
             "name"   => $this->getName(),
             "sortAs" => $this->getSortAs(),
         ], function ($val) {
