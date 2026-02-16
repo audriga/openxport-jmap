@@ -4,15 +4,10 @@ namespace OpenXPort\Jmap\JSContact;
 
 use JsonSerializable;
 
-class EmailAddress extends TypeableEntity implements JsonSerializable
+class Pronouns extends TypeableEntity implements JsonSerializable
 {
-    /**
-     * address: String (mandatory).
-     * The email address (addr-spec per RFC 5322).
-     *
-     * @var string
-     */
-    private $address;
+    /** @var string pronouns (mandatory) */
+    private $pronouns;
 
     /**
      * contexts: String[Boolean] (optional).
@@ -28,27 +23,20 @@ class EmailAddress extends TypeableEntity implements JsonSerializable
      */
     private $pref;
 
-    /**
-     * label: String (optional).
-     *
-     * @var string|null
-     */
-    private $label;
-
     public function __construct()
     {
-        // @type MUST be "EmailAddress" if set.
-        $this->setAtType('EmailAddress');
+        // @type MUST be "Pronouns" if set.
+        $this->setAtType('Pronouns');
     }
 
-    public function getAddress()
+    public function getPronouns()
     {
-        return $this->address;
+        return $this->pronouns;
     }
 
-    public function setAddress($address)
+    public function setPronouns($pronouns)
     {
-        $this->address = $address;
+        $this->pronouns = $pronouns;
     }
 
     /**
@@ -77,25 +65,14 @@ class EmailAddress extends TypeableEntity implements JsonSerializable
         $this->pref = $pref;
     }
 
-    public function getLabel()
-    {
-        return $this->label;
-    }
-
-    public function setLabel($label)
-    {
-        $this->label = $label;
-    }
-
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type"    => $this->getAtType(),   // MUST be "EmailAddress" if present.
-            "address"  => $this->getAddress(),
+            "@type"    => $this->getAtType(),   // MUST be "Pronouns" if present.
+            "pronouns" => $this->getPronouns(),
             "contexts" => $this->getContexts(),
             "pref"     => $this->getPref(),
-            "label"    => $this->getLabel(),
         ], function ($val) {
             return !is_null($val);
         });

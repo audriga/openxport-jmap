@@ -4,14 +4,21 @@ namespace OpenXPort\Jmap\JSContact;
 
 use JsonSerializable;
 
-class NameComponent extends TypeableEntity implements JsonSerializable
+class AddressComponent extends TypeableEntity implements JsonSerializable
 {
-    /** @var string value (mandatory) */
+    /**
+     * value: String (mandatory).
+     * The value of the address component.
+     *
+     * @var string
+     */
     private $value;
 
     /**
      * kind: String (mandatory).
-     * One of: title, given, given2, surname, surname2, credential, generation, separator.
+     * Enumerated values (RFC 9553, AddressComponent kind): room, apartment,
+     * floor, building, number, name, block, subdistrict, district, locality,
+     * region, postcode, country, direction, landmark, postOfficeBox, separator. 
      *
      * @var string
      */
@@ -19,6 +26,8 @@ class NameComponent extends TypeableEntity implements JsonSerializable
 
     /**
      * phonetic: String (optional).
+     * Pronunciation of this component; requires phoneticScript or
+     * phoneticSystem on the parent Address to be set. 
      *
      * @var string|null
      */
@@ -26,8 +35,8 @@ class NameComponent extends TypeableEntity implements JsonSerializable
 
     public function __construct()
     {
-        // RFC 9553: if @type is set, MUST be "NameComponent".
-        $this->setAtType('NameComponent');
+        // @type MUST be "AddressComponent" if set. 
+        $this->setAtType('AddressComponent');
     }
 
     public function getValue()
@@ -64,7 +73,7 @@ class NameComponent extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type"    => $this->getAtType(), // MUST be "NameComponent" if present.
+            "@type"    => $this->getAtType(),   // MUST be "AddressComponent" if present.
             "value"    => $this->getValue(),
             "kind"     => $this->getKind(),
             "phonetic" => $this->getPhonetic(),

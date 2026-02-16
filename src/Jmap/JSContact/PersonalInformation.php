@@ -6,26 +6,57 @@ use JsonSerializable;
 
 class PersonalInformation extends TypeableEntity implements JsonSerializable
 {
-    /** @var string $type (mandatory) */
-    private $type;
+    /**
+     * kind: String (mandatory).
+     * Enum: expertise | hobby | interest. 
+     *
+     * @var string
+     */
+    private $kind;
 
-    /** @var string $value (mandatory) */
+    /**
+     * value: String (mandatory).
+     *
+     * @var string
+     */
     private $value;
 
-    /** @var string $level (optional) */
+    /**
+     * level: String (optional).
+     * Enum: high | medium | low. 
+     *
+     * @var string|null
+     */
     private $level;
 
-    /** @var string $label (optional) */
+    /**
+     * listAs: UnsignedInt (optional).
+     *
+     * @var int|null
+     */
+    private $listAs;
+
+    /**
+     * label: String (optional).
+     *
+     * @var string|null
+     */
     private $label;
 
-    public function getType()
+    public function __construct()
     {
-        return $this->type;
+        // @type MUST be "PersonalInfo" if set. 
+        $this->setAtType('PersonalInfo');
     }
 
-    public function setType($type)
+    public function getKind()
     {
-        $this->type = $type;
+        return $this->kind;
+    }
+
+    public function setKind($kind)
+    {
+        $this->kind = $kind;
     }
 
     public function getValue()
@@ -48,25 +79,25 @@ class PersonalInformation extends TypeableEntity implements JsonSerializable
         $this->level = $level;
     }
 
-    public function getLabel()
+    public function getListAs()
     {
-        return $this->label;
+        return $this->listAs;
     }
 
-    public function setLabel($label)
+    public function setListAs($listAs)
     {
-        $this->label = $label;
+        $this->listAs = $listAs;
     }
 
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->getAtType(),
-            "type" => $this->getType(),
-            "value" => $this->getValue(),
-            "level" => $this->getLevel(),
-            "label" => $this->getLabel()
+            "@type"  => $this->getAtType(),   // MUST be "PersonalInfo" if present. 
+            "kind"   => $this->getKind(),
+            "value"  => $this->getValue(),
+            "level"  => $this->getLevel(),
+            "listAs" => $this->getListAs()
         ], function ($val) {
             return !is_null($val);
         });

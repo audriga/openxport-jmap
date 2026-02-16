@@ -6,39 +6,74 @@ use JsonSerializable;
 
 class Title extends TypeableEntity implements JsonSerializable
 {
-    /** @var string $title (mandatory) */
-    private $title;
+    /**
+     * name: String (mandatory).
+     * The title or role name of the entity.
+     *
+     * @var string
+     */
+    private $name;
 
-    /** @var string $organization (optional) */
-    private $organization;
+    /**
+     * kind: String (optional; default: "title").
+     * Enum: "title" | "role".
+     *
+     * @var string|null
+     */
+    private $kind = 'title';
 
-    public function getTitle()
+    /**
+     * organizationId: Id (optional).
+     * Identifier of the organization in which this title is held.
+     *
+     * @var string|null
+     */
+    private $organizationId;
+
+    public function __construct()
     {
-        return $this->title;
+        // @type MUST be "Title" if set.
+        $this->setAtType('Title');
     }
 
-    public function setTitle($title)
+    public function getName()
     {
-        $this->title = $title;
+        return $this->name;
     }
 
-    public function getOrganization()
+    public function setName($name)
     {
-        return $this->organization;
+        $this->name = $name;
     }
 
-    public function setOrganization($organization)
+    public function getKind()
     {
-        $this->organization = $organization;
+        return $this->kind;
+    }
+
+    public function setKind($kind)
+    {
+        $this->kind = $kind;
+    }
+
+    public function getOrganizationId()
+    {
+        return $this->organizationId;
+    }
+
+    public function setOrganizationId($organizationId)
+    {
+        $this->organizationId = $organizationId;
     }
 
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->getAtType(),
-            "title" => $this->getTitle(),
-            "organization" => $this->getOrganization()
+            "@type"          => $this->getAtType(),      // MUST be "Title" if present.
+            "name"           => $this->getName(),
+            "kind"           => $this->getKind(),
+            "organizationId" => $this->getOrganizationId(),
         ], function ($val) {
             return !is_null($val);
         });

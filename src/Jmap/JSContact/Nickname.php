@@ -4,16 +4,14 @@ namespace OpenXPort\Jmap\JSContact;
 
 use JsonSerializable;
 
-class Organization extends TypeableEntity implements JsonSerializable
+class Nickname extends TypeableEntity implements JsonSerializable
 {
-    /** @var string|null name (optional) */
+    /**
+     * name: String (mandatory).
+     *
+     * @var string
+     */
     private $name;
-
-    /** @var OrgUnit[]|null units (optional) */
-    private $units;
-
-    /** @var string|null sortAs (optional) */
-    private $sortAs;
 
     /**
      * contexts: String[Boolean] (optional).
@@ -22,10 +20,17 @@ class Organization extends TypeableEntity implements JsonSerializable
      */
     private $contexts;
 
+    /**
+     * pref: UnsignedInt (optional).
+     *
+     * @var int|null
+     */
+    private $pref;
+
     public function __construct()
     {
-        // @type MUST be "Organization" if set.
-        $this->setAtType("Organization");
+        // @type MUST be "Nickname" if set. 
+        $this->setAtType('Nickname');
     }
 
     public function getName()
@@ -36,32 +41,6 @@ class Organization extends TypeableEntity implements JsonSerializable
     public function setName($name)
     {
         $this->name = $name;
-    }
-
-    /**
-     * @return OrgUnit[]|null
-     */
-    public function getUnits()
-    {
-        return $this->units;
-    }
-
-    /**
-     * @param OrgUnit[]|null $units
-     */
-    public function setUnits($units)
-    {
-        $this->units = $units;
-    }
-
-    public function getSortAs()
-    {
-        return $this->sortAs;
-    }
-
-    public function setSortAs($sortAs)
-    {
-        $this->sortAs = $sortAs;
     }
 
     /**
@@ -80,15 +59,24 @@ class Organization extends TypeableEntity implements JsonSerializable
         $this->contexts = $contexts;
     }
 
+    public function getPref()
+    {
+        return $this->pref;
+    }
+
+    public function setPref($pref)
+    {
+        $this->pref = $pref;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type"    => $this->getAtType(),   // MUST be "Organization" if present.
+            "@type"    => $this->getAtType(),   // MUST be "Nickname" if present. 
             "name"     => $this->getName(),
-            "units"    => $this->getUnits(),
-            "sortAs"   => $this->getSortAs(),
             "contexts" => $this->getContexts(),
+            "pref"     => $this->getPref(),
         ], function ($val) {
             return !is_null($val);
         });

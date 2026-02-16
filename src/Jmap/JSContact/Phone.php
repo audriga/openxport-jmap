@@ -6,52 +6,85 @@ use JsonSerializable;
 
 class Phone extends TypeableEntity implements JsonSerializable
 {
-    /** @var string $phone (mandatory) */
-    private $phone;
+    /**
+     * number: String (mandatory).
+     * Phone number as URI or free text. 
+     *
+     * @var string
+     */
+    private $number;
 
-    /** @var array<string, boolean> $features (optional) */
+    /**
+     * features: String[Boolean] (optional).
+     *
+     * @var array<string,bool>|null
+     */
     private $features;
 
-    /** @var array<string, boolean> $contexts (optional)
-     * The string keys of the array are of type Context
-     * (see https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09#section-1.5.1)
+    /**
+     * contexts: String[Boolean] (optional).
+     *
+     * @var array<string,bool>|null
      */
     private $contexts;
 
-    /** @var int $pref (optional)
-     * The int here is the Preference type
-     * (see https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09#section-1.5.4)
+    /**
+     * pref: UnsignedInt (optional).
+     *
+     * @var int|null
      */
     private $pref;
 
-    /** @var string $label (optional) */
+    /**
+     * label: String (optional).
+     *
+     * @var string|null
+     */
     private $label;
 
-    public function getPhone()
+    public function __construct()
     {
-        return $this->phone;
+        // @type MUST be "Phone" if set. 
+        $this->setAtType('Phone');
     }
 
-    public function setPhone($phone)
+    public function getNumber()
     {
-        $this->phone = $phone;
+        return $this->number;
     }
 
+    public function setNumber($number)
+    {
+        $this->number = $number;
+    }
+
+    /**
+     * @return array<string,bool>|null
+     */
     public function getFeatures()
     {
         return $this->features;
     }
 
+    /**
+     * @param array<string,bool>|null $features
+     */
     public function setFeatures($features)
     {
         $this->features = $features;
     }
 
+    /**
+     * @return array<string,bool>|null
+     */
     public function getContexts()
     {
         return $this->contexts;
     }
 
+    /**
+     * @param array<string,bool>|null $contexts
+     */
     public function setContexts($contexts)
     {
         $this->contexts = $contexts;
@@ -81,12 +114,12 @@ class Phone extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->getAtType(),
-            "phone" => $this->getPhone(),
+            "@type"    => $this->getAtType(),   // MUST be "Phone" if present. 
+            "number"   => $this->getNumber(),
             "features" => $this->getFeatures(),
             "contexts" => $this->getContexts(),
-            "pref" => $this->getPref(),
-            "label" => $this->getLabel()
+            "pref"     => $this->getPref(),
+            "label"    => $this->getLabel(),
         ], function ($val) {
             return !is_null($val);
         });

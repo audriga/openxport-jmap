@@ -6,15 +6,24 @@ use JsonSerializable;
 
 class OrgUnit extends TypeableEntity implements JsonSerializable
 {
-    /** @var string $name (optional) */
+    /**
+     * name: String (mandatory).
+     *
+     * @var string
+     */
     private $name;
 
-    /** @var string $sortAs (optional) */
+    /**
+     * sortAs: String (optional).
+     *
+     * @var string|null
+     */
     private $sortAs;
 
     public function __construct()
     {
-        $this->atType = "OrgUnit";
+        // @type MUST be "OrgUnit" if set. [web:58]
+        $this->setAtType('OrgUnit');
     }
 
     public function getName()
@@ -41,8 +50,8 @@ class OrgUnit extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->getAtType(),
-            "name" => $this->getName(),
+            "@type"  => $this->getAtType(),  // MUST be "OrgUnit" if present. 
+            "name"   => $this->getName(),
             "sortAs" => $this->getSortAs(),
         ], function ($val) {
             return !is_null($val);

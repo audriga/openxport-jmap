@@ -4,15 +4,15 @@ namespace OpenXPort\Jmap\JSContact;
 
 use JsonSerializable;
 
-class EmailAddress extends TypeableEntity implements JsonSerializable
+class LanguagePref extends TypeableEntity implements JsonSerializable
 {
     /**
-     * address: String (mandatory).
-     * The email address (addr-spec per RFC 5322).
+     * language: String (mandatory).
+     * MUST be a language tag as in RFC 5646 (e.g. "en", "fr-CA"). [web:58]
      *
      * @var string
      */
-    private $address;
+    private $language;
 
     /**
      * contexts: String[Boolean] (optional).
@@ -28,27 +28,20 @@ class EmailAddress extends TypeableEntity implements JsonSerializable
      */
     private $pref;
 
-    /**
-     * label: String (optional).
-     *
-     * @var string|null
-     */
-    private $label;
-
     public function __construct()
     {
-        // @type MUST be "EmailAddress" if set.
-        $this->setAtType('EmailAddress');
+        // @type MUST be "LanguagePref" if set. 
+        $this->setAtType('LanguagePref');
     }
 
-    public function getAddress()
+    public function getLanguage()
     {
-        return $this->address;
+        return $this->language;
     }
 
-    public function setAddress($address)
+    public function setLanguage($language)
     {
-        $this->address = $address;
+        $this->language = $language;
     }
 
     /**
@@ -77,25 +70,14 @@ class EmailAddress extends TypeableEntity implements JsonSerializable
         $this->pref = $pref;
     }
 
-    public function getLabel()
-    {
-        return $this->label;
-    }
-
-    public function setLabel($label)
-    {
-        $this->label = $label;
-    }
-
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type"    => $this->getAtType(),   // MUST be "EmailAddress" if present.
-            "address"  => $this->getAddress(),
+            "@type"    => $this->getAtType(),   // MUST be "LanguagePref" if present. 
+            "language" => $this->getLanguage(),
             "contexts" => $this->getContexts(),
             "pref"     => $this->getPref(),
-            "label"    => $this->getLabel(),
         ], function ($val) {
             return !is_null($val);
         });

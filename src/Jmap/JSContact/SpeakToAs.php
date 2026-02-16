@@ -6,11 +6,21 @@ use JsonSerializable;
 
 class SpeakToAs extends TypeableEntity implements JsonSerializable
 {
-    /** @var string $grammaticalGender (optional) */
+    /** @var string|null grammaticalGender (optional) */
     private $grammaticalGender;
 
-    /** @var string $pronouns (optional) */
+    /**
+     * pronouns: Id[Pronouns] (optional).
+     *
+     * @var array<string,Pronouns>|null
+     */
     private $pronouns;
+
+    public function __construct()
+    {
+        // @type MUST be "SpeakToAs" if set.
+        $this->setAtType('SpeakToAs');
+    }
 
     public function getGrammaticalGender()
     {
@@ -22,11 +32,17 @@ class SpeakToAs extends TypeableEntity implements JsonSerializable
         $this->grammaticalGender = $grammaticalGender;
     }
 
+    /**
+     * @return array<string,Pronouns>|null
+     */
     public function getPronouns()
     {
         return $this->pronouns;
     }
 
+    /**
+     * @param array<string,Pronouns>|null $pronouns
+     */
     public function setPronouns($pronouns)
     {
         $this->pronouns = $pronouns;
@@ -36,9 +52,9 @@ class SpeakToAs extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->getAtType(),
+            "@type"             => $this->getAtType(),          // MUST be "SpeakToAs" if present.
             "grammaticalGender" => $this->getGrammaticalGender(),
-            "pronouns" => $this->getPronouns()
+            "pronouns"          => $this->getPronouns(),
         ], function ($val) {
             return !is_null($val);
         });

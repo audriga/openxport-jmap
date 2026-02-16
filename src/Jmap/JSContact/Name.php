@@ -6,67 +6,132 @@ use JsonSerializable;
 
 class Name extends TypeableEntity implements JsonSerializable
 {
-    /** @var NameComponent[] $components (mandatory) */
+    /** @var NameComponent[]|null components (optional) */
     private $components;
 
-    /** @var string $locale (optional) - NOTE deprecated in draft-ietf-calext-jscontact-vcard-06 */
-    private $locale;
+    /** @var bool|null isOrdered (optional; default: false) */
+    private $isOrdered;
 
-    /** @var array $sortAs (optional) */
+    /** @var string|null defaultSeparator (optional) */
+    private $defaultSeparator;
+
+    /** @var string|null full (optional) */
+    private $full;
+
+    /**
+     * sortAs: String[String] (optional).
+     * Keys: name component kind, values: verbatim string.
+     *
+     * @var array<string,string>|null
+     */
     private $sortAs;
 
-    public function getType()
+    /** @var string|null phoneticScript (optional) */
+    private $phoneticScript;
+
+    /** @var string|null phoneticSystem (optional) */
+    private $phoneticSystem;
+
+    public function __construct()
     {
-        return $this->type;
+        // RFC 9553: if @type is set, MUST be "Name".
+        $this->setAtType('Name');
     }
 
-    public function setType($type)
-    {
-        $this->type = $type;
-    }
-
+    /**
+     * @return NameComponent[]|null
+     */
     public function getComponents()
     {
         return $this->components;
     }
 
+    /**
+     * @param NameComponent[]|null $components
+     */
     public function setComponents($components)
     {
         $this->components = $components;
     }
 
-    /* Deprecated in newest JSContact spec */
-    public function getLocale()
+    public function getIsOrdered()
     {
-        return $this->locale;
+        return $this->isOrdered;
     }
 
-    /* Deprecated in newest JSContact spec */
-    public function setLocale($locale)
+    public function setIsOrdered($isOrdered)
     {
-        trigger_error("Name.locale property will not be supported in a future version.", E_USER_DEPRECATED);
-        $this->locale = $locale;
+        $this->isOrdered = $isOrdered;
     }
 
+    public function getDefaultSeparator()
+    {
+        return $this->defaultSeparator;
+    }
+
+    public function setDefaultSeparator($defaultSeparator)
+    {
+        $this->defaultSeparator = $defaultSeparator;
+    }
+
+    public function getFull()
+    {
+        return $this->full;
+    }
+
+    public function setFull($full)
+    {
+        $this->full = $full;
+    }
+
+    /**
+     * @return array<string,string>|null
+     */
     public function getSortAs()
     {
         return $this->sortAs;
     }
 
+    /**
+     * @param array<string,string>|null $sortAs
+     */
     public function setSortAs($sortAs)
     {
         $this->sortAs = $sortAs;
+    }
+
+    public function getPhoneticScript()
+    {
+        return $this->phoneticScript;
+    }
+
+    public function setPhoneticScript($phoneticScript)
+    {
+        $this->phoneticScript = $phoneticScript;
+    }
+
+    public function getPhoneticSystem()
+    {
+        return $this->phoneticSystem;
+    }
+
+    public function setPhoneticSystem($phoneticSystem)
+    {
+        $this->phoneticSystem = $phoneticSystem;
     }
 
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->getAtType(),
-            "type" => $this->getType(),
-            "components" => $this->getComponents(),
-            "locale" => $this->getLocale(),
-            "sortAs" => $this->getSortAs()
+            "@type"            => $this->getAtType(),      // MUST be "Name" if present.
+            "components"       => $this->getComponents(),
+            "isOrdered"        => $this->getIsOrdered(),
+            "defaultSeparator" => $this->getDefaultSeparator(),
+            "full"             => $this->getFull(),
+            "sortAs"           => $this->getSortAs(),
+            "phoneticScript"   => $this->getPhoneticScript(),
+            "phoneticSystem"   => $this->getPhoneticSystem(),
         ], function ($val) {
             return !is_null($val);
         });
