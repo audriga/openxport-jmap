@@ -1,0 +1,1 @@
+**Implementation note:** The ContactCard data model implementation is now based on [JSContact 1.0 (RFC 9553)](https://www.rfc-editor.org/rfc/rfc9553.html). Earlier versions of this library were aligned with draft-ietf-jmap-jscontact-09.

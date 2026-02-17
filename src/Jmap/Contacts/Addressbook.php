@@ -64,16 +64,6 @@ class AddressBook implements JsonSerializable
         $this->sortOrder = $sortOrder;
     }
 
-    public function getIsVisible()
-    {
-        return $this->isVisible;
-    }
-
-    public function setIsVisible($isVisible)
-    {
-        $this->isVisible = $isVisible;
-    }
-
     public function getShareWith()
     {
         return $this->shareWith;
