@@ -2,17 +2,17 @@
 
 namespace OpenXPort\Mapper;
 
-use OpenXPort\Jmap\Contact\ContactCard;
-use OpenXPort\Jmap\Contact\Name;
-use OpenXPort\Jmap\Contact\EmailAddress;
-use OpenXPort\Jmap\Contact\Phone;
-use OpenXPort\Jmap\Contact\OnlineService;
-use OpenXPort\Jmap\Contact\Address;
-use OpenXPort\Jmap\Contact\Note;
-use OpenXPort\Jmap\Contact\Nickname;
-use OpenXPort\Jmap\Contact\Organization;
-use OpenXPort\Jmap\Contact\Title;
-use OpenXPort\Jmap\Contact\Anniversary;
+use OpenXPort\Jmap\JSContact\ContactCard;
+use OpenXPort\Jmap\JSContact\Name;
+use OpenXPort\Jmap\JSContact\EmailAddress;
+use OpenXPort\Jmap\JSContact\Phone;
+use OpenXPort\Jmap\JSContact\OnlineService;
+use OpenXPort\Jmap\JSContact\Address;
+use OpenXPort\Jmap\JSContact\Note;
+use OpenXPort\Jmap\JSContact\Nickname;
+use OpenXPort\Jmap\JSContact\Organization;
+use OpenXPort\Jmap\JSContact\Title;
+use OpenXPort\Jmap\JSContact\Anniversary;
 
 class VCardToContactCardMapper extends AbstractMapper
 {
@@ -302,43 +302,82 @@ class VCardToContactCardMapper extends AbstractMapper
                 $addresses = $adapter->getAddresses();
                 if (!empty($addresses)) {
                     $addrMap = [];
-                    foreach ($addresses as $idx => $addr) {
-                        // If adapter already returns ContactCard Address instances, reuse them.
-                        if ($addr instanceof Address) {
-                            $addrMap['a' . $idx] = $addr;
-                            continue;
-                        }
 
-                        // Otherwise, build a ContactCard Address from the adapter's address object.
+                    foreach ($addresses as $idx => $addr) {
                         $a = new Address();
+                        $a->setIsOrdered(true);
+                        $a->setDefaultSeparator(', ');
+
+                        $components = [];
 
                         if (is_object($addr)) {
-                            if (property_exists($addr, 'street')) {
-                                $a->setStreet($addr->street);
+                            if (!empty($addr->number)) {
+                                $c = new \OpenXPort\Jmap\JSContact\AddressComponent();
+                                $c->setKind('number');
+                                $c->setValue($addr->number);
+                                $components[] = $c;
                             }
-                            if (property_exists($addr, 'locality')) {
-                                $a->setLocality($addr->locality);
+
+                            if (!empty($addr->number) && !empty($addr->street)) {
+                                $sep = new \OpenXPort\Jmap\JSContact\AddressComponent();
+                                $sep->setKind('separator');
+                                $sep->setValue(' ');
+                                $components[] = $sep;
                             }
-                            if (property_exists($addr, 'region')) {
-                                $a->setRegion($addr->region);
+
+                            if (!empty($addr->street)) {
+                                $c = new \OpenXPort\Jmap\JSContact\AddressComponent();
+                                $c->setKind('name');
+                                $c->setValue($addr->street);
+                                $components[] = $c;
                             }
-                            if (property_exists($addr, 'postcode')) {
-                                $a->setPostcode($addr->postcode);
+
+                            if (!empty($addr->locality)) {
+                                $c = new \OpenXPort\Jmap\JSContact\AddressComponent();
+                                $c->setKind('locality');
+                                $c->setValue($addr->locality);
+                                $components[] = $c;
                             }
-                            if (property_exists($addr, 'country')) {
-                                $a->setCountry($addr->country);
+
+                            if (!empty($addr->region)) {
+                                $c = new \OpenXPort\Jmap\JSContact\AddressComponent();
+                                $c->setKind('region');
+                                $c->setValue($addr->region);
+                                $components[] = $c;
                             }
-                            if (property_exists($addr, 'type')) {
-                                $a->setAtType($addr->type);
+
+                            if (!empty($addr->region) && !empty($addr->postcode)) {
+                                $sep = new \OpenXPort\Jmap\JSContact\AddressComponent();
+                                $sep->setKind('separator');
+                                $sep->setValue(' ');
+                                $components[] = $sep;
                             }
+
+                            if (!empty($addr->postcode)) {
+                                $c = new \OpenXPort\Jmap\JSContact\AddressComponent();
+                                $c->setKind('postcode');
+                                $c->setValue($addr->postcode);
+                                $components[] = $c;
+                            }
+
+                            if (!empty($addr->country)) {
+                                $c = new \OpenXPort\Jmap\JSContact\AddressComponent();
+                                $c->setKind('country');
+                                $c->setValue($addr->country);
+                                $components[] = $c;
+                            }
+                        }
+
+                        if (!empty($components)) {
+                            $a->setComponents($components);
                         }
 
                         $addrMap['a' . $idx] = $a;
                     }
+
                     $contactCard->setAddresses($addrMap);
                 }
             }
-
 
             $anniversaries = [];
 

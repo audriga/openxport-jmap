@@ -17,14 +17,13 @@ class Server
 
     private $capMap = array(
         "calendars" => \OpenXPort\Jmap\Calendar\CalendarsServerCapability::class,
-        "contacts" => \OpenXPort\Jmap\Contact\ContactsServerCapability::class,
+        "contactCard" => \OpenXPort\Jmap\JSContact\JSContactServerCapability::class,
         "debug" => \OpenXPort\Jmap\Audriga\DebugServerCapability::class,
         "files" => \OpenXPort\Jmap\Files\FilesServerCapability::class,
         "mail" => \OpenXPort\Jmap\Mail\SubmissionServerCapability::class,
         "tasks" => \OpenXPort\Jmap\Tasks\TasksServerCapability::class,
         "notes" => \OpenXPort\Jmap\Note\NotesServerCapability::class,
         "sieve" => \OpenXPort\Jmap\SieveScript\SieveScriptsServerCapability::class,
-        "contactCard" => \OpenXPort\Jmap\Contact\ContactServerCapability::class,
         "vacationResponse" => \OpenXPort\Jmap\Mail\VacationResponseServerCapability::class,
         "preferences" => \OpenXPort\Jmap\Preferences\PreferencesServerCapability::class
     );
@@ -95,8 +94,8 @@ class Server
 
             // Also add contacts capability in case jscontact is configured
             // TODO this is a workaround as long as we need to support jscontact
-            if ($cap == "jscontact") {
-                $this->session->addCapability(new \OpenXPort\Jmap\Contact\ContactsServerCapability());
+            if ($cap == "contactCard") {
+                $this->session->addCapability(new \OpenXPort\Jmap\JSContact\JSContactServerCapability());
             }
         }
 
@@ -140,10 +139,10 @@ class Server
             $methodName = $methodCall->getName();
 
             $this->logger->info("Processing method call " . $methodName);
-
             try {
                 // Resolve the method
                 $method = $methodsAvailable[$methodName];
+
                 if (is_null($method) || !class_exists($method)) {
                     echo ErrorHandler::raiseUnknownMethod($methodCall->getMethodCallId());
                     return;
