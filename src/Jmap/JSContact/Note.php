@@ -7,7 +7,7 @@ namespace OpenXPort\Jmap\JSContact;
 use JsonSerializable;
 
 /**
- * JSContact Note object as defined in RFC 9553 §2.8.3.[web:166][web:209]
+ * JSContact Note object as defined in RFC 9553 §2.8.3.
  *
  * Part of Card.notes: Id[Note].
  */

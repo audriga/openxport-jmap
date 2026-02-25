@@ -27,7 +27,7 @@ class AddressBook implements JsonSerializable
     /**
      * sortOrder: UnsignedInt (default: 0).
      *
-     * Lower values sort before higher in UI.[web:155]
+     * Lower values sort before higher in UI.
      *
      * @var int
      */
@@ -36,7 +36,7 @@ class AddressBook implements JsonSerializable
     /**
      * isDefaultean (server-set).
      *
-     * True for at most one AddressBook per account.[web:182]
+     * True for at most one AddressBook per account.
      *
      * @var bool
      */
@@ -45,21 +45,21 @@ class AddressBook implements JsonSerializable
     /**
      * isSubscribedean.
      *
-     * True if the user wants to see this AddressBook in the client.[web:155][web:56]
+     * True if the user wants to see this AddressBook in the client.
      *
      * @var bool
      */
     protected $isSubscribed = true;
 
     /**
-     * shareWith: Id[AddressBookRights]|null (default: null).[web:155]
+     * shareWith: Id[AddressBookRights]|null (default: null).
      *
      * @var array<string,AddressBookRights>|null
      */
     protected $shareWith;
 
     /**
-     * myRights: AddressBookRights (server-set).[web:155]
+     * myRights: AddressBookRights (server-set).
      *
      * @var AddressBookRights|null
      */

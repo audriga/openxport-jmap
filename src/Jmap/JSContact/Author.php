@@ -7,7 +7,7 @@ namespace OpenXPort\Jmap\JSContact;
 use JsonSerializable;
 
 /**
- * JSContact Author object for Note.author (RFC 9553 §2.8.3).[web:166]
+ * JSContact Author object for Note.author (RFC 9553 §2.8.3).
  */
 class Author extends TypeableEntity implements JsonSerializable
 {

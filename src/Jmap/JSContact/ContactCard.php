@@ -26,7 +26,7 @@ class ContactCard extends TypeableEntity implements JsonSerializable
      * AddressBook ids, values MUST be true.
      *
      * @var array<string,bool>|null
-    */
+     */
     private $addressBookIds;
 
     /** @var string|null */
@@ -42,7 +42,15 @@ class ContactCard extends TypeableEntity implements JsonSerializable
      */
     private $relatedTo;
 
-    /** @var array<string,bool>|null */
+    /**
+     * members: String[Boolean] (optional).
+     *
+     * The set of Cards that are members of this group Card. Each key is the
+     * uid of the member Card; each value MUST be true. If this is set, kind
+     * MUST be "group" (RFC 9553, Section 2.1.6).
+     *
+     * @var array<string,bool>|null
+     */
     private $members;
 
     /** @var string|null */
@@ -115,15 +123,30 @@ class ContactCard extends TypeableEntity implements JsonSerializable
     /**
      * notes: Id[Note] (optional).
      *
-     * The free-text notes that are associated with the Card.
-     *
      * @var array<string,Note>|null
      */
     private $noteObjects;
 
+    /** @var string|null */
+    private $created;
+
+    /** @var string|null */
+    private $updated;
+
+    /** @var array<string,SchedulingAddress>|null */
+    private $schedulingAddresses;
+
+    /** @var array<string,CryptoKey>|null */
+    private $cryptoKeys;
+
+    /** @var array<string,Directory>|null */
+    private $directories;
+
+    /** @var array<string,Link>|null */
+    private $links;
+
     public function __construct()
     {
-        // @type MUST be "Card".
         $this->setAtType('Card');
     }
 
@@ -167,6 +190,90 @@ class ContactCard extends TypeableEntity implements JsonSerializable
         $this->language = $language;
     }
 
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    public function setCreated($created)
+    {
+        $this->created = $created;
+    }
+
+    public function getUpdated()
+    {
+        return $this->updated;
+    }
+
+    public function setUpdated($updated)
+    {
+        $this->updated = $updated;
+    }
+
+    /**
+     * @return array<string,SchedulingAddress>|null
+     */
+    public function getSchedulingAddresses()
+    {
+        return $this->schedulingAddresses;
+    }
+
+    /**
+     * @param array<string,SchedulingAddress>|null $schedulingAddresses
+     */
+    public function setSchedulingAddresses($schedulingAddresses)
+    {
+        $this->schedulingAddresses = $schedulingAddresses;
+    }
+
+    /**
+     * @return array<string,CryptoKey>|null
+     */
+    public function getCryptoKeys()
+    {
+        return $this->cryptoKeys;
+    }
+
+    /**
+     * @param array<string,CryptoKey>|null $cryptoKeys
+     */
+    public function setCryptoKeys($cryptoKeys)
+    {
+        $this->cryptoKeys = $cryptoKeys;
+    }
+
+    /**
+     * @return array<string,Directory>|null
+     */
+    public function getDirectories()
+    {
+        return $this->directories;
+    }
+
+    /**
+     * @param array<string,Directory>|null $directories
+     */
+    public function setDirectories($directories)
+    {
+        $this->directories = $directories;
+    }
+
+    /**
+     * @return array<string,Link>|null
+     */
+    public function getLinks()
+    {
+        return $this->links;
+    }
+
+    /**
+     * @param array<string,Link>|null $links
+     */
+    public function setLinks($links)
+    {
+        $this->links = $links;
+    }
+
     /**
      * @return array<string,Relation>|null
      */
@@ -205,6 +312,11 @@ class ContactCard extends TypeableEntity implements JsonSerializable
     public function setMembers($members)
     {
         $this->members = $members;
+
+        // RFC 9553: if members is set and non-empty, kind MUST be "group".
+        if ($members !== null && $members !== []) {
+            $this->kind = 'group';
+        }
     }
 
     public function addMember($uid)
@@ -213,6 +325,10 @@ class ContactCard extends TypeableEntity implements JsonSerializable
             $this->members = [];
         }
         $this->members[$uid] = true;
+        // Ensure kind="group" when members exist.
+        if ($this->kind !== 'group') {
+            $this->kind = 'group';
+        }
     }
 
     public function getProdId()
@@ -233,30 +349,6 @@ class ContactCard extends TypeableEntity implements JsonSerializable
     public function setDescription($description)
     {
         $this->description = $description;
-    }
-
-    /**
-     * @return array<string,bool>|null
-     */
-    public function getCategories()
-    {
-        return $this->categories;
-    }
-
-    /**
-     * @param array<string,bool>|null $categories
-     */
-    public function setCategories($categories)
-    {
-        $this->categories = $categories;
-    }
-
-    public function addCategory($category)
-    {
-        if ($this->categories === null) {
-            $this->categories = [];
-        }
-        $this->categories[$category] = true;
     }
 
     /**
@@ -600,34 +692,36 @@ class ContactCard extends TypeableEntity implements JsonSerializable
             "addressBookIds" => $this->getAddressBookIds(),
             "kind"           => $this->getKind(),
             "language"       => $this->getLanguage(),
+            "created"        => $this->getCreated(),
+            "updated"        => $this->getUpdated(),
             "relatedTo"      => $this->getRelatedTo(),
             "members"        => $this->getMembers(),
             "prodId"         => $this->getProdId(),
             "description"    => $this->getDescription(),
-            "categories"     => $this->getCategories(),
             "keywords"       => $this->getKeywords(),
-
-            "name"           => $this->getName(),
-            "nicknames"      => $this->getNicknames(),
-            "organizations"  => $this->getOrganizations(),
-            "titles"         => $this->getTitles(),
-            "speakToAs"      => $this->getSpeakToAs(),
-            "sortAs"         => $this->getSortAs(),
-
+            "name"               => $this->getName(),
+            "nicknames"          => $this->getNicknames(),
+            "organizations"      => $this->getOrganizations(),
+            "titles"             => $this->getTitles(),
+            "speakToAs"          => $this->getSpeakToAs(),
+            "sortAs"             => $this->getSortAs(),
             "emails"             => $this->getEmails(),
             "onlineServices"     => $this->getOnlineServices(),
             "phones"             => $this->getPhones(),
             "media"              => $this->getMedia(),
-            "preferredLanguages" => $this->getPreferredLanguages(),
-
+            "preferredLanguages"  => $this->getPreferredLanguages(),
+            "schedulingAddresses" => $this->getSchedulingAddresses(),
             "addresses"      => $this->getAddresses(),
             "pronouns"       => $this->getPronouns(),
             "localizations"  => $this->getLocalizations(),
+            "cryptoKeys"     => $this->getCryptoKeys(),
+            "directories"    => $this->getDirectories(),
+            "links"          => $this->getLinks(),
             "anniversaries"  => $this->getAnniversaries(),
             "personalInfo"   => $this->getPersonalInfo(),
             "notes"          => $this->getNoteObjects(),
-        ], function ($val) {
-            return !is_null($val);
+        ], static function ($val) {
+            return $val !== null;
         });
     }
 }

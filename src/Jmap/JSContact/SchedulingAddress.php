@@ -4,29 +4,36 @@ namespace OpenXPort\Jmap\JSContact;
 
 use JsonSerializable;
 
-class OnlineService extends TypeableEntity implements JsonSerializable
+/**
+ * SchedulingAddress: scheduling addresses (e.g., CALADRURI) associated with the Card.
+ *
+ * JSContact RFC 9553, Section 2.4.2 (schedulingAddresses).
+ */
+class SchedulingAddress extends TypeableEntity implements JsonSerializable
 {
     /**
-     * service: String (optional).
+     * kind: String (mandatory).
+     * Enum: calendar | freeBusy.
      *
-     * @var string|null
+     * @var string
      */
-    private $service;
+    private $kind;
 
     /**
-     * uri: String (optional).
-     * MUST be a URI as per RFC 3986.
+     * uri: String (mandatory).
+     * A URI identifying the scheduling address.
      *
-     * @var string|null
+     * @var string
      */
     private $uri;
 
     /**
-     * user: String (optional).
+     * mediaType: String (optional).
+     * The media type (MIME type) of the resource identified by uri, e.g. "text/calendar".
      *
      * @var string|null
      */
-    private $user;
+    private $mediaType;
 
     /**
      * contexts: String[Boolean] (optional).
@@ -51,17 +58,17 @@ class OnlineService extends TypeableEntity implements JsonSerializable
 
     public function __construct()
     {
-        $this->setAtType('OnlineService');
+        $this->setAtType('SchedulingAddress');
     }
 
-    public function getService()
+    public function getKind()
     {
-        return $this->service;
+        return $this->kind;
     }
 
-    public function setService($service)
+    public function setKind($kind)
     {
-        $this->service = $service;
+        $this->kind = $kind;
     }
 
     public function getUri()
@@ -74,14 +81,14 @@ class OnlineService extends TypeableEntity implements JsonSerializable
         $this->uri = $uri;
     }
 
-    public function getUser()
+    public function getMediaType()
     {
-        return $this->user;
+        return $this->mediaType;
     }
 
-    public function setUser($user)
+    public function setMediaType($mediaType)
     {
-        $this->user = $user;
+        $this->mediaType = $mediaType;
     }
 
     /**
@@ -124,13 +131,13 @@ class OnlineService extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type"    => $this->getAtType(),
-            "service"  => $this->getService(),
-            "uri"      => $this->getUri(),
-            "user"     => $this->getUser(),
-            "contexts" => $this->getContexts(),
-            "pref"     => $this->getPref(),
-            "label"    => $this->getLabel(),
+            "@type"     => $this->getAtType(),
+            "kind"      => $this->getKind(),
+            "uri"       => $this->getUri(),
+            "mediaType" => $this->getMediaType(),
+            "contexts"  => $this->getContexts(),
+            "pref"      => $this->getPref(),
+            "label"     => $this->getLabel(),
         ], function ($val) {
             return !is_null($val);
         });
