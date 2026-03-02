@@ -6,31 +6,28 @@ use JsonSerializable;
 
 class LanguagePref extends TypeableEntity implements JsonSerializable
 {
-    /**
-     * language: String (mandatory).
-     * MUST be a language tag as in RFC 5646 (e.g. "en", "fr-CA").
-     *
-     * @var string
-     */
+    /** @var string|null */
     private $language;
 
-    /**
-     * contexts: String[Boolean] (optional).
-     *
-     * @var array<string,bool>|null
-     */
+    /** @var array<string,bool>|null */
     private $contexts;
 
-    /**
-     * pref: UnsignedInt (optional).
-     *
-     * @var int|null
-     */
+    /** @var int|null */
     private $pref;
 
-    public function __construct()
+    public function __construct($language = null, $contexts = null, $pref = null)
     {
         $this->setAtType('LanguagePref');
+
+        if ($language !== null) {
+            $this->language = $language;
+        }
+        if ($contexts !== null) {
+            $this->contexts = $contexts;
+        }
+        if ($pref !== null) {
+            $this->pref = $pref;
+        }
     }
 
     public function getLanguage()
@@ -43,17 +40,11 @@ class LanguagePref extends TypeableEntity implements JsonSerializable
         $this->language = $language;
     }
 
-    /**
-     * @return array<string,bool>|null
-     */
     public function getContexts()
     {
         return $this->contexts;
     }
 
-    /**
-     * @param array<string,bool>|null $contexts
-     */
     public function setContexts($contexts)
     {
         $this->contexts = $contexts;
@@ -73,12 +64,12 @@ class LanguagePref extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type"    => $this->getAtType(),
-            "language" => $this->getLanguage(),
-            "contexts" => $this->getContexts(),
-            "pref"     => $this->getPref(),
-        ], function ($val) {
-            return !is_null($val);
+            '@type'    => $this->getAtType(),
+            'language' => $this->getLanguage(),
+            'contexts' => $this->getContexts(),
+            'pref'     => $this->getPref(),
+        ], static function ($v) {
+            return $v !== null;
         });
     }
 }

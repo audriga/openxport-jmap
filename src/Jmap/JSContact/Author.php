@@ -17,9 +17,16 @@ class Author extends TypeableEntity implements JsonSerializable
     /** @var string|null */
     private $uri;
 
-    public function __construct()
+    public function __construct($name = null, $uri = null)
     {
         $this->setAtType('Author');
+
+        if ($name !== null) {
+            $this->setName($name);
+        }
+        if ($uri !== null) {
+            $this->setUri($uri);
+        }
     }
 
     public function getName()

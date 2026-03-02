@@ -49,9 +49,34 @@ class OnlineService extends TypeableEntity implements JsonSerializable
      */
     private $label;
 
-    public function __construct()
-    {
+    public function __construct(
+        $service = null,
+        $uri = null,
+        $user = null,
+        $contexts = null,
+        $pref = null,
+        $label = null
+    ) {
         $this->setAtType('OnlineService');
+
+        if ($service !== null) {
+            $this->setService($service);
+        }
+        if ($uri !== null) {
+            $this->setUri($uri);
+        }
+        if ($user !== null) {
+            $this->setUser($user);
+        }
+        if ($contexts !== null) {
+            $this->setContexts($contexts);
+        }
+        if ($pref !== null) {
+            $this->setPref($pref);
+        }
+        if ($label !== null) {
+            $this->setLabel($label);
+        }
     }
 
     public function getService()

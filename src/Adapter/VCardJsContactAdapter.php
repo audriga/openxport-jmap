@@ -13,34 +13,36 @@ use OpenXPort\Jmap\JSContact\EmailAddress;
 use OpenXPort\Jmap\JSContact\Phone;
 use OpenXPort\Jmap\JSContact\OnlineService;
 use OpenXPort\Jmap\JSContact\Address;
+use OpenXPort\Jmap\JSContact\AddressComponent;
 use OpenXPort\Jmap\JSContact\Anniversary;
 use OpenXPort\Jmap\JSContact\Relation;
+use OpenXPort\Jmap\JSContact\LanguagePref;
+use OpenXPort\Jmap\JSContact\PersonalInformation;
 use OpenXPort\Util\AdapterUtil;
 use OpenXPort\Util\Logger;
 use Sabre\VObject;
 
-/**
- * Adapter that converts between vCard and JSContact ContactCard.
- */
 class VCardJsContactAdapter extends AbstractAdapter
 {
-    /** @var VObject\Component\VCard */
     protected $vcard;
-
-    /** @var Logger|null */
     protected $logger;
+    protected $rawVCard;
+
+    protected $placeTextAsFullAddress = false;
+    protected $mapVcardAnniversaryToWedding = true;
 
     /**
-     * Create a new adapter with an empty vCard.
+     * Initializes the adapter with an empty vCard and logger instance.
      */
     public function __construct()
     {
         $this->vcard  = new VObject\Component\VCard();
         $this->logger = Logger::getInstance();
+        $this->rawVCard = null;
     }
 
     /**
-     * Return the current vCard as a string.
+     * Returns the current vCard as a serialized string.
      */
     public function getContact()
     {
@@ -48,15 +50,16 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Load vCard data from a string.
+     * Parses and sets the internal vCard from a vCard string.
      */
     public function setContact($vCardString)
     {
+        $this->rawVCard = is_string($vCardString) ? $vCardString : null;
         $this->vcard = VObject\Reader::read($vCardString);
     }
 
     /**
-     * Map JSContact ContactCard to vCard.
+     * Populates vCard fields from a JSContact ContactCard (https://datatracker.ietf.org/doc/rfc9553/).
      */
     public function setFromJmap(ContactCard $card)
     {
@@ -76,31 +79,91 @@ class VCardJsContactAdapter extends AbstractAdapter
         $this->setAnniversariesFromJmap($card);
         $this->setRelatedToFromJmap($card);
         $this->setMembersFromJmap($card);
+        $this->setPreferredLanguagesFromJmap($card);
+        $this->setKeywordsFromJmap($card);
+        $this->setPersonalInfoFromJmap($card);
     }
 
     /**
-     * Map vCard to JSContact ContactCard.
+     * Converts a vCard TYPE parameter into a JSContact contexts map.
      */
-    public function setOnJmap(ContactCard $card)
+    protected function vcardTypeParamToContexts($prop)
     {
-        $this->setNameOnJmap($card);
-        $this->setNicknameOnJmap($card);
-        $this->setOrganizationOnJmap($card);
-        $this->setTitlesOnJmap($card);
-        $this->setNotesOnJmap($card);
+        $contexts = array();
 
-        $this->setEmailsOnJmap($card);
-        $this->setPhonesOnJmap($card);
-        $this->setOnlineOnJmap($card);
-        $this->setAddressesOnJmap($card);
+        if (isset($prop['TYPE'])) {
+            $types = $prop['TYPE']->getParts();
+            if (is_array($types)) {
+                foreach ($types as $t) {
+                    $t = strtolower(trim((string) $t));
+                    if ($t === 'home') {
+                        $contexts['private'] = true;
+                    } elseif ($t === 'work') {
+                        $contexts['work'] = true;
+                    }
+                }
+            }
+        }
 
-        $this->setAnniversariesOnJmap($card);
-        $this->setRelatedToOnJmap($card);
-        $this->setMembersOnJmap($card);
+        return $contexts;
     }
 
     /**
-     * Set the vCard N value.
+     * Converts a vCard PREF parameter to an integer preference value.
+     */
+    protected function vcardPrefParamToInt($prop)
+    {
+        if (!isset($prop['PREF'])) {
+            return null;
+        }
+        $raw = trim((string) $prop['PREF']);
+        if ($raw === '' || !ctype_digit($raw)) {
+            return null;
+        }
+        $n = (int) $raw;
+        return $n > 0 ? $n : null;
+    }
+
+    /**
+     * Converts JSContact contexts into a vCard TYPE parameter list.
+     */
+    protected function contextsToVcardTypeParam($obj)
+    {
+        $types = array();
+
+        if (is_object($obj)) {
+            $ctx = $obj->getContexts();
+            if (is_array($ctx)) {
+                if (!empty($ctx['private'])) {
+                    $types[] = 'home';
+                }
+                if (!empty($ctx['work'])) {
+                    $types[] = 'work';
+                }
+            }
+        }
+
+        return $types;
+    }
+
+    /**
+     * Converts a JSContact pref value into a vCard PREF parameter string.
+     */
+    protected function prefToVcardParam($obj)
+    {
+        if (!is_object($obj)) {
+            return null;
+        }
+        $pref = $obj->getPref();
+        if ($pref === null) {
+            return null;
+        }
+        $pref = (int) $pref;
+        return $pref > 0 ? (string) $pref : null;
+    }
+
+    /**
+     * Sets the vCard N property from individual name components.
      */
     protected function setName($lastName, $firstName, $middleName, $prefix, $suffix)
     {
@@ -110,15 +173,12 @@ class VCardJsContactAdapter extends AbstractAdapter
         $prefix     = AdapterUtil::isSetAndNotNull($prefix)     && $prefix     !== '' ? $prefix     : '';
         $suffix     = AdapterUtil::isSetAndNotNull($suffix)     && $suffix     !== '' ? $suffix     : '';
 
-        $prop = $this->vcard->createProperty(
-            'N',
-            array($lastName, $firstName, $middleName, $prefix, $suffix)
-        );
+        $prop = $this->vcard->createProperty('N', array($lastName, $firstName, $middleName, $prefix, $suffix));
         $this->vcard->add($prop);
     }
 
     /**
-     * Get the given name from vCard N.
+     * Returns the given name from the vCard N property.
      */
     protected function getFirstName()
     {
@@ -131,7 +191,7 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Get the family name from vCard N.
+     * Returns the surname from the vCard N property.
      */
     protected function getLastName()
     {
@@ -144,7 +204,7 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Get the middle name from vCard N.
+     * Returns the middle name from the vCard N property.
      */
     protected function getMiddlename()
     {
@@ -162,7 +222,7 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Get the prefix from vCard N.
+     * Returns the name prefix from the vCard N property.
      */
     protected function getPrefix()
     {
@@ -175,7 +235,7 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Get the suffix from vCard N.
+     * Returns the name suffix from the vCard N property.
      */
     protected function getSuffix()
     {
@@ -188,7 +248,7 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Set the vCard FN value.
+     * Sets the vCard FN property.
      */
     protected function setDisplayname($displayname)
     {
@@ -198,20 +258,23 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Get the vCard FN value.
+     * Returns the vCard FN value.
      */
     protected function getDisplayname()
     {
         $fn = $this->vcard->FN;
         if (AdapterUtil::isSetAndNotNull($fn) && !empty($fn)) {
-            $parts = $fn->getParts();
-            return isset($parts[0]) ? $parts[0] : null;
+            return (string) $fn;
         }
         return null;
     }
 
     /**
-     * Map JSContact name to vCard N.
+     * Copies the JSContact Name object into the vCard N property.
+     * JSContact -> vCard: write N and FN from ContactCard.name.
+     *
+     * - Reads card->getName().
+     * - Uses Name.components/full to build vCard N (family, given, middle, prefix, suffix).
      */
     public function setNameFromJmap(ContactCard $card)
     {
@@ -226,8 +289,8 @@ class VCardJsContactAdapter extends AbstractAdapter
             $components = $name->getComponents();
             if (is_array($components)) {
                 foreach ($components as $component) {
-                    $kind  = method_exists($component, 'getKind') ? $component->getKind() : null;
-                    $value = method_exists($component, 'getValue') ? $component->getValue() : null;
+                    $kind  = $component->getKind();
+                    $value = $component->getValue();
 
                     if ($kind === 'surname') {
                         $family = $value;
@@ -248,24 +311,58 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Map JSContact name.full to vCard FN.
+     * Copies the JSContact full name into the vCard FN property.
      */
     public function setFnFromJmap(ContactCard $card)
     {
         $name = $card->getName();
-        $full = ($name instanceof Name && method_exists($name, 'getFull'))
+        $full = ($name instanceof Name)
             ? $name->getFull()
             : null;
 
-        if ($full !== null) {
-            $this->setDisplayname($full);
+        if (($full === null || $full === '') && $name instanceof Name) {
+            $components = $name->getComponents();
+            if (is_array($components)) {
+                $given   = [];
+                $middle  = [];
+                $surname = [];
+
+                foreach ($components as $component) {
+                    $kind  = $component->getKind();
+                    $value = $component->getValue();
+                    if ($value === null || $value === '') {
+                        continue;
+                    }
+
+                    if ($kind === 'given') {
+                        $given[] = $value;
+                    } elseif ($kind === 'middle') {
+                        $middle[] = $value;
+                    } elseif ($kind === 'surname') {
+                        $surname[] = $value;
+                    }
+                }
+
+                $parts = array_merge($given, $middle, $surname);
+                if (!empty($parts)) {
+                    $full = implode(' ', $parts);
+                }
+            }
+        }
+
+        if ($full !== null && $full !== '') {
+            $this->setDisplayname($full); // FN
         }
     }
 
     /**
-     * Map vCard N/FN to JSContact name.
+     * vCard -> JSContact: read N into ContactCard.name.
+     *
+     * - Reads N parts (family, given, middle, prefix, suffix) and FN.
+     * - Creates a Name object with components for each non-empty part.
+     * - Also sets Name.isOrdered=true and keeps parts in order.
      */
-    public function setNameOnJmap(ContactCard $card)
+    public function getNameToJmap(ContactCard $card)
     {
         $family = $this->getLastName();
         $given  = $this->getFirstName();
@@ -276,7 +373,7 @@ class VCardJsContactAdapter extends AbstractAdapter
 
         $name = new Name();
 
-        if ($fn !== null && method_exists($name, 'setFull')) {
+        if ($fn !== null && $fn !== '') {
             $name->setFull($fn);
         }
 
@@ -322,7 +419,8 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Set vCard NICKNAME from a string.
+     * Sets the vCard NICKNAME property.
+     * JSContact -> vCard: write NICKNAME from ContactCard.nicknames.
      */
     protected function setNickname($nickname)
     {
@@ -332,20 +430,23 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Get vCard NICKNAME as a string.
+     * Returns the vCard NICKNAME value.
      */
     protected function getNickname()
     {
         $nn = $this->vcard->NICKNAME;
         if (AdapterUtil::isSetAndNotNull($nn)) {
-            $parts = $nn->getParts();
-            return isset($parts[0]) ? $parts[0] : null;
+            return (string) $nn;
         }
         return null;
     }
 
     /**
-     * Map JSContact nicknames to vCard NICKNAME.
+     * Copies the first JSContact nickname into the vCard.
+     * JSContact -> vCard: write NICKNAME from ContactCard.nicknames.
+     *
+     * - Takes the first Nickname object from card->getNicknames().
+     * - Writes its name into a single NICKNAME property.
      */
     public function setNicknameFromJmap(ContactCard $card)
     {
@@ -354,15 +455,19 @@ class VCardJsContactAdapter extends AbstractAdapter
             return;
         }
         $first = reset($nicks);
-        if ($first instanceof Nickname && method_exists($first, 'getName')) {
+        if ($first instanceof Nickname) {
             $this->setNickname($first->getName());
         }
     }
 
     /**
-     * Map vCard NICKNAME to JSContact nicknames.
+     * vCard -> JSContact: read NICKNAME into ContactCard.nicknames.
+     *
+     * - Reads the NICKNAME value (string).
+     * - Creates one Nickname object and stores it under an Id (e.g. "n1").
+     * - If NICKNAME is empty or missing, does nothing.
      */
-    public function setNicknameOnJmap(ContactCard $card)
+    public function getNicknameToJmap(ContactCard $card)
     {
         $nickname = $this->getNickname();
         if (!empty($nickname)) {
@@ -373,30 +478,67 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Set vCard ORG from a string.
+     * Sets the vCard ORG property from name and unit parts.
      */
-    protected function setOrganization($organization)
+    protected function setOrganizationFromParts($name, array $units)
     {
-        if (AdapterUtil::isSetAndNotNull($organization) && $organization !== '') {
-            $this->vcard->add('ORG', $organization);
+        if (!AdapterUtil::isSetAndNotNull($name)) {
+            $name = '';
         }
+        $name = (string) $name;
+
+        $parts = array_merge(array($name), $units);
+
+        $hasAny = false;
+        foreach ($parts as $p) {
+            if (is_string($p) && trim($p) !== '') {
+                $hasAny = true;
+                break;
+            }
+        }
+        if (!$hasAny) {
+            return;
+        }
+
+        $this->vcard->add('ORG', $parts);
     }
 
     /**
-     * Get vCard ORG as a string.
+     * Returns the vCard ORG property split into name and units.
      */
-    protected function getOrganization()
+    protected function getOrganizationParts()
     {
         $org = $this->vcard->ORG;
-        if (AdapterUtil::isSetAndNotNull($org) && !empty($org)) {
-            $parts = $org->getParts();
-            return isset($parts[0]) ? $parts[0] : null;
+        if (!AdapterUtil::isSetAndNotNull($org) || empty($org)) {
+            return null;
         }
-        return null;
+
+        $parts = $org->getParts();
+        if (!is_array($parts) || empty($parts)) {
+            $raw = trim((string) $org);
+            if ($raw === '') {
+                return null;
+            }
+            return array('name' => $raw, 'units' => array());
+        }
+
+        $name = isset($parts[0]) ? (string) $parts[0] : '';
+        $units = array();
+        for ($i = 1; $i < count($parts); $i++) {
+            $u = (string) $parts[$i];
+            if ($u !== '') {
+                $units[] = $u;
+            }
+        }
+
+        return array('name' => $name, 'units' => $units);
     }
 
     /**
-     * Map JSContact organizations to vCard ORG.
+     * JSContact -> vCard: write ORG from ContactCard.organizations.
+     *
+     * - Uses the first Organization from card->getOrganizations().
+     * - Writes name and additional units into ORG parts.
      */
     public function setOrganizationFromJmap(ContactCard $card)
     {
@@ -404,27 +546,65 @@ class VCardJsContactAdapter extends AbstractAdapter
         if (!is_array($orgs) || empty($orgs)) {
             return;
         }
+
         $first = reset($orgs);
-        if ($first instanceof Organization && method_exists($first, 'getName')) {
-            $this->setOrganization($first->getName());
+        if (!($first instanceof Organization)) {
+            return;
         }
+
+        $name = $first->getName();
+        $units = array();
+
+        $u = $first->getUnits();
+        if (is_array($u)) {
+            foreach ($u as $unitObj) {
+                if (is_object($unitObj)) {
+                    $unitName = $unitObj->getName();
+                    if (is_string($unitName) && $unitName !== '') {
+                        $units[] = $unitName;
+                    }
+                } elseif (is_string($unitObj) && $unitObj !== '') {
+                    $units[] = $unitObj;
+                }
+            }
+        }
+
+        $this->setOrganizationFromParts($name, $units);
     }
 
     /**
-     * Map vCard ORG to JSContact organizations.
+     * Sets JSContact Organizations from the vCard ORG property.
+     * vCard -> JSContact: read ORG into ContactCard.organizations.
+     *
+     * - Reads ORG parts: first as name, remaining as units.
+     * - Builds a single Organization object with this data.
+     * - If ORG is missing or empty, leaves organizations unset.
      */
-    public function setOrganizationOnJmap(ContactCard $card)
+    public function getOrganizationToJmap(ContactCard $card)
     {
-        $orgName = $this->getOrganization();
-        if (!empty($orgName)) {
-            $org = new Organization();
-            $org->setName($orgName);
-            $card->setOrganizations(array('o1' => $org));
+        $parts = $this->getOrganizationParts();
+        if ($parts === null) {
+            return;
         }
+
+        $org = new Organization();
+        $org->setName($parts['name']);
+
+        $unitObjs = array();
+        foreach ($parts['units'] as $unitName) {
+            $unitObjs[] = $unitName;
+        }
+        $org->setUnits($unitObjs);
+
+        $card->setOrganizations(array('o1' => $org));
     }
 
     /**
-     * Map JSContact titles to vCard TITLE and ROLE.
+     * Copies JSContact Titles into vCard TITLE and ROLE properties.
+     * JSContact -> vCard: write TITLE properties from ContactCard.titles.
+     *
+     * - For each Title in card->getTitles(), writes its value as a TITLE line.
+     * - Does not map any extra metadata (contexts, pref).
      */
     public function setTitlesFromJmap(ContactCard $card)
     {
@@ -438,8 +618,8 @@ class VCardJsContactAdapter extends AbstractAdapter
                 continue;
             }
 
-            $kind = method_exists($titleObj, 'getKind') ? $titleObj->getKind() : null;
-            $name = method_exists($titleObj, 'getName') ? $titleObj->getName() : null;
+            $kind =  $titleObj->getKind();
+            $name =  $titleObj->getName();
 
             if ($name === null || $name === '') {
                 continue;
@@ -454,9 +634,11 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Map vCard TITLE and ROLE to JSContact titles.
+     * Sets JSContact Titles from vCard TITLE and ROLE properties.
+     * - Creates one Title object per TITLE value.
+     * - Stores them in an Id map on the ContactCard.
      */
-    public function setTitlesOnJmap(ContactCard $card)
+    public function getTitlesToJmap(ContactCard $card)
     {
         $map = array();
         $idx = 1;
@@ -464,16 +646,14 @@ class VCardJsContactAdapter extends AbstractAdapter
         $vTitles = $this->vcard->TITLE;
         if (AdapterUtil::isSetAndNotNull($vTitles) && !empty($vTitles)) {
             foreach ($vTitles as $vTitle) {
-                $parts = $vTitle->getParts();
-                if (!isset($parts[0]) || $parts[0] === '') {
+                $name = trim((string) $vTitle);
+                if ($name === '') {
                     continue;
                 }
-                $name = $parts[0];
 
                 $t = new Title();
-                if (method_exists($t, 'setKind')) {
-                    $t->setKind('title');
-                }
+                $t->setKind('title');
+
                 $t->setName($name);
 
                 $map['t' . $idx++] = $t;
@@ -483,16 +663,14 @@ class VCardJsContactAdapter extends AbstractAdapter
         $vRoles = $this->vcard->ROLE;
         if (AdapterUtil::isSetAndNotNull($vRoles) && !empty($vRoles)) {
             foreach ($vRoles as $vRole) {
-                $parts = $vRole->getParts();
-                if (!isset($parts[0]) || $parts[0] === '') {
+                $name = trim((string) $vRole);
+                if ($name === '') {
                     continue;
                 }
-                $name = $parts[0];
 
                 $t = new Title();
-                if (method_exists($t, 'setKind')) {
-                    $t->setKind('role');
-                }
+                $t->setKind('role');
+
                 $t->setName($name);
 
                 $map['t' . $idx++] = $t;
@@ -505,7 +683,7 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Set vCard NOTE from a string.
+     * Sets the vCard NOTE property.
      */
     protected function setNotes($notes)
     {
@@ -515,19 +693,22 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Get vCard NOTE as a string.
+     * Returns the vCard NOTE value.
      */
     protected function getNotes()
     {
         $note = $this->vcard->NOTE;
         if (AdapterUtil::isSetAndNotNull($note)) {
-            return $note->getValue();
+            return (string) $note;
         }
         return null;
     }
 
     /**
-     * Map JSContact notes to vCard NOTE.
+     * Copies the first JSContact Note into the vCard NOTE property.
+     *
+     * - Takes the first Note from card->getNoteObjects().
+     * - Writes its text into a single NOTE property.
      */
     public function setNotesFromJmap(ContactCard $card)
     {
@@ -536,15 +717,18 @@ class VCardJsContactAdapter extends AbstractAdapter
             return;
         }
         $first = reset($notes);
-        if ($first instanceof Note && method_exists($first, 'getNote')) {
+        if ($first instanceof Note) {
             $this->setNotes($first->getNote());
         }
     }
 
     /**
-     * Map vCard NOTE to JSContact notes.
+     * Sets JSContact Note objects from the vCard NOTE property.
+     * - Reads the NOTE text.
+     * - Creates one Note object and stores it in noteObjects.
+     * - Does not parse multiple NOTE lines or ALTID/LANGUAGE variants.
      */
-    public function setNotesOnJmap(ContactCard $card)
+    public function getNotesToJmap(ContactCard $card)
     {
         $noteText = $this->getNotes();
         if (!empty($noteText)) {
@@ -555,7 +739,7 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Get birthday from vCard BDAY.
+     * Returns the birthday in JMAP date format or a default value.
      */
     protected function getBirthday()
     {
@@ -564,23 +748,17 @@ class VCardJsContactAdapter extends AbstractAdapter
             return '0000-00-00';
         }
 
-        $parts = $bday->getParts();
-        if (!isset($parts[0])) {
+        $raw = trim((string) $bday);
+        if ($raw === '') {
             return '0000-00-00';
         }
 
-        $input  = 'Y-m-d';
-        $output = 'Y-m-d';
-        $alt    = 'Ymd';
-        $jmap   = AdapterUtil::parseDateTime($parts[0], $input, $output, $alt);
-        if ($jmap === null) {
-            return '0000-00-00';
-        }
-        return $jmap;
+        $jmap = AdapterUtil::parseDateTime($raw, 'Y-m-d', 'Y-m-d', 'Ymd');
+        return $jmap === null ? '0000-00-00' : $jmap;
     }
 
     /**
-     * Set vCard BDAY from a date string.
+     * Sets the vCard BDAY property from a JMAP date.
      */
     protected function setBirthday($birthday)
     {
@@ -588,23 +766,16 @@ class VCardJsContactAdapter extends AbstractAdapter
             return;
         }
 
-        $input  = 'Y-m-d';
-        $output = 'Y-m-d';
-        $vDate  = AdapterUtil::parseDateTime($birthday, $input, $output);
-
+        $vDate = AdapterUtil::parseDateTime($birthday, 'Y-m-d', 'Y-m-d');
         if ($vDate === null) {
             return;
         }
 
-        $this->vcard->add(
-            'BDAY',
-            $vDate,
-            array('value' => 'date')
-        );
+        $this->vcard->add('BDAY', $vDate, array('VALUE' => 'date'));
     }
 
     /**
-     * Get anniversary from vCard ANNIVERSARY.
+     * Returns the ANNIVERSARY date in JMAP format or a default value.
      */
     protected function getAnniversary()
     {
@@ -613,103 +784,269 @@ class VCardJsContactAdapter extends AbstractAdapter
             return '0000-00-00';
         }
 
-        $parts = $ann->getParts();
-        if (!isset($parts[0])) {
+        $raw = trim((string) $ann);
+        if ($raw === '') {
             return '0000-00-00';
         }
 
-        $input  = 'Ymd';
-        $alt    = 'Y-m-d';
-        $output = 'Y-m-d';
-        $jmap   = AdapterUtil::parseDateTime($parts[0], $input, $output, $alt);
-        if ($jmap === null) {
-            return '0000-00-00';
-        }
-        return $jmap;
+        $jmap = AdapterUtil::parseDateTime($raw, 'Ymd', 'Y-m-d', 'Y-m-d');
+        return $jmap === null ? '0000-00-00' : $jmap;
     }
 
     /**
-     * Set vCard ANNIVERSARY from a date string.
+     * Sets the vCard ANNIVERSARY property from a JMAP date.
      */
     protected function setAnniversary($anniversary)
     {
-        if (
-            !AdapterUtil::isSetAndNotNull($anniversary)
-            || $anniversary === ''
-            || $anniversary === '0000-00-00'
-        ) {
+        if (!AdapterUtil::isSetAndNotNull($anniversary) || $anniversary === '' || $anniversary === '0000-00-00') {
             return;
         }
 
-        $input  = 'Y-m-d';
-        $output = 'Ymd';
-        $vDate  = AdapterUtil::parseDateTime($anniversary, $input, $output);
+        $vDate = AdapterUtil::parseDateTime($anniversary, 'Y-m-d', 'Ymd');
         if ($vDate === null) {
             return;
         }
 
-        $this->vcard->add(
-            'ANNIVERSARY',
-            $vDate,
-            array('value' => 'date')
-        );
+        $this->vcard->add('ANNIVERSARY', $vDate, array('VALUE' => 'date'));
     }
 
     /**
-     * Map JSContact anniversaries to vCard dates.
+     * Returns the raw BIRTHPLACE text if present.
+     */
+    protected function getBirthPlaceRaw()
+    {
+        $p = $this->vcard->__get('BIRTHPLACE');
+        if (!AdapterUtil::isSetAndNotNull($p)) {
+            return null;
+        }
+        $raw = (string) $p;
+        $raw = str_replace("\\n", "\n", $raw);
+        $raw = trim($raw);
+        return $raw === '' ? null : $raw;
+    }
+
+    /**
+     * Returns the DEATHDATE in JMAP date format or a default value.
+     */
+    protected function getDeathDate()
+    {
+        $p = $this->vcard->__get('DEATHDATE');
+        if (!AdapterUtil::isSetAndNotNull($p)) {
+            return '0000-00-00';
+        }
+
+        $raw = trim((string) $p);
+        if ($raw === '') {
+            return '0000-00-00';
+        }
+
+        $jmap = AdapterUtil::parseDateTime($raw, 'Y-m-d', 'Y-m-d', 'Ymd');
+        return $jmap === null ? '0000-00-00' : $jmap;
+    }
+
+    /**
+     * Sets the vCard DEATHDATE property from a JMAP date.
+     */
+    protected function setDeathDate($deathDate)
+    {
+        if (!AdapterUtil::isSetAndNotNull($deathDate) || $deathDate === '' || $deathDate === '0000-00-00') {
+            return;
+        }
+        $vDate = AdapterUtil::parseDateTime($deathDate, 'Y-m-d', 'Ymd');
+        if ($vDate === null) {
+            return;
+        }
+        $this->vcard->add('DEATHDATE', $vDate, array('VALUE' => 'date'));
+    }
+
+    /**
+     * Returns the raw DEATHPLACE text if present.
+     */
+    protected function getDeathPlaceRaw()
+    {
+        $p = $this->vcard->__get('DEATHPLACE');
+        if (!AdapterUtil::isSetAndNotNull($p)) {
+            return null;
+        }
+        $raw = (string) $p;
+        $raw = str_replace("\\n", "\n", $raw);
+        $raw = trim($raw);
+        return $raw === '' ? null : $raw;
+    }
+
+    /**
+     * Converts a raw place string into a JSContact Address object.
+     */
+    protected function placeRawToAddress($raw)
+    {
+        if (!is_string($raw)) {
+            return null;
+        }
+        $raw = trim($raw);
+        if ($raw === '') {
+            return null;
+        }
+
+        // geo: URI -> coordinates only
+        if (stripos($raw, 'geo:') === 0) {
+            $addr = new Address();
+            $addr->setCoordinates(substr($raw, 4));
+            return $addr;
+        }
+
+        // Non-geo textual value -> fullAddress, if enabled
+        if ($this->placeTextAsFullAddress) {
+            $addr = new Address();
+            $addr->setFullAddress($raw);
+            return $addr;
+        }
+
+        return null;
+    }
+
+    /**
+     * Sets the vCard BIRTHPLACE property from an Address object.
+     */
+    protected function setBirthPlaceFromAddress(Address $addr)
+    {
+        $text = $addr->getFullAddress();
+        if (!is_string($text) || trim($text) === '') {
+            return;
+        }
+        $text = trim($text);
+        if (stripos($text, 'geo:') === 0 || $this->placeTextAsFullAddress) {
+            $this->vcard->add('BIRTHPLACE', $text);
+        }
+    }
+
+    /**
+     * Sets the vCard DEATHPLACE property from an Address object.
+     */
+    protected function setDeathPlaceFromAddress(Address $addr)
+    {
+        $text = $addr->getFullAddress();
+        if (!is_string($text) || trim($text) === '') {
+            return;
+        }
+        $text = trim($text);
+        if (stripos($text, 'geo:') === 0 || $this->placeTextAsFullAddress) {
+            $this->vcard->add('DEATHPLACE', $text);
+        }
+    }
+
+    /**
+     * JSContact -> vCard: write BDAY/DEATHDATE/ANNIVERSARY and places.
+     *
+     * - Anniversary(kind='birth') -> BDAY and optional BIRTHPLACE (from place).
+     * - Anniversary(kind='death') -> DEATHDATE and optional DEATHPLACE.
+     * - Anniversary(kind='other') -> ANNIVERSARY (if mapping enabled).
+     * - Place Address.coordinates (geo: URI) and fullAddress are used.
      */
     public function setAnniversariesFromJmap(ContactCard $card)
     {
         $anns = $card->getAnniversaries();
-        if (!is_array($anns)) {
+        if (!is_array($anns) || empty($anns)) {
             return;
         }
 
-        $birth = null;
-        $other = null;
+        $birth   = null;
+        $death   = null;
+        $wedding = null;
 
         foreach ($anns as $ann) {
             if (!($ann instanceof Anniversary)) {
                 continue;
             }
-            $kind = method_exists($ann, 'getKind') ? $ann->getKind() : null;
-            $date = method_exists($ann, 'getDate') ? $ann->getDate() : null;
+
+            $kind = $ann->getKind();
+
             if ($kind === 'birth' && $birth === null) {
-                $birth = $date;
-            } elseif ($kind === 'other' && $other === null) {
-                $other = $date;
+                $birth = $ann;
+            } elseif ($kind === 'death' && $death === null) {
+                $death = $ann;
+            } elseif (($kind === 'wedding' || $kind === 'other') && $wedding === null) {
+                // JSContact kind "wedding" or generic "other" as a wedding anniversary
+                $wedding = $ann;
             }
         }
 
-        if ($birth) {
-            $this->setBirthday($birth);
+        if ($birth instanceof Anniversary) {
+            $this->setBirthday($birth->getDate());
+            $place = $birth->getPlace();
+            if ($place instanceof Address) {
+                $this->setBirthPlaceFromAddress($place);
+            }
         }
-        if ($other) {
-            $this->setAnniversary($other);
+
+        if ($death instanceof Anniversary) {
+            $this->setDeathDate($death->getDate());
+            $place = $death->getPlace();
+            if ($place instanceof Address) {
+                $this->setDeathPlaceFromAddress($place);
+            }
+        }
+
+        if ($this->mapVcardAnniversaryToWedding && $wedding instanceof Anniversary) {
+            $this->setAnniversary($wedding->getDate());
         }
     }
 
     /**
-     * Map vCard dates to JSContact anniversaries.
+     * Sets JSContact anniversaries from vCard birth, death and anniversary fields.
+     * vCard -> JSContact: read BDAY/DEATHDATE/ANNIVERSARY into anniversaries.
+     *
+     * - BDAY/BIRTHPLACE -> Anniversary kind='birth'.
+     * - DEATHDATE/DEATHPLACE -> Anniversary kind='death'.
+     * - ANNIVERSARY -> Anniversary kind='other' (wedding).
+     * - Place is stored as an Address (coordinates or fullAddress).
      */
-    public function setAnniversariesOnJmap(ContactCard $card)
+    public function getAnniversariesToJmap(ContactCard $card)
     {
         $anns = array();
 
-        $birthday = $this->getBirthday();
-        if ($birthday !== '0000-00-00') {
+        $bday = $this->getBirthday();
+        $bplace = $this->getBirthPlaceRaw();
+        if ($bday !== '0000-00-00' || $bplace !== null) {
             $a = new Anniversary();
             $a->setKind('birth');
-            $a->setDate($birthday);
+            if ($bday !== '0000-00-00') {
+                $a->setDate($bday);
+            }
+            if ($bplace !== null) {
+                $addr = $this->placeRawToAddress($bplace);
+                if ($addr instanceof Address) {
+                    $a->setPlace($addr);
+                }
+            }
             $anns[] = $a;
         }
 
-        $anniv = $this->getAnniversary();
-        if ($anniv !== '0000-00-00') {
+        $ddate = $this->getDeathDate();
+        $dplace = $this->getDeathPlaceRaw();
+        if ($ddate !== '0000-00-00' || $dplace !== null) {
             $a = new Anniversary();
-            $a->setKind('other');
-            $a->setDate($anniv);
+            $a->setKind('death');
+            if ($ddate !== '0000-00-00') {
+                $a->setDate($ddate);
+            }
+            if ($dplace !== null) {
+                $addr = $this->placeRawToAddress($dplace);
+                if ($addr instanceof Address) {
+                    $a->setPlace($addr);
+                }
+            }
             $anns[] = $a;
+        }
+
+        if ($this->mapVcardAnniversaryToWedding) {
+            $anniv = $this->getAnniversary();
+            if ($anniv !== '0000-00-00') {
+                $a = new Anniversary();
+                $a->setKind('other');
+                $a->setLabel('marriage date');
+                $a->setDate($anniv);
+                $anns[] = $a;
+            }
         }
 
         if (!empty($anns)) {
@@ -718,189 +1055,247 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Add vCard EMAIL properties.
-     */
-    protected function setEmails(array $emails)
-    {
-        foreach ($emails as $e) {
-            $value = isset($e['value']) ? $e['value'] : null;
-            if (!AdapterUtil::isSetAndNotNull($value) || $value === '') {
-                continue;
-            }
-            $this->vcard->add(
-                'EMAIL',
-                $value,
-                array('type' => array('internet'))
-            );
-        }
-    }
-
-    /**
-     * Get vCard EMAIL values.
-     */
-    protected function getEmails()
-    {
-        $result  = array();
-        $vEmails = $this->vcard->EMAIL;
-
-        if (!AdapterUtil::isSetAndNotNull($vEmails) || empty($vEmails)) {
-            return $result;
-        }
-
-        foreach ($vEmails as $email) {
-            $parts = $email->getParts();
-            if (!isset($parts[0])) {
-                continue;
-            }
-            $value = $parts[0];
-            if (!AdapterUtil::isSetAndNotNull($value) || $value === '') {
-                continue;
-            }
-            $result[] = array('value' => $value);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Map JSContact emails to vCard EMAIL.
+     * Copies JSContact email addresses into vCard EMAIL properties.
+     *
+     * - For each EmailAddress:
+     *   - email -> EMAIL value
+     *   - contexts.private/work -> TYPE=home/work
+     *   - pref -> PREF
      */
     public function setEmailsFromJmap(ContactCard $card)
     {
         $emails = $card->getEmails();
-        if (!is_array($emails)) {
+        if (!is_array($emails) || empty($emails)) {
             return;
         }
 
-        $vcard = array();
         foreach ($emails as $email) {
             if (!($email instanceof EmailAddress)) {
                 continue;
             }
 
-            $vcard[] = array(
-                'value' => method_exists($email, 'getAddress') ? $email->getAddress() : null,
-            );
-        }
+            $addr = $email->getAddress();
+            if (!is_string($addr) || trim($addr) === '') {
+                continue;
+            }
 
-        $this->setEmails($vcard);
+            $params = array();
+
+            $types = $this->contextsToVcardTypeParam($email);
+            if (!empty($types)) {
+                $params['TYPE'] = $types;
+            }
+
+            $pref = $this->prefToVcardParam($email);
+            if ($pref !== null) {
+                $params['PREF'] = $pref;
+            }
+
+            $this->vcard->add('EMAIL', $addr, $params);
+        }
     }
 
     /**
-     * Map vCard EMAIL to JSContact emails.
+     * Sets JSContact email addresses from vCard EMAIL properties.
+     * vCard -> JSContact: read EMAIL into ContactCard.emails.
+     *
+     * - For each EMAIL:
+     *   - value -> EmailAddress.email
+     *   - TYPE home/work -> contexts.private/work
+     *   - PREF -> pref
      */
-    public function setEmailsOnJmap(ContactCard $card)
+    public function getEmailsToJmap(ContactCard $card)
     {
-        $emails = $this->getEmails();
-        if (empty($emails)) {
+        $vEmails = $this->vcard->EMAIL;
+        if (!AdapterUtil::isSetAndNotNull($vEmails) || empty($vEmails)) {
             return;
         }
 
         $map = array();
-        foreach ($emails as $idx => $email) {
+        $i = 1;
+
+        foreach ($vEmails as $prop) {
+            $value = trim((string) $prop);
+            if ($value === '') {
+                continue;
+            }
+
             $e = new EmailAddress();
-            if (is_array($email)) {
-                $e->setAddress(isset($email['value']) ? $email['value'] : null);
-            } else {
-                $e->setAddress($email);
+            $e->setAddress($value);
+
+            $ctx = $this->vcardTypeParamToContexts($prop);
+            if (!empty($ctx)) {
+                $e->setContexts($ctx);
             }
-            $map['e' . $idx] = $e;
+
+            $pref = $this->vcardPrefParamToInt($prop);
+            if ($pref !== null) {
+                $e->setPref($pref);
+            }
+            $map['e' . $i++] = $e;
         }
 
-        $card->setEmails($map);
-    }
-
-    /**
-     * Add vCard TEL properties.
-     */
-    protected function setPhones(array $phones)
-    {
-        foreach ($phones as $p) {
-            $value = isset($p['value']) ? $p['value'] : null;
-            if (!AdapterUtil::isSetAndNotNull($value) || $value === '') {
-                continue;
-            }
-            $this->vcard->add('TEL', $value);
+        if (!empty($map)) {
+            $card->setEmails($map);
         }
     }
 
     /**
-     * Get vCard TEL values.
-     */
-    protected function getPhones()
-    {
-        $result   = array();
-        $vPhones  = $this->vcard->TEL;
-
-        if (!AdapterUtil::isSetAndNotNull($vPhones) || empty($vPhones)) {
-            return $result;
-        }
-
-        foreach ($vPhones as $phone) {
-            $parts = $phone->getParts();
-            if (!isset($parts[0])) {
-                continue;
-            }
-            $value = $parts[0];
-            if (!AdapterUtil::isSetAndNotNull($value) || $value === '') {
-                continue;
-            }
-            $result[] = array('value' => $value);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Map JSContact phones to vCard TEL.
+     * Copies JSContact phone numbers into vCard TEL properties.
+     * JSContact -> vCard: write TEL from ContactCard.phones.
+     *
+     * - For each Phone:
+     *   - number -> TEL value
+     *   - contexts.private/work -> TYPE=home/work
+     *   - features -> TYPE flags (mobile, voice, fax, text, video, pager, textphone, main-number)
+     *   - pref -> PREF
      */
     public function setPhonesFromJmap(ContactCard $card)
     {
         $phones = $card->getPhones();
-        if (!is_array($phones)) {
+        if (!is_array($phones) || empty($phones)) {
             return;
         }
 
-        $vcard = array();
         foreach ($phones as $phone) {
             if (!($phone instanceof Phone)) {
                 continue;
             }
 
-            $vcard[] = array(
-                'value' => method_exists($phone, 'getNumber') ? $phone->getNumber() : null,
-            );
-        }
+            $num = $phone->getNumber();
+            if (!is_string($num) || trim($num) === '') {
+                continue;
+            }
 
-        $this->setPhones($vcard);
+            $params = array();
+
+            // Contexts
+            $types = $this->contextsToVcardTypeParam($phone);
+
+            // Features
+            if (method_exists($phone, 'getFeatures')) {
+                $feat = $phone->getFeatures();
+                if (is_array($feat)) {
+                    foreach ($feat as $name => $flag) {
+                        if (!$flag) {
+                            continue;
+                        }
+                        $name = strtolower((string) $name);
+                        if (
+                            in_array($name, array('voice', 'fax', 'cell',
+                            'text', 'video', 'pager', 'textphone'), true)
+                        ) {
+                            $types[] = $name;
+                        }
+                    }
+                }
+            }
+
+            if (!empty($types)) {
+                $params['TYPE'] = $types;
+            }
+
+            $pref = $this->prefToVcardParam($phone);
+            if ($pref !== null) {
+                $params['PREF'] = $pref;
+            }
+
+            $this->vcard->add('TEL', $num, $params);
+        }
     }
 
     /**
-     * Map vCard TEL to JSContact phones.
+     * Sets JSContact phone numbers from vCard TEL properties.
+     * vCard -> JSContact: read TEL into ContactCard.phones.
+     *
+     * - For each TEL:
+     *   - value -> Phone.number
+     *   - TYPE home/work -> contexts.private/work
+     *   - TYPE mobile/voice/text/video/main-number/textphone/fax/pager -> Phone.features
+     *   - other TYPEs -> Phone.label text
+     *   - PREF -> pref
      */
-    public function setPhonesOnJmap(ContactCard $card)
+    public function getPhonesToJmap(ContactCard $card)
     {
-        $phones = $this->getPhones();
-        if (empty($phones)) {
+        $vPhones = $this->vcard->TEL;
+        if (!AdapterUtil::isSetAndNotNull($vPhones) || empty($vPhones)) {
             return;
         }
 
         $map = array();
-        foreach ($phones as $idx => $phone) {
-            $p = new Phone();
-            if (is_array($phone)) {
-                $p->setNumber(isset($phone['value']) ? $phone['value'] : null);
-            } else {
-                $p->setNumber($phone);
+        $i = 1;
+
+        foreach ($vPhones as $prop) {
+            $value = trim((string) $prop);
+            if ($value === '') {
+                continue;
             }
-            $map['p' . $idx] = $p;
+
+            $p = new Phone();
+            $p->setNumber($value);
+
+            // Generic TYPE -> contexts (home/work)
+            $ctx = $this->vcardTypeParamToContexts($prop);
+            if (!empty($ctx)) {
+                $p->setContexts($ctx);
+            }
+
+            // TEL-specific TYPEs -> features / label
+            $features = array();
+            $labels = array();
+
+            if (isset($prop['TYPE'])) {
+                $types = $prop['TYPE']->getParts();
+                if (is_array($types)) {
+                    foreach ($types as $t) {
+                        $t = strtolower(trim((string) $t));
+                        if ($t === '' || $t === null) {
+                            continue;
+                        }
+
+                        if ($t === 'home' || $t === 'work') {
+                            continue;
+                        }
+
+                        // Known JSContact Phone.features keys (RFC 9553)
+                        if (
+                            in_array(
+                                $t,
+                                array('mobile', 'voice', 'text', 'video', 'main-number', 'textphone', 'fax', 'pager'),
+                                true
+                            )
+                        ) {
+                            $features[$t] = true;
+                        } else {
+                            $labels[] = $t;
+                        }
+                    }
+                }
+            }
+
+            if (!empty($features)) {
+                $p->setFeatures($features);
+            }
+
+            if (!empty($labels)) {
+                $p->setLabel(implode(', ', $labels));
+            }
+
+            $pref = $this->vcardPrefParamToInt($prop);
+            if ($pref !== null) {
+                $p->setPref($pref);
+            }
+
+            $map['p' . $i++] = $p;
         }
 
-        $card->setPhones($map);
+        if (!empty($map)) {
+            $card->setPhones($map);
+        }
     }
 
     /**
-     * Add vCard URL properties.
+     * Adds website entries as vCard URL properties.
      */
     protected function setWebsites(array $websites)
     {
@@ -914,7 +1309,7 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Get vCard URL values.
+     * Returns website entries derived from vCard URL properties.
      */
     protected function getWebsites()
     {
@@ -926,12 +1321,8 @@ class VCardJsContactAdapter extends AbstractAdapter
         }
 
         foreach ($vUrls as $url) {
-            $parts = $url->getParts();
-            if (!isset($parts[0])) {
-                continue;
-            }
-            $value = $parts[0];
-            if (!AdapterUtil::isSetAndNotNull($value) || $value === '') {
+            $value = trim((string) $url);
+            if ($value === '') {
                 continue;
             }
             $result[] = array('value' => $value);
@@ -941,7 +1332,7 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Add vCard IMPP properties.
+     * Adds instant messaging entries as vCard IMPP properties.
      */
     protected function setIm(array $ims)
     {
@@ -955,7 +1346,7 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Get vCard IMPP values.
+     * Returns instant messaging entries derived from vCard IMPP properties.
      */
     protected function getIm()
     {
@@ -967,12 +1358,8 @@ class VCardJsContactAdapter extends AbstractAdapter
         }
 
         foreach ($vIms as $im) {
-            $parts = $im->getParts();
-            if (!isset($parts[0])) {
-                continue;
-            }
-            $value = $parts[0];
-            if (!AdapterUtil::isSetAndNotNull($value) || $value === '') {
+            $value = trim((string) $im);
+            if ($value === '') {
                 continue;
             }
             $result[] = array('value' => $value);
@@ -982,7 +1369,11 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Map JSContact onlineServices to vCard URL/IMPP.
+     * Copies JSContact online services into vCard URL and IMPP properties.
+     * JSContact -> vCard: write URL/IMPP from ContactCard.onlineServices.
+     *
+     * - OnlineService.service == 'im' -> IMPP with uri.
+     * - Otherwise -> URL with value=uri.
      */
     public function setOnlineFromJmap(ContactCard $card)
     {
@@ -995,11 +1386,11 @@ class VCardJsContactAdapter extends AbstractAdapter
         $ims      = array();
 
         foreach ($online as $os) {
-            if (!($os instanceof OnlineService) || !method_exists($os, 'getUri')) {
+            if (!($os instanceof OnlineService)) {
                 continue;
             }
             $entry = array('value' => $os->getUri());
-            $kind  = method_exists($os, 'getService') ? $os->getService() : null;
+            $kind  = $os->getService();
 
             if ($kind === 'im') {
                 $ims[] = $entry;
@@ -1013,9 +1404,13 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Map vCard URL/IMPP to JSContact onlineServices.
+     * Sets JSContact online services from vCard URL and IMPP properties.
+     * vCard -> JSContact: read URL/IMPP into ContactCard.onlineServices.
+     *
+     * - URL -> OnlineService with uri (generic website).
+     * - IMPP -> OnlineService with uri and service='im'.
      */
-    public function setOnlineOnJmap(ContactCard $card)
+    public function getOnlineToJmap(ContactCard $card)
     {
         $websites = $this->getWebsites();
         $ims      = $this->getIm();
@@ -1038,9 +1433,7 @@ class VCardJsContactAdapter extends AbstractAdapter
             $o = new OnlineService();
             $uri = is_array($entry) && isset($entry['value']) ? $entry['value'] : $entry;
             $o->setUri($uri);
-            if (method_exists($o, 'setService')) {
-                $o->setService('im');
-            }
+            $o->setService('im');
             $map['os' . $idx++] = $o;
         }
 
@@ -1048,25 +1441,50 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Add vCard ADR properties.
+     * Adds formatted address entries as vCard ADR properties.
      */
     protected function setAddresses(array $addresses)
     {
         foreach ($addresses as $addr) {
-            $formatted = isset($addr['formatted']) ? $addr['formatted'] : '';
-            if ($formatted === '') {
+            $parts = array(
+                isset($addr['postOfficeBox']) ? $addr['postOfficeBox'] : '',
+                isset($addr['extension'])     ? $addr['extension']     : '',
+                isset($addr['street'])        ? $addr['street']        : '',
+                isset($addr['locality'])      ? $addr['locality']      : '',
+                isset($addr['region'])        ? $addr['region']        : '',
+                isset($addr['postcode'])      ? $addr['postcode']      : '',
+                isset($addr['country'])       ? $addr['country']       : '',
+            );
+
+            $hasAny = false;
+            foreach ($parts as $p) {
+                if ($p !== '') {
+                    $hasAny = true;
+                    break;
+                }
+            }
+            if (!$hasAny) {
                 continue;
             }
 
-            $this->vcard->add(
-                'ADR',
-                array('', '', $formatted, '', '', '', '')
-            );
+            $params = array();
+
+            if (!empty($addr['countryCode'])) {
+                $params['CC'] = $addr['countryCode'];
+            }
+            if (!empty($addr['coordinates'])) {
+                $params['GEO'] = $addr['coordinates'];
+            }
+            if (!empty($addr['timeZone'])) {
+                $params['TZ'] = $addr['timeZone'];
+            }
+
+            $this->vcard->add('ADR', $parts, $params);
         }
     }
 
     /**
-     * Get vCard ADR values.
+     * Returns formatted address entries derived from vCard ADR properties.
      */
     protected function getAddresses()
     {
@@ -1082,14 +1500,40 @@ class VCardJsContactAdapter extends AbstractAdapter
             if (!AdapterUtil::isSetAndNotNull($parts) || empty($parts)) {
                 continue;
             }
-            $result[] = array('formatted' => isset($parts[2]) ? $parts[2] : '');
+
+            $entry = array(
+                'postOfficeBox' => isset($parts[0]) ? $parts[0] : '',
+                'extension'     => isset($parts[1]) ? $parts[1] : '',
+                'street'        => isset($parts[2]) ? $parts[2] : '',
+                'locality'      => isset($parts[3]) ? $parts[3] : '',
+                'region'        => isset($parts[4]) ? $parts[4] : '',
+                'postcode'      => isset($parts[5]) ? $parts[5] : '',
+                'country'       => isset($parts[6]) ? $parts[6] : '',
+            );
+
+            if (isset($vAddr['CC'])) {
+                $entry['countryCode'] = (string) $vAddr['CC'];
+            }
+            if (isset($vAddr['GEO'])) {
+                $entry['coordinates'] = (string) $vAddr['GEO'];
+            }
+            if (isset($vAddr['TZ'])) {
+                $entry['timeZone'] = (string) $vAddr['TZ'];
+            }
+
+            $result[] = $entry;
         }
 
         return $result;
     }
 
     /**
-     * Map JSContact addresses to vCard ADR.
+     * Copies JSContact addresses into vCard ADR properties.
+     *
+     * - Uses Address.components when available to build ADR parts:
+     *   number+name -> street; subdistrict+district -> extended; locality, region, postcode, country.
+     * - If no components, uses fullAddress as street.
+     * - countryCode -> ADR CC; coordinates -> GEO; timeZone -> TZ.
      */
     public function setAddressesFromJmap(ContactCard $card)
     {
@@ -1103,19 +1547,134 @@ class VCardJsContactAdapter extends AbstractAdapter
             if (!($address instanceof Address)) {
                 continue;
             }
-            $formatted = method_exists($address, 'getFullAddress')
-                ? $address->getFullAddress()
-                : null;
-            $vcard[] = array('formatted' => $formatted);
+
+            $entry = array(
+                'postOfficeBox' => '',
+                'extension'     => '',
+                'street'        => '',
+                'locality'      => '',
+                'region'        => '',
+                'postcode'      => '',
+                'country'       => '',
+                'countryCode'   => $address->getCountryCode(),
+                'coordinates'   => $address->getCoordinates(),
+                'timeZone'      => $address->getTimeZone(),
+            );
+
+            $components = $address->getComponents();
+            if (is_array($components) && !empty($components)) {
+                $number      = '';
+                $name        = '';
+                $subdistrict = '';
+                $district    = '';
+                $locality    = '';
+                $region      = '';
+                $postcode    = '';
+                $country     = '';
+
+                foreach ($components as $comp) {
+                    if (!is_object($comp)) {
+                        continue;
+                    }
+                    $kind  = $comp->getKind();
+                    $value = $comp->getValue();
+                    if (!is_string($value) || $value === '') {
+                        continue;
+                    }
+
+                    switch ($kind) {
+                        case 'number':
+                            $number = $value;
+                            break;
+                        case 'name':
+                            $name = $value;
+                            break;
+                        case 'subdistrict':
+                            $subdistrict = $value;
+                            break;
+                        case 'district':
+                            $district = $value;
+                            break;
+                        case 'locality':
+                            $locality = $value;
+                            break;
+                        case 'region':
+                            $region = $value;
+                            break;
+                        case 'postcode':
+                            $postcode = $value;
+                            break;
+                        case 'country':
+                            $country = $value;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                $streetParts = array();
+                if ($number !== '') {
+                    $streetParts[] = $number;
+                }
+                if ($name !== '') {
+                    $streetParts[] = $name;
+                }
+                $entry['street'] = implode(' ', $streetParts);
+
+                $extParts = array();
+                if ($subdistrict !== '') {
+                    $extParts[] = $subdistrict;
+                }
+                if ($district !== '') {
+                    $extParts[] = $district;
+                }
+                $entry['extension'] = implode(', ', $extParts);
+
+                $entry['locality'] = $locality;
+                $entry['region']   = $region;
+                $entry['postcode'] = $postcode;
+                $entry['country']  = $country;
+            }
+
+            $hasAny = false;
+            foreach (array('postOfficeBox','extension','street','locality','region','postcode','country') as $k) {
+                if ($entry[$k] !== '') {
+                    $hasAny = true;
+                    break;
+                }
+            }
+            if (!$hasAny) {
+                $full = $address->getFullAddress();
+                if (is_string($full) && $full !== '') {
+                    $entry['street'] = $full;
+                }
+            }
+
+            $hasAny = false;
+            foreach (array('postOfficeBox','extension','street','locality','region','postcode','country') as $k) {
+                if ($entry[$k] !== '') {
+                    $hasAny = true;
+                    break;
+                }
+            }
+            if (!$hasAny) {
+                continue;
+            }
+
+            $vcard[] = $entry;
         }
 
         $this->setAddresses($vcard);
     }
 
     /**
-     * Map vCard ADR to JSContact addresses.
+     * Sets JSContact addresses from vCard ADR properties.
+     * vCard -> JSContact: read ADR into ContactCard.addresses.
+     *
+     * - ADR parts -> Address.full and Address.components (name/district/locality/region/postcode/country).
+     * - ADR CC/GEO/TZ -> countryCode/coordinates/timeZone.
      */
-    public function setAddressesOnJmap(ContactCard $card)
+    public function getAddressesToJmap(ContactCard $card)
     {
         $addresses = $this->getAddresses();
         if (empty($addresses)) {
@@ -1123,26 +1682,96 @@ class VCardJsContactAdapter extends AbstractAdapter
         }
 
         $map = array();
-        foreach ($addresses as $idx => $addr) {
+        $i = 1;
+
+        foreach ($addresses as $addr) {
             $a = new Address();
-            if (is_array($addr) && isset($addr['formatted']) && method_exists($a, 'setFullAddress')) {
-                $a->setFullAddress($addr['formatted']);
+
+            if (is_array($addr)) {
+                $street   = isset($addr['street']) ? $addr['street'] : '';
+                $ext      = isset($addr['extension']) ? $addr['extension'] : '';
+                $local    = isset($addr['locality']) ? $addr['locality'] : '';
+                $region   = isset($addr['region']) ? $addr['region'] : '';
+                $postcode = isset($addr['postcode']) ? $addr['postcode'] : '';
+                $country  = isset($addr['country']) ? $addr['country'] : '';
+
+                // Build fullAddress
+                $parts = array();
+                foreach (array($street, $ext, $local, $region, $postcode, $country) as $part) {
+                    if (is_string($part) && $part !== '') {
+                        $parts[] = $part;
+                    }
+                }
+                if (!empty($parts)) {
+                    $a->setFullAddress(implode(', ', $parts));
+                }
+
+                // Build components from ADR parts
+                $components = array();
+
+                if ($street !== '') {
+                    $c = new AddressComponent($street, 'name');
+                    $components[] = $c;
+                }
+
+                if ($ext !== '') {
+                    $c = new AddressComponent($ext, 'district');
+                    $components[] = $c;
+                }
+
+                if ($local !== '') {
+                    $c = new AddressComponent($local, 'locality');
+                    $components[] = $c;
+                }
+
+                if ($region !== '') {
+                    $c = new AddressComponent($region, 'region');
+                    $components[] = $c;
+                }
+
+                if ($postcode !== '') {
+                    $c = new AddressComponent($postcode, 'postcode');
+                    $components[] = $c;
+                }
+
+                if ($country !== '') {
+                    $c = new AddressComponent($country, 'country');
+                    $components[] = $c;
+                }
+
+                if (!empty($components)) {
+                    $a->setIsOrdered(true);
+                    $a->setDefaultSeparator(', ');
+                    $a->setComponents($components);
+                }
+
+                if (!empty($addr['countryCode'])) {
+                    $a->setCountryCode($addr['countryCode']);
+                }
+                if (!empty($addr['coordinates'])) {
+                    $a->setCoordinates($addr['coordinates']);
+                }
+                if (!empty($addr['timeZone'])) {
+                    $a->setTimeZone($addr['timeZone']);
+                }
             }
-            $map['a' . $idx] = $a;
+
+            $map['a' . $i++] = $a;
         }
 
         $card->setAddresses($map);
     }
 
     /**
-     * Map JSContact relatedTo to vCard RELATED.
+     * Copies JSContact related-to entries into vCard RELATED properties.
+     * JSContact -> vCard: write RELATED from ContactCard.relatedTo.
+     *
+     * - Each key in relatedTo -> RELATED value.
+     * - Relation.relation map -> TYPE list on RELATED.
+     * - Only relation types (keys) are preserved; any extra data is dropped.
      */
     public function setRelatedToFromJmap(ContactCard $card)
     {
-        if (!method_exists($card, 'getRelatedTo')) {
-            return;
-        }
-
         $relatedTo = $card->getRelatedTo();
         if (!is_array($relatedTo) || empty($relatedTo)) {
             return;
@@ -1153,7 +1782,7 @@ class VCardJsContactAdapter extends AbstractAdapter
                 continue;
             }
 
-            if (!is_object($relationObj) || !method_exists($relationObj, 'getRelation')) {
+            if (!is_object($relationObj)) {
                 $this->vcard->add('RELATED', $key);
                 continue;
             }
@@ -1171,24 +1800,20 @@ class VCardJsContactAdapter extends AbstractAdapter
             if (empty($types)) {
                 $this->vcard->add('RELATED', $key);
             } else {
-                $this->vcard->add(
-                    'RELATED',
-                    $key,
-                    array('TYPE' => $types)
-                );
+                $this->vcard->add('RELATED', $key, array('TYPE' => $types));
             }
         }
     }
 
     /**
-     * Map vCard RELATED to JSContact relatedTo.
+     * Sets JSContact related-to entries from vCard RELATED properties.
+     * vCard -> JSContact: read RELATED into ContactCard.relatedTo.
+     *
+     * - RELATED value -> map key.
+     * - TYPE parameters -> Relation.relation{type: true}.
      */
-    public function setRelatedToOnJmap(ContactCard $card)
+    public function getRelatedToToJmap(ContactCard $card)
     {
-        if (!method_exists($card, 'setRelatedTo')) {
-            return;
-        }
-
         $vRelated = $this->vcard->RELATED;
         if (!AdapterUtil::isSetAndNotNull($vRelated) || empty($vRelated)) {
             return;
@@ -1197,11 +1822,10 @@ class VCardJsContactAdapter extends AbstractAdapter
         $relatedMap = array();
 
         foreach ($vRelated as $rel) {
-            $parts = $rel->getParts();
-            if (!isset($parts[0]) || $parts[0] === '') {
+            $key = trim((string) $rel);
+            if ($key === '') {
                 continue;
             }
-            $key = $parts[0];
 
             $relationTypes = array();
             if (isset($rel['TYPE'])) {
@@ -1229,14 +1853,14 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Map JSContact members to vCard MEMBER.
+     * Copies JSContact members into vCard MEMBER properties and sets KIND=group.
+     * JSContact -> vCard: write MEMBER and KIND=group from ContactCard.members.
+     *
+     * - Each member uid with flag=true -> MEMBER VALUE=uri.
+     * - If at least one member is written, sets KIND=group.
      */
     public function setMembersFromJmap(ContactCard $card)
     {
-        if (!method_exists($card, 'getMembers')) {
-            return;
-        }
-
         $members = $card->getMembers();
         if (!is_array($members) || empty($members)) {
             return;
@@ -1249,11 +1873,7 @@ class VCardJsContactAdapter extends AbstractAdapter
                 continue;
             }
 
-            $this->vcard->add(
-                'MEMBER',
-                $uid,
-                array('VALUE' => 'uri')
-            );
+            $this->vcard->add('MEMBER', $uid, array('VALUE' => 'uri'));
             $wroteMember = true;
         }
 
@@ -1267,35 +1887,330 @@ class VCardJsContactAdapter extends AbstractAdapter
     }
 
     /**
-     * Map vCard MEMBER to JSContact members.
+     * Sets JSContact members by parsing MEMBER lines from the raw vCard.
+     * vCard -> JSContact: read MEMBER into ContactCard.members.
+     *
+     * - Parses MEMBER lines from raw vCard.
+     * - Each MEMBER value -> members[uri] = true.
+     * - KIND is not inspected.
      */
-    public function setMembersOnJmap(ContactCard $card)
+    public function getMembersToJmap(ContactCard $card)
     {
-        if (!method_exists($card, 'setMembers')) {
-            return;
-        }
-
-        $vMembers = $this->vcard->MEMBER;
-        if (!AdapterUtil::isSetAndNotNull($vMembers) || empty($vMembers)) {
+        if (!is_string($this->rawVCard) || $this->rawVCard === '') {
             return;
         }
 
         $members = array();
+        $vcf = preg_replace("/\r\n[ \t]/", "", $this->rawVCard);
 
-        foreach ($vMembers as $m) {
-            $parts = $m->getParts();
-            if (!isset($parts[0]) || $parts[0] === '') {
-                continue;
+        if (preg_match_all('/^MEMBER(?:;[^:]*)?:(.+)$/im', $vcf, $matches)) {
+            foreach ($matches[1] as $value) {
+                $uri = trim($value);
+                if ($uri === '') {
+                    continue;
+                }
+                $members[$uri] = true;
             }
-            $uri = $parts[0];
-            $members[$uri] = true;
         }
 
         if (!empty($members)) {
             $card->setMembers($members);
-            if (method_exists($card, 'setKind')) {
-                $card->setKind('group');
+        }
+    }
+
+    /**
+     * Sets JSContact preferredLanguages from vCard LANG properties.
+     * vCard -> JSContact: read LANG into ContactCard.preferredLanguages.
+     *
+     * - Each LANG line:
+     *   - value -> LanguagePref.language
+     *   - TYPE home/work -> contexts.private/work
+     *   - PREF -> pref
+     * - Stored in an Id map (e.g. "lp1", "lp2").
+     */
+    public function getPreferredLanguagesToJmap(ContactCard $card)
+    {
+        $vLangs = $this->vcard->LANG;
+        if (!AdapterUtil::isSetAndNotNull($vLangs) || empty($vLangs)) {
+            return;
+        }
+
+        $map = array();
+        $idx = 1;
+
+        foreach ($vLangs as $prop) {
+            $tag = trim((string) $prop);
+            if ($tag === '') {
+                continue;
             }
+
+            $lp = new LanguagePref();
+            $lp->setLanguage($tag);
+
+            $ctx = $this->vcardTypeParamToContexts($prop);
+            if (!empty($ctx)) {
+                $lp->setContexts($ctx);
+            }
+
+            $pref = $this->vcardPrefParamToInt($prop);
+            if ($pref !== null) {
+                $lp->setPref($pref);
+            }
+
+            $id = 'lp' . $idx++;
+            $map[$id] = $lp;
+        }
+
+        if (!empty($map)) {
+            $card->setPreferredLanguages($map);
+        }
+    }
+
+    /**
+     * Copies JSContact preferredLanguages into vCard LANG properties.
+     * JSContact -> vCard: write LANG from ContactCard.preferredLanguages.
+     *
+     * - Each LanguagePref:
+     *   - language -> LANG value
+     *   - contexts.private/work -> TYPE=home/work
+     *   - pref -> PREF
+     */
+    public function setPreferredLanguagesFromJmap(ContactCard $card)
+    {
+        $langs = $card->getPreferredLanguages();
+        if (!is_array($langs) || empty($langs)) {
+            return;
+        }
+
+        foreach ($langs as $id => $lp) {
+            if (!($lp instanceof LanguagePref)) {
+                continue;
+            }
+
+            $tag = trim((string) $lp->getLanguage());
+            if ($tag === '') {
+                continue;
+            }
+
+            $params = array();
+
+            // contexts -> TYPE home/work
+            if (method_exists($lp, 'getContexts')) {
+                $ctx = $lp->getContexts();
+                if (is_array($ctx)) {
+                    $types = array();
+                    if (!empty($ctx['private'])) {
+                        $types[] = 'home';
+                    }
+                    if (!empty($ctx['work'])) {
+                        $types[] = 'work';
+                    }
+                    if (!empty($types)) {
+                        $params['TYPE'] = $types;
+                    }
+                }
+            }
+
+            // pref -> PREF
+            if (method_exists($lp, 'getPref')) {
+                $pref = $lp->getPref();
+                if (is_int($pref) && $pref > 0) {
+                    $params['PREF'] = (string) $pref;
+                }
+            }
+
+            $this->vcard->add('LANG', $tag, $params);
+        }
+    }
+
+    /**
+     * Sets JSContact keywords from vCard CATEGORIES properties.
+     * vCard -> JSContact: read CATEGORIES into ContactCard.keywords.
+     *
+     * - Each CATEGORIES value -> keywords[value] = true.
+     * - Merges values from all CATEGORIES lines.
+     */
+    public function getKeywordsToJmap(ContactCard $card)
+    {
+        $vCats = $this->vcard->CATEGORIES;
+        if (!AdapterUtil::isSetAndNotNull($vCats) || empty($vCats)) {
+            return;
+        }
+
+        $keywords = array();
+
+        foreach ($vCats as $catProp) {
+            $parts = $catProp->getParts();
+            if (!is_array($parts) || empty($parts)) {
+                $val = trim((string) $catProp);
+                if ($val !== '') {
+                    $keywords[$val] = true;
+                }
+                continue;
+            }
+
+            foreach ($parts as $p) {
+                $p = trim((string) $p);
+                if ($p === '') {
+                    continue;
+                }
+                $keywords[$p] = true;
+            }
+        }
+
+        if (!empty($keywords)) {
+            $card->setKeywords($keywords);
+        }
+    }
+
+    /**
+     * Copies JSContact keywords into vCard CATEGORIES properties.
+     * JSContact -> vCard: write CATEGORIES from ContactCard.keywords.
+     *
+     * - All keyword keys with value=true -> CATEGORIES values.
+     * - Written as a single CATEGORIES with multiple values.
+     */
+    public function setKeywordsFromJmap(ContactCard $card)
+    {
+        $keywords = $card->getKeywords();
+        if (!is_array($keywords) || empty($keywords)) {
+            return;
+        }
+
+        $values = array();
+        foreach ($keywords as $kw => $flag) {
+            if ($flag && is_string($kw) && $kw !== '') {
+                $values[] = $kw;
+            }
+        }
+
+        if (!empty($values)) {
+            // Single CATEGORIES line with comma-separated list
+            $this->vcard->add('CATEGORIES', $values);
+        }
+    }
+
+    /**
+     * Sets JSContact personalInfo from vCard EXPERTISE, HOBBY, and INTEREST.
+     * JSContact -> vCard: write EXPERTISE/HOBBY/INTEREST from ContactCard.personalInfo.
+     *
+     * - kind='expertise' -> EXPERTISE
+     *   kind='hobby'     -> HOBBY
+     *   kind='interest'  -> INTEREST
+     * - value -> property value
+     * - level low/medium/high -> LEVEL beginner/average/expert
+     * - listAs -> INDEX
+     */
+    public function getPersonalInfoToJmap(ContactCard $card)
+    {
+        $info = array();
+
+        // read a property group into PersonalInformation items
+        $readProps = function ($propName, $kind) use (&$info) {
+            $props = $this->vcard->$propName;
+            if (!AdapterUtil::isSetAndNotNull($props) || empty($props)) {
+                return;
+            }
+
+            foreach ($props as $prop) {
+                $value = trim((string) $prop);
+                if ($value === '') {
+                    continue;
+                }
+
+                $level = null;
+                if (isset($prop['LEVEL'])) {
+                    $rawLevel = strtolower((string) $prop['LEVEL']);
+                    if ($rawLevel === 'beginner') {
+                        $level = 'low';
+                    } elseif ($rawLevel === 'average' || $rawLevel === 'medium') {
+                        $level = 'medium';
+                    } elseif ($rawLevel === 'expert' || $rawLevel === 'high') {
+                        $level = 'high';
+                    }
+                }
+
+                $pi = new PersonalInformation($kind, $value);
+                if ($level !== null) {
+                    $pi->setLevel($level);
+                }
+                if (isset($prop['INDEX'])) {
+                    $rawIndex = trim((string) $prop['INDEX']);
+                    if ($rawIndex !== '' && ctype_digit($rawIndex)) {
+                        $pi->setListAs((int) $rawIndex);
+                    }
+                }
+
+                $info[] = $pi;
+            }
+        };
+
+        $readProps('EXPERTISE', 'expertise');
+        $readProps('HOBBY', 'hobby');
+        $readProps('INTEREST', 'interest');
+
+        if (!empty($info)) {
+            $card->setPersonalInfo($info);
+        }
+    }
+
+    /**
+     * Copies JSContact personalInfo into vCard EXPERTISE, HOBBY, and INTEREST.
+     * vCard -> JSContact: read EXPERTISE/HOBBY/INTEREST into ContactCard.personalInfo.
+     *
+     * - EXPERTISE/HOBBY/INTEREST:
+     *   - property value -> PersonalInformation.value
+     *   - LEVEL beginner/average/expert -> level low/medium/high
+     *   - INDEX -> listAs
+     * - kind field is set to "expertise", "hobby", or "interest".
+     */
+    public function setPersonalInfoFromJmap(ContactCard $card)
+    {
+        $info = $card->getPersonalInfo();
+        if (!is_array($info) || empty($info)) {
+            return;
+        }
+
+        foreach ($info as $pi) {
+            if (!($pi instanceof PersonalInformation)) {
+                continue;
+            }
+
+            $kind  = $pi->getKind();
+            $value = $pi->getValue();
+            if (!is_string($value) || $value === '') {
+                continue;
+            }
+
+            if ($kind === 'expertise') {
+                $propName = 'EXPERTISE';
+            } elseif ($kind === 'hobby') {
+                $propName = 'HOBBY';
+            } elseif ($kind === 'interest') {
+                $propName = 'INTEREST';
+            } else {
+                continue;
+            }
+
+            $params = array();
+
+            $level = $pi->getLevel();
+            if (is_string($level) && $level !== '') {
+                if ($level === 'low') {
+                    $params['LEVEL'] = 'beginner';
+                } elseif ($level === 'medium') {
+                    $params['LEVEL'] = 'average';
+                } elseif ($level === 'high') {
+                    $params['LEVEL'] = 'expert';
+                }
+            }
+
+            $idx = $pi->getListAs();
+            if (is_int($idx) && $idx > 0) {
+                $params['INDEX'] = (string) $idx;
+            }
+
+            $this->vcard->add($propName, $value, $params);
         }
     }
 }

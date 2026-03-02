@@ -16,9 +16,16 @@ class SpeakToAs extends TypeableEntity implements JsonSerializable
      */
     private $pronouns;
 
-    public function __construct()
+    public function __construct($grammaticalGender = null, $pronouns = null)
     {
         $this->setAtType('SpeakToAs');
+
+        if ($grammaticalGender !== null) {
+            $this->setGrammaticalGender($grammaticalGender);
+        }
+        if ($pronouns !== null) {
+            $this->setPronouns($pronouns);
+        }
     }
 
     public function getGrammaticalGender()

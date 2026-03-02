@@ -62,9 +62,35 @@ class Directory extends TypeableEntity implements JsonSerializable
      */
     private $serviceType;
 
-    public function __construct()
-    {
+    public function __construct(
+        $kind,
+        $uri,
+        $mediaType = null,
+        $contexts = null,
+        $pref = null,
+        $label = null,
+        $serviceType = null
+    ) {
         $this->setAtType('Directory');
+
+        $this->setKind($kind);
+        $this->setUri($uri);
+
+        if ($mediaType !== null) {
+            $this->setMediaType($mediaType);
+        }
+        if ($contexts !== null) {
+            $this->setContexts($contexts);
+        }
+        if ($pref !== null) {
+            $this->setPref($pref);
+        }
+        if ($label !== null) {
+            $this->setLabel($label);
+        }
+        if ($serviceType !== null) {
+            $this->setServiceType($serviceType);
+        }
     }
 
     public function getKind()

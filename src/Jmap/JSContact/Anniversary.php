@@ -32,11 +32,32 @@ class Anniversary extends TypeableEntity implements JsonSerializable
     /** @var string|null */
     private $label;
 
-    public function __construct($date = null, $kind = null)
+    public function __construct($kind = null, $date = null, $place = null, $label = null)
     {
         $this->setAtType('Anniversary');
-        $this->date = $date;
-        $this->kind = $kind;
+
+        if ($kind !== null) {
+            $this->setKind($kind);
+        }
+        if ($date !== null) {
+            $this->setDate($date);
+        }
+
+        if ($place !== null) {
+            $this->setPlace($place);
+        }
+        if ($label !== null) {
+            $this->setLabel($label);
+        }
+    }
+    public function getLabel()
+    {
+        return $this->label;
+    }
+
+    public function setLabel($label)
+    {
+        $this->label = $label;
     }
 
     public function getKind()

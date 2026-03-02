@@ -32,9 +32,38 @@ class Name extends TypeableEntity implements JsonSerializable
     /** @var string|null phoneticSystem (optional) */
     private $phoneticSystem;
 
-    public function __construct()
-    {
+    public function __construct(
+        $components = null,
+        $isOrdered = null,
+        $defaultSeparator = null,
+        $full = null,
+        $sortAs = null,
+        $phoneticScript = null,
+        $phoneticSystem = null
+    ) {
         $this->setAtType('Name');
+
+        if ($components !== null) {
+            $this->setComponents($components);
+        }
+        if ($isOrdered !== null) {
+            $this->setIsOrdered($isOrdered);
+        }
+        if ($defaultSeparator !== null) {
+            $this->setDefaultSeparator($defaultSeparator);
+        }
+        if ($full !== null) {
+            $this->setFull($full);
+        }
+        if ($sortAs !== null) {
+            $this->setSortAs($sortAs);
+        }
+        if ($phoneticScript !== null) {
+            $this->setPhoneticScript($phoneticScript);
+        }
+        if ($phoneticSystem !== null) {
+            $this->setPhoneticSystem($phoneticSystem);
+        }
     }
 
     /**

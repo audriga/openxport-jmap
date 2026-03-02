@@ -7,32 +7,33 @@ use JsonSerializable;
 class Title extends TypeableEntity implements JsonSerializable
 {
     /**
-     * name: String (mandatory).
-     * The title or role name of the entity.
-     *
      * @var string
      */
     private $name;
 
     /**
-     * kind: String (optional; default: "title").
-     * Enum: "title" | "role".
-     *
      * @var string|null
      */
     private $kind = 'title';
 
     /**
-     * organizationId: Id (optional).
-     * Identifier of the organization in which this title is held.
-     *
      * @var string|null
      */
     private $organizationId;
 
-    public function __construct()
+    public function __construct($name = null, $kind = null, $organizationId = null)
     {
         $this->setAtType('Title');
+
+        if ($name !== null) {
+            $this->name = $name;
+        }
+        if ($kind !== null) {
+            $this->kind = $kind;
+        }
+        if ($organizationId !== null) {
+            $this->organizationId = $organizationId;
+        }
     }
 
     public function getName()
@@ -69,10 +70,10 @@ class Title extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type"          => $this->getAtType(),
-            "name"           => $this->getName(),
-            "kind"           => $this->getKind(),
-            "organizationId" => $this->getOrganizationId(),
+            '@type'          => $this->getAtType(),
+            'name'           => $this->getName(),
+            'kind'           => $this->getKind(),
+            'organizationId' => $this->getOrganizationId(),
         ], function ($val) {
             return !is_null($val);
         });

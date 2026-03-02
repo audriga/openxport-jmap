@@ -6,37 +6,26 @@ use JsonSerializable;
 
 class NameComponent extends TypeableEntity implements JsonSerializable
 {
-    /** @var string value (mandatory) */
-    private $value;
-
     /**
-     * kind: String (mandatory).
-     * One of: title, given, given2, surname, surname2, credential, generation, separator.
-     *
-     * @var string
+     * @var string|null
      */
     private $kind;
 
     /**
-     * phonetic: String (optional).
-     *
      * @var string|null
      */
-    private $phonetic;
+    private $value;
 
-    public function __construct()
+    public function __construct($kind = null, $value = null)
     {
         $this->setAtType('NameComponent');
-    }
 
-    public function getValue()
-    {
-        return $this->value;
-    }
-
-    public function setValue($value)
-    {
-        $this->value = $value;
+        if ($kind !== null) {
+            $this->kind = $kind;
+        }
+        if ($value !== null) {
+            $this->value = $value;
+        }
     }
 
     public function getKind()
@@ -49,24 +38,23 @@ class NameComponent extends TypeableEntity implements JsonSerializable
         $this->kind = $kind;
     }
 
-    public function getPhonetic()
+    public function getValue()
     {
-        return $this->phonetic;
+        return $this->value;
     }
 
-    public function setPhonetic($phonetic)
+    public function setValue($value)
     {
-        $this->phonetic = $phonetic;
+        $this->value = $value;
     }
 
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type"    => $this->getAtType(),
-            "value"    => $this->getValue(),
-            "kind"     => $this->getKind(),
-            "phonetic" => $this->getPhonetic(),
+            '@type' => $this->getAtType(),
+            'kind'  => $this->getKind(),
+            'value' => $this->getValue(),
         ], function ($val) {
             return !is_null($val);
         });

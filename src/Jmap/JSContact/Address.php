@@ -48,9 +48,54 @@ class Address extends TypeableEntity implements JsonSerializable
     /** @var string|null phoneticSystem (optional) */
     private $phoneticSystem;
 
-    public function __construct()
-    {
+    public function __construct(
+        $components = null,
+        $isOrdered = null,
+        $defaultSeparator = null,
+        $fullAddress = null,
+        $countryCode = null,
+        $coordinates = null,
+        $timeZone = null,
+        $contexts = null,
+        $pref = null,
+        $phoneticScript = null,
+        $phoneticSystem = null
+    ) {
         $this->setAtType('Address');
+
+        if ($components !== null) {
+            $this->setComponents($components);
+        }
+        if ($isOrdered !== null) {
+            $this->setIsOrdered($isOrdered);
+        }
+        if ($defaultSeparator !== null) {
+            $this->setDefaultSeparator($defaultSeparator);
+        }
+        if ($fullAddress !== null) {
+            $this->setFullAddress($fullAddress);
+        }
+        if ($countryCode !== null) {
+            $this->setCountryCode($countryCode);
+        }
+        if ($coordinates !== null) {
+            $this->setCoordinates($coordinates);
+        }
+        if ($timeZone !== null) {
+            $this->setTimeZone($timeZone);
+        }
+        if ($contexts !== null) {
+            $this->setContexts($contexts);
+        }
+        if ($pref !== null) {
+            $this->setPref($pref);
+        }
+        if ($phoneticScript !== null) {
+            $this->setPhoneticScript($phoneticScript);
+        }
+        if ($phoneticSystem !== null) {
+            $this->setPhoneticSystem($phoneticSystem);
+        }
     }
 
     /**

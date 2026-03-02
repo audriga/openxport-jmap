@@ -65,7 +65,48 @@ class AddressBook implements JsonSerializable
      */
     protected $myRights;
 
-    /* Getters/setters */
+    public function __construct(
+        $id = null,
+        $type = null,
+        $name = null,
+        $description = null,
+        $sortOrder = null,
+        $isDefault = null,
+        $isSubscribed = null,
+        $shareWith = null,
+        $myRights = null
+    ) {
+        if ($id !== null) {
+            $this->setId($id);
+        }
+        if ($type !== null) {
+            $this->setType($type);
+        }
+        if ($name !== null) {
+            $this->setName($name);
+        }
+        if ($description !== null) {
+            $this->setDescription($description);
+        }
+
+        if ($sortOrder !== null) {
+            $this->setSortOrder($sortOrder);
+        }
+        if ($isDefault !== null) {
+            $this->setIsDefault($isDefault);
+        }
+        if ($isSubscribed !== null) {
+            $this->setIsSubscribed($isSubscribed);
+        }
+
+        if ($shareWith !== null) {
+            $this->setShareWith($shareWith);
+        }
+        if ($myRights !== null) {
+            $this->setMyRights($myRights);
+        }
+    }
+
 
     public function getId()
     {

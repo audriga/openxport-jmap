@@ -19,8 +19,14 @@ class Keywords implements JsonSerializable
     /**
      * @param array<string,bool> $items
      */
-    public function __construct(array $items = [])
+    public function __construct($items = null)
     {
+        $this->items = [];
+
+        if ($items === null) {
+            return;
+        }
+
         foreach ($items as $keyword => $flag) {
             if ($flag) {
                 $this->items[$keyword] = true;

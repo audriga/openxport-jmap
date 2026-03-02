@@ -22,9 +22,18 @@ class Note extends TypeableEntity implements JsonSerializable
     /** @var Author|null */
     private $author;
 
-    public function __construct()
+    public function __construct($note = null, $created = null, $author = null)
     {
         $this->setAtType('Note');
+
+        $this->setNote($note);
+
+        if ($created !== null) {
+            $this->setCreated($created);
+        }
+        if ($author !== null) {
+            $this->setAuthor($author);
+        }
     }
 
     public function getNote()

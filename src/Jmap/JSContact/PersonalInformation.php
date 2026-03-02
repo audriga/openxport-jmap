@@ -43,9 +43,22 @@ class PersonalInformation extends TypeableEntity implements JsonSerializable
      */
     private $label;
 
-    public function __construct()
+    public function __construct($kind, $value, $level = null, $listAs = null, $label = null)
     {
         $this->setAtType('PersonalInfo');
+
+        $this->setKind($kind);
+        $this->setValue($value);
+
+        if ($level !== null) {
+            $this->setLevel($level);
+        }
+        if ($listAs !== null) {
+            $this->setListAs($listAs);
+        }
+        if ($label !== null) {
+            $this->label = $label;
+        }
     }
 
     public function getKind()

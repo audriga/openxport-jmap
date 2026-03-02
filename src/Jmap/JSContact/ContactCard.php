@@ -145,9 +145,109 @@ class ContactCard extends TypeableEntity implements JsonSerializable
     /** @var array<string,Link>|null */
     private $links;
 
-    public function __construct()
-    {
+    public function __construct(
+        $uid = null,
+        $addressBookIds = null,
+        $kind = null,
+        $language = null,
+        $name = null,
+        $nicknames = null,
+        $organizations = null,
+        $titles = null,
+        $emails = null,
+        $phones = null,
+        $onlineServices = null,
+        $addresses = null,
+        $anniversaries = null,
+        $relatedTo = null,
+        $members = null,
+        $noteObjects = null,
+        $personalInfo = null,
+        $keywords = null,
+        $created = null,
+        $updated = null
+    ) {
         $this->setAtType('Card');
+
+        if ($uid !== null) {
+            $this->setUid($uid);
+        }
+
+        if ($addressBookIds !== null) {
+            $this->setAddressBookIds($addressBookIds);
+        }
+
+        if ($kind !== null) {
+            $this->setKind($kind);
+        }
+
+        if ($language !== null) {
+            $this->setLanguage($language);
+        }
+
+        if ($name !== null) {
+            $this->setName($name);
+        }
+
+        if ($nicknames !== null) {
+            $this->setNicknames($nicknames);
+        }
+
+        if ($organizations !== null) {
+            $this->setOrganizations($organizations);
+        }
+
+        if ($titles !== null) {
+            $this->setTitles($titles);
+        }
+
+        if ($emails !== null) {
+            $this->setEmails($emails);
+        }
+
+        if ($phones !== null) {
+            $this->setPhones($phones);
+        }
+
+        if ($onlineServices !== null) {
+            $this->setOnlineServices($onlineServices);
+        }
+
+        if ($addresses !== null) {
+            $this->setAddresses($addresses);
+        }
+
+        if ($anniversaries !== null) {
+            $this->setAnniversaries($anniversaries);
+        }
+
+        if ($relatedTo !== null) {
+            $this->setRelatedTo($relatedTo);
+        }
+
+        if ($members !== null) {
+            $this->setMembers($members);
+        }
+
+        if ($noteObjects !== null) {
+            $this->setNoteObjects($noteObjects);
+        }
+
+        if ($personalInfo !== null) {
+            $this->setPersonalInfo($personalInfo);
+        }
+
+        if ($keywords !== null) {
+            $this->setKeywords($keywords);
+        }
+
+        if ($created !== null) {
+            $this->setCreated($created);
+        }
+
+        if ($updated !== null) {
+            $this->setUpdated($updated);
+        }
     }
 
     public function getVersion()

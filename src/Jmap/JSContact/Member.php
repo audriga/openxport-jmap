@@ -16,9 +16,11 @@ class Member implements JsonSerializable
     /** @var string */
     private $uid;
 
-    public function __construct($uid)
+    public function __construct($uid = null)
     {
-        $this->uid = $uid;
+        if ($uid !== null) {
+            $this->uid = $uid;
+        }
     }
 
     public function getUid()

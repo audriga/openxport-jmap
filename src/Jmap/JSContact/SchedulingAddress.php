@@ -56,9 +56,31 @@ class SchedulingAddress extends TypeableEntity implements JsonSerializable
      */
     private $label;
 
-    public function __construct()
-    {
+    public function __construct(
+        $kind = null,
+        $uri = null,
+        $mediaType = null,
+        $contexts = null,
+        $pref = null,
+        $label = null
+    ) {
         $this->setAtType('SchedulingAddress');
+
+        $this->setKind($kind);
+        $this->setUri($uri);
+
+        if ($mediaType !== null) {
+            $this->setMediaType($mediaType);
+        }
+        if ($contexts !== null) {
+            $this->setContexts($contexts);
+        }
+        if ($pref !== null) {
+            $this->setPref($pref);
+        }
+        if ($label !== null) {
+            $this->setLabel($label);
+        }
     }
 
     public function getKind()

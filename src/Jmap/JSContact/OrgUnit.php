@@ -20,9 +20,15 @@ class OrgUnit extends TypeableEntity implements JsonSerializable
      */
     private $sortAs;
 
-    public function __construct()
+    public function __construct($name, $sortAs = null)
     {
         $this->setAtType('OrgUnit');
+
+        $this->setName($name);
+
+        if ($sortAs !== null) {
+            $this->setSortAs($sortAs);
+        }
     }
 
     public function getName()

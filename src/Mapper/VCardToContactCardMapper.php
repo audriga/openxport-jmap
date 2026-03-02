@@ -8,7 +8,8 @@ use OpenXPort\Jmap\JSContact\ContactCard;
 class VCardToContactCardMapper extends AbstractMapper
 {
     /**
-     * Map from JMAP ContactCard objects to vCard data.
+     * Map from JMAP ContactCard objects (https://datatracker.ietf.org/doc/rfc9553/)
+     * to vCard data (https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-vcard-03).
      *
      * @param array<string,ContactCard> $jmapData  creationId => ContactCard
      * @param VCardJsContactAdapter     $adapter
@@ -36,6 +37,10 @@ class VCardToContactCardMapper extends AbstractMapper
             $adapter->setAddressesFromJmap($contactCard);
             $adapter->setAnniversariesFromJmap($contactCard);
             $adapter->setRelatedToFromJmap($contactCard);
+            $adapter->setMembersFromJmap($contactCard);
+            $adapter->setKeywordsFromJmap($contactCard);
+            $adapter->setPreferredLanguagesFromJmap($contactCard);
+            $adapter->setPersonalInfoFromJmap($contactCard);
 
             $backendContact = $adapter->getContact();
             $map[] = array($creationId => $backendContact);
@@ -45,7 +50,8 @@ class VCardToContactCardMapper extends AbstractMapper
     }
 
     /**
-     * Map from vCard data to JMAP ContactCard objects.
+     * Map from vCard data (https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-vcard-03)
+     * to JMAP ContactCard objects (https://datatracker.ietf.org/doc/rfc9553/).
      *
      * @param array<string,mixed>       $data      contactId => vcardString
      * @param VCardJsContactAdapter     $adapter
@@ -61,17 +67,21 @@ class VCardToContactCardMapper extends AbstractMapper
             $contactCard = new ContactCard();
             $contactCard->setUid($contactId);
 
-            $adapter->setNameOnJmap($contactCard);
-            $adapter->setNicknameOnJmap($contactCard);
-            $adapter->setOrganizationOnJmap($contactCard);
-            $adapter->setTitlesOnJmap($contactCard);
-            $adapter->setNotesOnJmap($contactCard);
-            $adapter->setEmailsOnJmap($contactCard);
-            $adapter->setPhonesOnJmap($contactCard);
-            $adapter->setOnlineOnJmap($contactCard);
-            $adapter->setAddressesOnJmap($contactCard);
-            $adapter->setAnniversariesOnJmap($contactCard);
-            $adapter->setRelatedToOnJmap($contactCard);
+            $adapter->getNameToJmap($contactCard);
+            $adapter->getNicknameToJmap($contactCard);
+            $adapter->getOrganizationToJmap($contactCard);
+            $adapter->getTitlesToJmap($contactCard);
+            $adapter->getNotesToJmap($contactCard);
+            $adapter->getEmailsToJmap($contactCard);
+            $adapter->getPhonesToJmap($contactCard);
+            $adapter->getOnlineToJmap($contactCard);
+            $adapter->getAddressesToJmap($contactCard);
+            $adapter->getAnniversariesToJmap($contactCard);
+            $adapter->getRelatedToToJmap($contactCard);
+            $adapter->getMembersToJmap($contactCard);
+            $adapter->getKeywordsToJmap($contactCard);
+            $adapter->getPreferredLanguagesToJmap($contactCard);
+            $adapter->getPersonalInfoToJmap($contactCard);
 
             $list[] = $contactCard;
         }

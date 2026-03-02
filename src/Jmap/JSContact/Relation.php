@@ -14,9 +14,13 @@ class Relation extends TypeableEntity implements JsonSerializable
      */
     private $relation;
 
-    public function __construct()
+    public function __construct($relation = null)
     {
         $this->setAtType('Relation');
+
+        if ($relation !== null) {
+            $this->setRelation($relation);
+        }
     }
 
     /**

@@ -64,9 +64,37 @@ class CryptoKey extends TypeableEntity implements JsonSerializable
      */
     private $data;
 
-    public function __construct()
-    {
+    public function __construct(
+        $uri,
+        $kind = null,
+        $mediaType = null,
+        $contexts = null,
+        $pref = null,
+        $label = null,
+        $data = null
+    ) {
         $this->setAtType('CryptoKey');
+
+        $this->setUri($uri);
+
+        if ($kind !== null) {
+            $this->setKind($kind);
+        }
+        if ($mediaType !== null) {
+            $this->setMediaType($mediaType);
+        }
+        if ($contexts !== null) {
+            $this->setContexts($contexts);
+        }
+        if ($pref !== null) {
+            $this->setPref($pref);
+        }
+        if ($label !== null) {
+            $this->setLabel($label);
+        }
+        if ($data !== null) {
+            $this->setData($data);
+        }
     }
 
     public function getKind()

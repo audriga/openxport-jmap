@@ -23,9 +23,18 @@ class Pronouns extends TypeableEntity implements JsonSerializable
      */
     private $pref;
 
-    public function __construct()
+    public function __construct($pronouns, $contexts = null, $pref = null)
     {
         $this->setAtType('Pronouns');
+
+        $this->setPronouns($pronouns);
+
+        if ($contexts !== null) {
+            $this->setContexts($contexts);
+        }
+        if ($pref !== null) {
+            $this->setPref($pref);
+        }
     }
 
     public function getPronouns()

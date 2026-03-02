@@ -64,9 +64,37 @@ class Media extends TypeableEntity implements JsonSerializable
      */
     private $blobId;
 
-    public function __construct()
-    {
+    public function __construct(
+        $kind,
+        $uri = null,
+        $mediaType = null,
+        $contexts = null,
+        $pref = null,
+        $label = null,
+        $blobId = null
+    ) {
         $this->setAtType('Media');
+
+        $this->setKind($kind);
+
+        if ($uri !== null) {
+            $this->setUri($uri);
+        }
+        if ($mediaType !== null) {
+            $this->setMediaType($mediaType);
+        }
+        if ($contexts !== null) {
+            $this->setContexts($contexts);
+        }
+        if ($pref !== null) {
+            $this->setPref($pref);
+        }
+        if ($label !== null) {
+            $this->setLabel($label);
+        }
+        if ($blobId !== null) {
+            $this->setBlobId($blobId);
+        }
     }
 
     public function getKind()

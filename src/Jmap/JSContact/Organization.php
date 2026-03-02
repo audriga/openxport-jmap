@@ -22,9 +22,26 @@ class Organization extends TypeableEntity implements JsonSerializable
      */
     private $contexts;
 
-    public function __construct()
-    {
-        $this->setAtType("Organization");
+    public function __construct(
+        $name = null,
+        $units = null,
+        $sortAs = null,
+        $contexts = null
+    ) {
+        $this->setAtType('Organization');
+
+        if ($name !== null) {
+            $this->setName($name);
+        }
+        if ($units !== null) {
+            $this->setUnits($units);
+        }
+        if ($sortAs !== null) {
+            $this->setSortAs($sortAs);
+        }
+        if ($contexts !== null) {
+            $this->setContexts($contexts);
+        }
     }
 
     public function getName()

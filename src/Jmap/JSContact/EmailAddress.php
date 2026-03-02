@@ -35,9 +35,21 @@ class EmailAddress extends TypeableEntity implements JsonSerializable
      */
     private $label;
 
-    public function __construct()
+    public function __construct($address = null, $contexts = null, $pref = null, $label = null)
     {
         $this->setAtType('EmailAddress');
+
+        $this->setAddress($address);
+
+        if ($contexts !== null) {
+            $this->setContexts($contexts);
+        }
+        if ($pref !== null) {
+            $this->setPref($pref);
+        }
+        if ($label !== null) {
+            $this->setLabel($label);
+        }
     }
 
     public function getAddress()
