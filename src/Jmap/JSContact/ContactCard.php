@@ -425,7 +425,6 @@ class ContactCard extends TypeableEntity implements JsonSerializable
             $this->members = [];
         }
         $this->members[$uid] = true;
-        // Ensure kind="group" when members exist.
         if ($this->kind !== 'group') {
             $this->kind = 'group';
         }

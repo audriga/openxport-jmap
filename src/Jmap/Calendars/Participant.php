@@ -4,6 +4,7 @@ namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
 use OpenXport\Util\Logger;
+use OpenXPort\Util\AdapterUtil;
 
 class Participant implements JsonSerializable
 {
@@ -33,6 +34,126 @@ class Participant implements JsonSerializable
     private $linkIds;
 
     private $customProperties;
+
+    public function __construct(
+        $name = null,
+        $email = null,
+        $description = null,
+        $sendTo = null,
+        $kind = null,
+        $language = null,
+        $roles = null,
+        $locationId = null,
+        $participationStatus = null,
+        $participationComment = null,
+        $attendance = null,
+        $expectReply = null,
+        $scheduleSequence = null,
+        $scheduleUpdated = null,
+        $scheduleAgent = null,
+        $scheduleForceSend = null,
+        $scheduleStatus = null,
+        $sentBy = null,
+        $invitedBy = null,
+        $delegatedTo = null,
+        $delegatedFrom = null,
+        $memberOf = null,
+        $linkIds = null
+    ) {
+        $this->setType('Participant');
+
+        if ($name !== null) {
+            $this->setName($name);
+        }
+
+        if ($email !== null) {
+            $this->setEmail($email);
+        }
+
+        if ($description !== null) {
+            $this->setDescription($description);
+        }
+
+        if ($sendTo !== null) {
+            $this->setSendTo($sendTo);
+        }
+
+        if ($kind !== null) {
+            $this->setKind($kind);
+        }
+
+        if ($language !== null) {
+            $this->setLanguage($language);
+        }
+
+        if ($roles !== null) {
+            $this->setRoles($roles);
+        }
+
+        if ($locationId !== null) {
+            $this->setLocationId($locationId);
+        }
+
+        if ($participationStatus !== null) {
+            $this->setParticipationStatus($participationStatus);
+        }
+
+        if ($participationComment !== null) {
+            $this->setParticipationComment($participationComment);
+        }
+
+        if ($attendance !== null) {
+            $this->setAttendance($attendance);
+        }
+
+        if ($expectReply !== null) {
+            $this->setExpectReply($expectReply);
+        }
+
+        if ($scheduleSequence !== null) {
+            $this->setScheduleSequence($scheduleSequence);
+        }
+
+        if ($scheduleUpdated !== null) {
+            $this->setScheduleUpdated($scheduleUpdated);
+        }
+
+        if ($scheduleAgent !== null) {
+            $this->setScheduleAgent($scheduleAgent);
+        }
+
+        if ($scheduleForceSend !== null) {
+            $this->setScheduleForceSend($scheduleForceSend);
+        }
+
+        if ($scheduleStatus !== null) {
+            $this->setScheduleStatus($scheduleStatus);
+        }
+
+        if ($sentBy !== null) {
+            $this->setSentBy($sentBy);
+        }
+
+        if ($invitedBy !== null) {
+            $this->setInvitedBy($invitedBy);
+        }
+
+        if ($delegatedTo !== null) {
+            $this->setDelegatedTo($delegatedTo);
+        }
+
+        if ($delegatedFrom !== null) {
+            $this->setDelegatedFrom($delegatedFrom);
+        }
+
+        if ($memberOf !== null) {
+            $this->setMemberOf($memberOf);
+        }
+
+        if ($linkIds !== null) {
+            $this->setLinkIds($linkIds);
+        }
+    }
 
     public function getType()
     {
@@ -399,5 +520,21 @@ class Participant implements JsonSerializable
         return (object) array_filter($objectProperties, function ($val) {
             return !is_null($val);
         });
+    }
+
+     /**
+     * Sanitize free text fields that could potentially contain Unicode chars.
+     */
+    public function sanitizeFreeText()
+    {
+        if ($this->description !== null) {
+            $this->description = AdapterUtil::reencode($this->description);
+        }
+        if ($this->participationComment !== null) {
+            $this->participationComment = AdapterUtil::reencode($this->participationComment);
+        }
+        if ($this->name !== null) {
+            $this->name = AdapterUtil::reencode($this->name);
+        }
     }
 }

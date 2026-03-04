@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
@@ -7,47 +9,239 @@ use OpenXPort\Util\AdapterUtil;
 use OpenXPort\Util\Logger;
 
 /**
- * Class which represents a JMAP Calendar Event (according to JSCalendar)
+ * CalendarEvent object for JMAP Calendars (draft-ietf-jmap-calendars-26).
+ *
+ * This class exposes the JMAP wrapper properties (id, baseEventId,
+ * calendarIds, isDraft, isOrigin, utcStart, utcEnd) as well as the
+ * JSCalendar Event properties you support (start, title, uid, etc.).
  */
 class CalendarEvent extends JSCalendarDataType implements JsonSerializable
 {
+    /** @var string|null */
     private $id;
-    private $calendarId;
-    private $participantId;
-    private $start;
-    private $duration;
-    private $status;
-    private $type; // this is serialized as "@type" in JSON
-    private $uid;
-    private $relatedTo;
-    private $prodId;
-    private $created;
-    private $updated;
-    private $sequence;
-    private $title;
-    private $description;
-    private $descriptionContentType;
-    private $showWithoutTime;
-    private $locations;
-    private $virtualLocations;
-    private $links;
-    private $locale;
-    private $keywords;
-    private $recurrenceRule;
-    private $recurrenceRules;
-    private $recurrenceOverrides;
-    private $excluded;
-    private $priority;
-    private $freeBusyStatus;
-    private $privacy;
-    private $replyTo;
-    private $participants;
-    private $useDefaultAlerts;
-    private $alerts;
-    private $timeZone;
-    private $color;
 
+    /** @var string|null */
+    private $baseEventId;
+
+    /** @var array<string,bool>|null */
+    private $calendarIds;
+
+    /** @var string|null */
+    private $type;
+
+    /** @var bool|null */
+    private $isDraft;
+
+    /** @var bool|null */
+    private $isOrigin;
+
+    /** @var string|null */
+    private $start;
+
+    /** @var string|null */
+    private $utcStart;
+
+    /** @var string|null */
+    private $utcEnd;
+
+    /** @var string|null */
+    private $title;
+
+    /** @var string|null */
+    private $uid;
+
+    /** @var string|null */
+    private $prodId;
+
+    /** @var string|null */
+    private $status;
+
+    /** @var string|null */
+    private $created;
+
+    /** @var string|null */
+    private $updated;
+
+    /** @var string|null */
+    private $duration;
+
+    /** @var bool|null */
+    private $showWithoutTime;
+
+    /** @var array<string,Alert>|null */
+    private $alerts;
+
+    /** @var array<string,Participant>|null */
+    private $participants;
+
+    /** @var string|null */
+    private $timeZone;
+
+    /** @var int|null */
+    private $sequence;
+
+    /** @var string|null */
+    private $description;
+
+    /** @var string|null */
+    private $privacy;
+
+    /** @var Keyword|null */
+    private $keywords;
+
+    /** @var RecurrenceRule[]|null */
+    private $recurrenceRules;
+
+    /**
+     * recurrenceOverrides: LocalDateTime[PatchObject].
+     *
+     * Keys are recurrence-ids (e.g. "2025-03-05T09:00:00"), values are
+     * PatchObject instances whose keys are JSCalendar patch paths, e.g.:
+     *  - "start" => "2025-03-05T10:00:00"
+     *  - "participants/xxx/participationStatus" => "declined"
+     *
+     * @var array<string,PatchObject>|null
+     */
+    private $recurrenceOverrides;
+
+    /** @var array<string,Location>|null */
+    private $locations;
+
+    /** @var string|null */
+    private $freeBusyStatus;
+
+    /** @var string|null */
+    private $organizerCalendarAddress;
+
+    /** @var bool|null */
+    private $useDefaultAlerts;
+
+    /** @var bool|null */
+    private $mayInviteSelf;
+
+    /** @var bool|null */
+    private $mayInviteOthers;
+
+    /** @var bool|null */
+    private $hideAttendees;
+
+    /** @var array<string,mixed>|null */
     private $customProperties;
+
+
+        /**
+     * Construct a CalendarEvent with all properties optional.
+     *
+     * All parameters map 1:1 to the corresponding properties.
+     * `$type` defaults to "Event" if not provided.
+     *
+     * @param string|null                 $id
+     * @param string|null                 $baseEventId
+     * @param array<string,bool>|null     $calendarIds
+     * @param string|null                 $type
+     * @param bool|null                   $isDraft
+     * @param bool|null                   $isOrigin
+     * @param string|null                 $start
+     * @param string|null                 $utcStart
+     * @param string|null                 $utcEnd
+     * @param string|null                 $title
+     * @param string|null                 $uid
+     * @param string|null                 $prodId
+     * @param string|null                 $status
+     * @param string|null                 $created
+     * @param string|null                 $updated
+     * @param string|null                 $duration
+     * @param bool|null                   $showWithoutTime
+     * @param array<string,Alert>|null    $alerts
+     * @param array<string,Participant>|null $participants
+     * @param string|null                 $timeZone
+     * @param int|null                    $sequence
+     * @param string|null                 $description
+     * @param string|null                 $privacy
+     * @param Keyword|null                $keywords
+     * @param RecurrenceRule|null         $recurrenceRule
+     * @param RecurrenceRule[]|null       $recurrenceRules
+     * @param array<string,PatchObject>|null $recurrenceOverrides
+     * @param array<string,Location>|null $locations
+     * @param string|null                 $freeBusyStatus
+     * @param string|null                 $organizerCalendarAddress
+     * @param bool|null                   $useDefaultAlerts
+     * @param bool|null                   $mayInviteSelf
+     * @param bool|null                   $mayInviteOthers
+     * @param bool|null                   $hideAttendees
+     * @param array<string,mixed>|null    $customProperties
+     */
+    public function __construct(
+        $id = null,
+        $baseEventId = null,
+        $calendarIds = null,
+        $type = 'Event',
+        $isDraft = null,
+        $isOrigin = null,
+        $start = null,
+        $utcStart = null,
+        $utcEnd = null,
+        $title = null,
+        $uid = null,
+        $prodId = null,
+        $status = null,
+        $created = null,
+        $updated = null,
+        $duration = null,
+        $showWithoutTime = null,
+        $alerts = null,
+        $participants = null,
+        $timeZone = null,
+        $sequence = null,
+        $description = null,
+        $privacy = null,
+        $keywords = null,
+        $recurrenceRules = null,
+        $recurrenceOverrides = null,
+        $locations = null,
+        $freeBusyStatus = null,
+        $organizerCalendarAddress = null,
+        $useDefaultAlerts = null,
+        $mayInviteSelf = null,
+        $mayInviteOthers = null,
+        $hideAttendees = null,
+        $customProperties = null
+    ) {
+        $this->id = $id;
+        $this->baseEventId = $baseEventId;
+        $this->calendarIds = $calendarIds;
+        $this->type = $type;
+        $this->isDraft = $isDraft;
+        $this->isOrigin = $isOrigin;
+        $this->start = $start;
+        $this->utcStart = $utcStart;
+        $this->utcEnd = $utcEnd;
+        $this->title = $title;
+        $this->uid = $uid;
+        $this->prodId = $prodId;
+        $this->status = $status;
+        $this->created = $created;
+        $this->updated = $updated;
+        $this->duration = $duration;
+        $this->showWithoutTime = $showWithoutTime;
+        $this->alerts = $alerts;
+        $this->participants = $participants;
+        $this->timeZone = $timeZone;
+        $this->sequence = $sequence;
+        $this->description = $description;
+        $this->privacy = $privacy;
+        $this->keywords = $keywords;
+        $this->recurrenceRules = $recurrenceRules;
+        $this->recurrenceOverrides = $recurrenceOverrides;
+        $this->locations = $locations;
+        $this->freeBusyStatus = $freeBusyStatus;
+        $this->organizerCalendarAddress = $organizerCalendarAddress;
+        $this->useDefaultAlerts = $useDefaultAlerts;
+        $this->mayInviteSelf = $mayInviteSelf;
+        $this->mayInviteOthers = $mayInviteOthers;
+        $this->hideAttendees = $hideAttendees;
+        $this->customProperties = $customProperties;
+    }
 
     public function getId()
     {
@@ -59,54 +253,30 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
         $this->id = $id;
     }
 
-    public function getCalendarId()
+    public function getBaseEventId()
     {
-        return $this->calendarId;
+        return $this->baseEventId;
     }
 
-    public function setCalendarId($calendarId)
+    public function setBaseEventId($baseEventId)
     {
-        $this->calendarId = $calendarId;
+        $this->baseEventId = $baseEventId;
     }
 
-    public function getParticipantId()
+    /**
+     * @return array<string,bool>|null
+     */
+    public function getCalendarIds()
     {
-        return $this->participantId;
+        return $this->calendarIds;
     }
 
-    public function setParticipantId($participantId)
+    /**
+     * @param array<string,bool>|null $calendarIds
+     */
+    public function setCalendarIds($calendarIds)
     {
-        $this->participantId = $participantId;
-    }
-
-    public function getStart()
-    {
-        return $this->start;
-    }
-
-    public function setStart($start)
-    {
-        $this->start = $start;
-    }
-
-    public function getDuration()
-    {
-        return $this->duration;
-    }
-
-    public function setDuration($duration)
-    {
-        $this->duration = $duration;
-    }
-
-    public function getStatus()
-    {
-        return $this->status;
-    }
-
-    public function setStatus($status)
-    {
-        $this->status = $status;
+        $this->calendarIds = $calendarIds;
     }
 
     public function getType()
@@ -119,6 +289,66 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
         $this->type = $type;
     }
 
+    public function getIsDraft()
+    {
+        return $this->isDraft;
+    }
+
+    public function setIsDraft($isDraft)
+    {
+        $this->isDraft = $isDraft;
+    }
+
+    public function getIsOrigin()
+    {
+        return $this->isOrigin;
+    }
+
+    public function setIsOrigin($isOrigin)
+    {
+        $this->isOrigin = $isOrigin;
+    }
+
+    public function getStart()
+    {
+        return $this->start;
+    }
+
+    public function setStart($start)
+    {
+        $this->start = $start;
+    }
+
+    public function getUtcStart()
+    {
+        return $this->utcStart;
+    }
+
+    public function setUtcStart($utcStart)
+    {
+        $this->utcStart = $utcStart;
+    }
+
+    public function getUtcEnd()
+    {
+        return $this->utcEnd;
+    }
+
+    public function setUtcEnd($utcEnd)
+    {
+        $this->utcEnd = $utcEnd;
+    }
+
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
+
     public function getUid()
     {
         return $this->uid;
@@ -129,16 +359,6 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
         $this->uid = $uid;
     }
 
-    public function getRelatedTo()
-    {
-        return $this->relatedTo;
-    }
-
-    public function setRelatedTo($relatedTo)
-    {
-        $this->relatedTo = $relatedTo;
-    }
-
     public function getProdId()
     {
         return $this->prodId;
@@ -147,6 +367,16 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
     public function setProdId($prodId)
     {
         $this->prodId = $prodId;
+    }
+
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    public function setStatus($status)
+    {
+        $this->status = $status;
     }
 
     public function getCreated()
@@ -169,44 +399,14 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
         $this->updated = $updated;
     }
 
-    public function getSequence()
+    public function getDuration()
     {
-        return $this->sequence;
+        return $this->duration;
     }
 
-    public function setSequence($sequence)
+    public function setDuration($duration)
     {
-        $this->sequence = $sequence;
-    }
-
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    public function setTitle($title)
-    {
-        $this->title = $title;
-    }
-
-    public function getDescription()
-    {
-        return $this->description;
-    }
-
-    public function setDescription($description)
-    {
-        $this->description = $description;
-    }
-
-    public function getDescriptionContentType()
-    {
-        return $this->descriptionContentType;
-    }
-
-    public function setDescriptionContentType($descriptionContentType)
-    {
-        $this->descriptionContentType = $descriptionContentType;
+        $this->duration = $duration;
     }
 
     public function getShowWithoutTime()
@@ -219,171 +419,36 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
         $this->showWithoutTime = $showWithoutTime;
     }
 
-    public function getLocations()
-    {
-        return $this->locations;
-    }
-
-    public function setLocations($locations)
-    {
-        $this->locations = $locations;
-    }
-
-    public function getVirtualLocations()
-    {
-        return $this->virtualLocations;
-    }
-
-    public function setVirtualLocations($virtualLocations)
-    {
-        $this->virtualLocations = $virtualLocations;
-    }
-
-    public function getLinks()
-    {
-        return $this->links;
-    }
-
-    public function setLinks($links)
-    {
-        $this->links = $links;
-    }
-
-    public function getLocale()
-    {
-        return $this->locale;
-    }
-
-    public function setLocale($locale)
-    {
-        $this->locale = $locale;
-    }
-
-    public function getKeywords()
-    {
-        return $this->keywords;
-    }
-
-    public function setKeywords($keywords)
-    {
-        $this->keywords = $keywords;
-    }
-
-    /* Deprecated in newest JSCalendar spec */
-    public function getRecurrenceRule()
-    {
-        return $this->recurrenceRule;
-    }
-
-    /* Deprecated in newest JSCalendar spec */
-    public function setRecurrenceRule($recurrenceRule)
-    {
-        trigger_error(
-            "Called method " . __METHOD__ . " is outdated, use " . __METHOD__ . "s instead.",
-            E_USER_DEPRECATED
-        );
-
-        $this->recurrenceRule = $recurrenceRule;
-    }
-
-    public function getRecurrenceRules()
-    {
-        return $this->recurrenceRules;
-    }
-
-    public function setRecurrenceRules($recurrenceRules)
-    {
-        $this->recurrenceRules = $recurrenceRules;
-    }
-
-    public function getRecurrenceOverrides()
-    {
-        return $this->recurrenceOverrides;
-    }
-
-    public function setRecurrenceOverrides($recurrenceOverrides)
-    {
-        $this->recurrenceOverrides = $recurrenceOverrides;
-    }
-
-    public function getExcluded()
-    {
-        return $this->excluded;
-    }
-
-    public function setExcluded($excluded)
-    {
-        $this->excluded = $excluded;
-    }
-
-    public function getPriority()
-    {
-        return $this->priority;
-    }
-
-    public function setPriority($priority)
-    {
-        $this->priority = $priority;
-    }
-
-    public function getFreeBusyStatus()
-    {
-        return $this->freeBusyStatus;
-    }
-
-    public function setFreeBusyStatus($freeBusyStatus)
-    {
-        $this->freeBusyStatus = $freeBusyStatus;
-    }
-
-    public function getPrivacy()
-    {
-        return $this->privacy;
-    }
-
-    public function setPrivacy($privacy)
-    {
-        $this->privacy = $privacy;
-    }
-
-    public function getReplyTo()
-    {
-        return $this->replyTo;
-    }
-
-    public function setReplyTo($replyTo)
-    {
-        $this->replyTo = $replyTo;
-    }
-
-    public function getParticipants()
-    {
-        return $this->participants;
-    }
-
-    public function setParticipants($participants)
-    {
-        $this->participants = $participants;
-    }
-
-    public function getUseDefaultAlerts()
-    {
-        return $this->useDefaultAlerts;
-    }
-
-    public function setUseDefaultAlerts($useDefaultAlerts)
-    {
-        $this->useDefaultAlerts = $useDefaultAlerts;
-    }
-
+    /**
+     * @return array<string,Alert>|null
+     */
     public function getAlerts()
     {
         return $this->alerts;
     }
 
+    /**
+     * @param array<string,Alert>|null $alerts
+     */
     public function setAlerts($alerts)
     {
         $this->alerts = $alerts;
+    }
+
+    /**
+     * @return array<string,Participant>|null
+     */
+    public function getParticipants()
+    {
+        return $this->participants;
+    }
+
+    /**
+     * @param array<string,Participant>|null $participants
+     */
+    public function setParticipants($participants)
+    {
+        $this->participants = $participants;
     }
 
     public function getTimeZone()
@@ -396,14 +461,152 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
         $this->timeZone = $timeZone;
     }
 
-    public function getColor()
+    public function getSequence()
     {
-        return $this->color;
+        return $this->sequence;
     }
 
-    public function setColor($color)
+    public function setSequence($sequence)
     {
-        $this->color = $color;
+        $this->sequence = $sequence;
+    }
+
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
+
+    public function getPrivacy()
+    {
+        return $this->privacy;
+    }
+
+    public function setPrivacy($privacy)
+    {
+        $this->privacy = $privacy;
+    }
+
+    public function getKeywords()
+    {
+        return $this->keywords;
+    }
+
+    public function setKeywords($keywords)
+    {
+        $this->keywords = $keywords;
+    }
+
+    /**
+     * @return RecurrenceRule[]|null
+     */
+    public function getRecurrenceRules()
+    {
+        return $this->recurrenceRules;
+    }
+
+    /**
+     * @param RecurrenceRule[]|null $recurrenceRules
+     */
+    public function setRecurrenceRules($recurrenceRules)
+    {
+        $this->recurrenceRules = $recurrenceRules;
+    }
+
+    /**
+     * @return array<string,PatchObject>|null
+     */
+    public function getRecurrenceOverrides()
+    {
+        return $this->recurrenceOverrides;
+    }
+
+    /**
+     * @param array<string,PatchObject>|null $recurrenceOverrides
+     */
+    public function setRecurrenceOverrides($recurrenceOverrides)
+    {
+        $this->recurrenceOverrides = $recurrenceOverrides;
+    }
+
+    /**
+     * @return array<string,Location>|null
+     */
+    public function getLocations()
+    {
+        return $this->locations;
+    }
+
+    /**
+     * @param array<string,Location>|null $locations
+     */
+    public function setLocations($locations)
+    {
+        $this->locations = $locations;
+    }
+
+    public function getFreeBusyStatus()
+    {
+        return $this->freeBusyStatus;
+    }
+
+    public function setFreeBusyStatus($freeBusyStatus)
+    {
+        $this->freeBusyStatus = $freeBusyStatus;
+    }
+
+    public function getOrganizerCalendarAddress()
+    {
+        return $this->organizerCalendarAddress;
+    }
+
+    public function setOrganizerCalendarAddress($organizerCalendarAddress)
+    {
+        $this->organizerCalendarAddress = $organizerCalendarAddress;
+    }
+
+    public function getUseDefaultAlerts()
+    {
+        return $this->useDefaultAlerts;
+    }
+
+    public function setUseDefaultAlerts($useDefaultAlerts)
+    {
+        $this->useDefaultAlerts = $useDefaultAlerts;
+    }
+
+    public function getMayInviteSelf()
+    {
+        return $this->mayInviteSelf;
+    }
+
+    public function setMayInviteSelf($mayInviteSelf)
+    {
+        $this->mayInviteSelf = $mayInviteSelf;
+    }
+
+    public function getMayInviteOthers()
+    {
+        return $this->mayInviteOthers;
+    }
+
+    public function setMayInviteOthers($mayInviteOthers)
+    {
+        $this->mayInviteOthers = $mayInviteOthers;
+    }
+
+    public function getHideAttendees()
+    {
+        return $this->hideAttendees;
+    }
+
+    public function setHideAttendees($hideAttendees)
+    {
+        $this->hideAttendees = $hideAttendees;
     }
 
     public function addCustomProperty($propertyName, $value)
@@ -411,6 +614,9 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
         $this->customProperties[$propertyName] = $value;
     }
 
+    /**
+     * @return array<string,mixed>|null
+     */
     public function getCustomProperties()
     {
         return $this->customProperties;
@@ -421,175 +627,151 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
     {
         $objectProperties = [
             "id" => $this->getId(),
-            "calendarId" => $this->getCalendarId(),
-            "participantId" => $this->getParticipantId(),
-            "start" => $this->getStart(),
-            "duration" => $this->getDuration(),
-            "status" => $this->getStatus(),
+            "baseEventId" => $this->getBaseEventId(),
             "@type" => $this->getType(),
+            "isDraft" => $this->getIsDraft(),
+            "isOrigin" => $this->getIsOrigin(),
+            "start" => $this->getStart(),
+            "utcStart" => $this->getUtcStart(),
+            "utcEnd" => $this->getUtcEnd(),
+            "title" => $this->getTitle(),
             "uid" => $this->getUid(),
-            "relatedTo" => $this->getRelatedTo(),
             "prodId" => $this->getProdId(),
+            "status" => $this->getStatus(),
             "created" => $this->getCreated(),
             "updated" => $this->getUpdated(),
-            "sequence" => $this->getSequence(),
-            "title" => $this->getTitle(),
-            "description" => $this->getDescription(),
-            "descriptionContentType" => $this->getDescriptionContentType(),
+            "duration" => $this->getDuration(),
             "showWithoutTime" => $this->getShowWithoutTime(),
-            "locations" => $this->getLocations(),
-            "virtualLocations" => $this->getVirtualLocations(),
-            "links" => $this->getLinks(),
-            "locale" => $this->getLocale(),
-            "keywords" => $this->getKeywords(),
-            "recurrenceRule" => $this->getRecurrenceRule(),
-            "recurrenceRules" => $this->getRecurrenceRules(),
-            "recurrenceOverrides" => $this->getRecurrenceOverrides(),
-            "excluded" => $this->getExcluded(),
-            "priority" => $this->getPriority(),
-            "freeBusyStatus" => $this->getFreeBusyStatus(),
-            "privacy" => $this->getPrivacy(),
-            "replyTo" => $this->getReplyTo(),
-            "participants" => $this->getParticipants(),
-            "useDefaultAlerts" => $this->getUseDefaultAlerts(),
             "alerts" => $this->getAlerts(),
-            "timeZone" => $this->getTimeZone()
+            "participants" => $this->getParticipants(),
+            "timeZone" => $this->getTimeZone(),
+            "sequence" => $this->getSequence(),
+            "description" => $this->getDescription(),
+            "privacy" => $this->getPrivacy(),
+            "keywords" => $this->getKeywords(),
+            "recurrenceRules" => $this->getRecurrenceRules(),
+            "locations" => $this->getLocations(),
+            "freeBusyStatus" => $this->getFreeBusyStatus(),
+            "calendarIds" => $this->getCalendarIds(),
+            "recurrenceOverrides" => $this->getRecurrenceOverrides(),
+            "organizerCalendarAddress" => $this->getOrganizerCalendarAddress(),
+            "useDefaultAlerts" => $this->getUseDefaultAlerts(),
+            "mayInviteSelf" => $this->getMayInviteSelf(),
+            "mayInviteOthers" => $this->getMayInviteOthers(),
+            "hideAttendees" => $this->getHideAttendees(),
         ];
 
-        if (AdapterUtil::isSetNotNullAndNotEmpty($this->getCustomProperties())) {
-            foreach ($this->getCustomProperties() as $name => $value) {
+        if ($this->customProperties !== null) {
+            foreach ($this->customProperties as $name => $value) {
                 $objectProperties[$name] = $value;
             }
         }
 
-        return (object) array_filter($objectProperties, function ($val) {
-            return !is_null($val);
+        return (object) array_filter($objectProperties, static function ($val) {
+            return $val !== null;
         });
     }
 
     /**
      * Parses a CalendarEvent object from the given JSON representation.
      *
-     * @param mixed $json String/Array containing a calendar event in the JSCalendar format.
+     * @param mixed $json String/Array/object containing a calendar event.
      *
-     * @return CalendarEvent CalendarEvent object containing any properties that can be
-     * parsed from the given JSON string/array.
+     * @return CalendarEvent
      */
     public static function fromJson($json)
     {
-
-        // Array of every variable that has a custom object type.
         $objectVariables = [
-            "locations" => "Location",
-            "virtualLocations" => "VirtualLocation",
-            "links" => "Link",
-            "recurrenceRules" => "RecurrenceRule",
-            "participants" => "Participant",
             "alerts" => "Alert",
-            "relatedTo" => "Relation"
+            "participants" => "Participant",
+            "locations" => "Location",
+            "recurrenceRules" => "RecurrenceRule",
         ];
 
         if (is_string($json)) {
             $json = json_decode($json);
         }
 
-        if (is_array($json)) {
-            return parent::fromJsonArray($json);
+        if ($json instanceof \stdClass) {
+            $json = (array) $json;
         }
 
         $classInstance = new self();
+        $logger = Logger::getInstance();
 
         foreach ($json as $key => $value) {
-            // The "@type" poperty is defined as "type" in the custom classes.
-            if ($key == "@type") {
+            if ($key === "@type") {
                 $key = "type";
             }
 
             if (!property_exists($classInstance, $key)) {
-                $logger = Logger::getInstance();
                 $logger->warning("File contains property not existing in " . self::class . ": $key");
-
                 $classInstance->addCustomProperty($key, $value);
                 continue;
             }
 
-            // Since all of the properties are private, using this will allow access to the setter
-            // functions of any given property.
-            // Caution! In order for this to work, every setter method needs to match the property
-            // name. So for a var fooBar, the setter needs to be named setFooBar($fooBar).
             $setPropertyMethod = "set" . ucfirst($key);
 
-            // As custom properties are already added to the object this will only happen if there is a
-            // mistake in the class as in a missing or misspelled setter.
             if (!method_exists($classInstance, $setPropertyMethod)) {
-                $logger = Logger::getInstance();
                 $logger->warning(
                     self::class . " is missing a setter for $key. "
                     . "\"$key\": \"$value\" added to custom properties instead."
                 );
-
                 $classInstance->addCustomProperty($key, $value);
                 continue;
             }
 
-            // Access the setter method of the given property. If the property is an Object in the JSCalendar
-            // spec itself, call that class' fromJson method to parse the JSON object accordingly.
             if (array_key_exists($key, $objectVariables)) {
-                $className = "OpenXPort\Jmap\Calendar\\$objectVariables[$key]";
-                $classInstance->{"$setPropertyMethod"}(
-                    $className::fromJson($value)
-                );
-            } elseif ($key == "recurrenceOverrides") {
-                // In the JSCalendar RFC, recurrenceOverrides are Instances of PatchObjects.
-                // Since all of the the properties, an override can have, are present in this
-                // class, we will use this one.
-                $recurrenceOverrides = [];
-
-                foreach ($value as $id => $override) {
-                    $patchObject = self::fromJson($override);
-
-                    $recurrenceOverrides[$id] = $patchObject;
+                $className = "OpenXPort\\Jmap\\Calendar\\{$objectVariables[$key]}";
+                if ($key === "recurrenceRules" && is_array($value)) {
+                    $rules = [];
+                    foreach ($value as $ruleJson) {
+                        $rules[] = $className::fromJson($ruleJson);
+                    }
+                    $classInstance->{$setPropertyMethod}($rules);
+                } else {
+                    $classInstance->{$setPropertyMethod}(
+                        $className::fromJson($value)
+                    );
                 }
-
-                $classInstance->setRecurrenceOverrides($recurrenceOverrides);
+            } elseif ($key === "recurrenceOverrides") {
+                $overrides = [];
+                foreach ($value as $id => $override) {
+                    $overrides[$id] = PatchObject::fromJson($override);
+                }
+                $classInstance->setRecurrenceOverrides($overrides);
             } else {
-                // These properties are saved as associative arrays, so doing this prevents them from being
-                // saved as stdClass objects through json_decode().
-                if ($key == "keywords" || $key == "replyTo") {
+                if ($key === "calendarIds") {
                     $value = (array) $value;
                 }
-
-                $classInstance->{"$setPropertyMethod"}($value);
+                $classInstance->{$setPropertyMethod}($value);
             }
         }
 
         return $classInstance;
     }
 
-    /**
-     * Sanitize free text fields that could potentially contain Unicode chars.
-     * Only called in case an error is observed during JSON encoding.
-     */
     public function sanitizeFreeText()
     {
         if ($this->locations) {
-            foreach ($this->locations as $id => $loc) {
-                $loc->sanitizeFreeText();
+            foreach ($this->locations as $loc) {
+                if (method_exists($loc, 'sanitizeFreeText')) {
+                    $loc->sanitizeFreeText();
+                }
             }
         }
-        if ($this->virtualLocations) {
-            foreach ($this->virtualLocations as $id => $loc) {
-                $loc->sanitizeFreeText();
+        if ($this->alerts) {
+            foreach ($this->alerts as $alert) {
+                if (method_exists($alert, 'sanitizeFreeText')) {
+                    $alert->sanitizeFreeText();
+                }
             }
         }
-        if ($this->links) {
-            foreach ($this->links as $id => $lin) {
-                $lin->sanitizeFreeText();
-            }
-        }
-        if ($this->recurrenceOverrides) {
-            foreach ($this->recurrenceOverrides as $id => $rec) {
-                $rec->sanitizeFreeText();
+        if ($this->participants) {
+            foreach ($this->participants as $participant) {
+                if (method_exists($participant, 'sanitizeFreeText')) {
+                    $participant->sanitizeFreeText();
+                }
             }
         }
 

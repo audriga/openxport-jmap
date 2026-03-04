@@ -4,6 +4,7 @@ namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
 use OpenXPort\Util\AdapterUtil;
+use OpenXPort\Util\Logger;
 
 class Calendar implements JsonSerializable
 {

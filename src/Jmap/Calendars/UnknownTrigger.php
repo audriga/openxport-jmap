@@ -9,7 +9,24 @@ class UnknownTrigger implements JsonSerializable
 {
     private $type;
 
-    private $customProperties;
+    private $customProperties = [];
+
+    public function __construct(
+        $type = null,
+        $customProperties = null
+    ) {
+        if ($type !== null) {
+            $this->setType($type);
+        } else {
+            $this->setType('UnknownTrigger');
+        }
+
+        if ($customProperties !== null) {
+            foreach ($customProperties as $name => $value) {
+                $this->addCustomProperty($name, $value);
+            }
+        }
+    }
 
     public function getType()
     {
@@ -94,7 +111,8 @@ class UnknownTrigger implements JsonSerializable
             "@type" => $this->getType()
         ];
 
-        foreach ($this->getCustomProperties() as $name => $value) {
+        $custom = $this->getCustomProperties() !== null ? $this->getCustomProperties() : [];
+        foreach ($custom as $name => $value) {
             $objectProperties[$name] = $value;
         }
 

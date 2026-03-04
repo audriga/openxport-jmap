@@ -12,6 +12,23 @@ class AbsoluteTrigger implements JsonSerializable
 
     private $customProperties;
 
+    public function __construct(
+        $when = null,
+        $customProperties = null
+    ) {
+        $this->setType('AbsoluteTrigger');
+
+        if ($when !== null) {
+            $this->setWhen($when);
+        }
+
+        if ($customProperties !== null) {
+            foreach ($customProperties as $name => $value) {
+                $this->addCustomProperty($name, $value);
+            }
+        }
+    }
+
     public function getType()
     {
         return $this->type;

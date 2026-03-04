@@ -3,7 +3,6 @@
 namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
-use OpenXPort\Jmap\Task\OffsetTrigger as TaskOffsetTrigger;
 use OpenXPort\Util\Logger;
 
 class OffsetTrigger implements JsonSerializable
@@ -12,8 +11,22 @@ class OffsetTrigger implements JsonSerializable
     private $offset;
     private $relativeTo;
 
-    private $customProperties;
+    private $customProperties = [];
 
+    public function __construct(
+        $offset = null,
+        $relativeTo = null
+    ) {
+        $this->setType('OffsetTrigger');
+
+        if ($offset !== null) {
+            $this->setOffset($offset);
+        }
+
+        if ($relativeTo !== null) {
+            $this->setRelativeTo($relativeTo);
+        }
+    }
     public function getType()
     {
         return $this->type;
@@ -119,7 +132,8 @@ class OffsetTrigger implements JsonSerializable
             "relativeTo" => $this->getRelativeTo()
         ];
 
-        foreach ($this->getCustomProperties() as $name => $value) {
+        $custom = $this->getCustomProperties() !== null ? $this->getCustomProperties() : [];
+        foreach ($custom as $name => $value) {
             $objectProperties[$name] = $value;
         }
 

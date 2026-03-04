@@ -19,6 +19,45 @@ class Link implements JsonSerializable
 
     private $customProperties;
 
+    public function __construct(
+        $href = null,
+        $cid = null,
+        $contentType = null,
+        $size = null,
+        $rel = null,
+        $display = null,
+        $title = null,
+        $customProperties = null
+    ) {
+        $this->setType('Link');
+
+        if ($href !== null) {
+            $this->setHref($href);
+        }
+        if ($cid !== null) {
+            $this->setCid($cid);
+        }
+        if ($contentType !== null) {
+            $this->setContentType($contentType);
+        }
+        if ($size !== null) {
+            $this->setSize($size);
+        }
+        if ($rel !== null) {
+            $this->setRel($rel);
+        }
+        if ($display !== null) {
+            $this->setDisplay($display);
+        }
+        if ($title !== null) {
+            $this->setTitle($title);
+        }
+        if ($customProperties !== null) {
+            foreach ($customProperties as $name => $value) {
+                $this->addCustomProperty($name, $value);
+            }
+        }
+    }
     public function getType()
     {
         return $this->type;
