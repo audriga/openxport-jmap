@@ -145,6 +145,50 @@ class ContactCard extends TypeableEntity implements JsonSerializable
     /** @var array<string,Link>|null */
     private $links;
 
+    /**
+     * Generic storage for vendor-specific or extension properties.
+     *
+     * @var array<string,mixed>|null
+     */
+    private $properties = null;
+
+    /**
+     * Get a custom property by name.
+     *
+     * @param string $name
+     * @return mixed|null
+     */
+    public function getProperty($name)
+    {
+        return $this->properties[$name];
+    }
+
+    /**
+     * Set a custom property.
+     *
+     * @param string $name
+     * @param mixed $value
+     */
+    public function setProperty($name, $value)
+    {
+        if ($this->properties === null) {
+            $this->properties = [];
+        }
+        $this->properties[$name] = $value;
+    }
+
+    /**
+     * Return all custom properties.
+     *
+     * @return array<string,mixed>|null
+     */
+    public function getProperties()
+    {
+        return $this->properties;
+    }
+
+
+
     public function __construct(
         $uid = null,
         $addressBookIds = null,
@@ -819,6 +863,7 @@ class ContactCard extends TypeableEntity implements JsonSerializable
             "anniversaries"  => $this->getAnniversaries(),
             "personalInfo"   => $this->getPersonalInfo(),
             "notes"          => $this->getNoteObjects(),
+            "properties" => $this->getProperties(),
         ], static function ($val) {
             return $val !== null;
         });

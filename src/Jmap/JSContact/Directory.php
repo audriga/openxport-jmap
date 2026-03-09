@@ -62,6 +62,15 @@ class Directory extends TypeableEntity implements JsonSerializable
      */
     private $serviceType;
 
+        /**
+     * listAs: UnsignedInt (optional).
+     * The position of this directory in a list of directories.
+     *
+     * @var int|null
+     */
+    private $listAs;
+
+
     public function __construct(
         $kind,
         $uri,
@@ -69,7 +78,8 @@ class Directory extends TypeableEntity implements JsonSerializable
         $contexts = null,
         $pref = null,
         $label = null,
-        $serviceType = null
+        $serviceType = null,
+        $listAs = null
     ) {
         $this->setAtType('Directory');
 
@@ -91,6 +101,19 @@ class Directory extends TypeableEntity implements JsonSerializable
         if ($serviceType !== null) {
             $this->setServiceType($serviceType);
         }
+        if ($listAs !== null) {
+            $this->setListAs($listAs);
+        }
+    }
+
+    public function getListAs()
+    {
+        return $this->listAs;
+    }
+
+    public function setListAs($listAs)
+    {
+        $this->listAs = $listAs;
     }
 
     public function getKind()
