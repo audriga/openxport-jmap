@@ -160,7 +160,10 @@ class ContactCard extends TypeableEntity implements JsonSerializable
      */
     public function getProperty($name)
     {
-        return $this->properties[$name];
+        if ($this->properties === null) {
+            return null;
+        }
+        return isset($this->properties[$name]) ? $this->properties[$name] : null;
     }
 
     /**
