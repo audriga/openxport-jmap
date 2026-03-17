@@ -14,29 +14,38 @@ class CalendarEventSetMethod extends SetMethod
         $adapter = $dataAdapters["CalendarEvents"];
         $mapper = $dataMappers["CalendarEvents"];
         $created = [];
+        $updated = [];
         $destroyed = [];
 
+        // Handle create operations
         if (isset($arguments["create"]) && !is_null($arguments["create"])) {
-            $eventToCreate = $arguments["create"];
-            $creationId = array_keys((array)$eventToCreate)[0];
+            $eventsToCreate = $arguments["create"];
 
-            // Since we now support deserialization, we can use that here.
-            //
-            // This is a bit sketchy so I will rework this at some point.
-            //
-            // TODO: Since we now deserialize and serialize all over the place,
-            // it might be worth to consider doing this earlier.
-            $jsCalendarEvent = CalendarEvent::fromJson($eventToCreate->{$creationId});
-            $jsCalendar = [$creationId => $jsCalendarEvent];
+            foreach ($eventsToCreate as $creationId => $eventData) {
+                try {
+                    // Deserialize the JSCalendar Event from JSON
+                    $jsCalendarEvent = CalendarEvent::fromJson($eventData);
+                    $jsCalendar = [$creationId => $jsCalendarEvent];
 
-            $calendarEventMap = $mapper->mapFromJmap($jsCalendar, $adapter);
-            $created = $dataAccessors["CalendarEvents"]->create($calendarEventMap);
+                    $calendarEventMap = $mapper->mapFromJmap($jsCalendar, $adapter);
+                    
+                    $createdEvents = $dataAccessors["CalendarEvents"]->create($calendarEventMap);
+                    $created = array_merge($created, $createdEvents);
+                } catch (\Exception $e) {
+                    error_log("Failed to create event $creationId: " . $e->getMessage());
+                }
+            }
         }
 
+        // Handle destroy operations
         if (isset($arguments["destroy"]) && !is_null($arguments["destroy"])) {
-            $destroyed = $dataAccessors["CalendarEvents"]->destroy($arguments["destroy"]);
+            try {
+                $destroyed = $dataAccessors["CalendarEvents"]->destroy($arguments["destroy"]);
+            } catch (\Exception $e) {
+                error_log("Failed to destroy events: " . $e->getMessage());
+            }
         }
 
-        return $this->buildMethodResponse($created, $destroyed, $methodCall);
+        return $this->buildMethodResponse($created, $updated, $destroyed, $methodCall);
     }
 }

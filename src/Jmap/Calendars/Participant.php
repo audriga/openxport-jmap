@@ -8,7 +8,7 @@ use OpenXPort\Util\AdapterUtil;
 
 class Participant implements JsonSerializable
 {
-    private $type;
+    private $type = 'Participant';
     private $name;
     private $email;
     private $description;
@@ -33,7 +33,7 @@ class Participant implements JsonSerializable
     private $memberOf;
     private $linkIds;
 
-    private $customProperties;
+    private $customProperties = [];
 
     public function __construct(
         $name = null,
@@ -60,8 +60,6 @@ class Participant implements JsonSerializable
         $memberOf = null,
         $linkIds = null
     ) {
-        $this->setType('Participant');
-
         if ($name !== null) {
             $this->setName($name);
         }
@@ -467,7 +465,7 @@ class Participant implements JsonSerializable
                     "delegatedTo",
                     "delegatedFrom",
                     "memberOf",
-                    "links"
+                    "linkIds"
                     ))
                 ) {
                         $value = (array) $value;

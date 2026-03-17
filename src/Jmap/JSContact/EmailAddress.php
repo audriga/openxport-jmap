@@ -8,28 +8,25 @@ class EmailAddress extends TypeableEntity implements JsonSerializable
 {
     /**
      * address: String (mandatory).
-     * The email address (addr-spec per RFC 5322).
+     * The email address.
      *
      * @var string
      */
     private $address;
 
     /**
-     * contexts: String[Boolean] (optional).
+     * @var array<string, boolean> $contexts (optional)
      *
      * @var array<string,bool>|null
      */
     private $contexts;
 
-    /**
-     * pref: UnsignedInt (optional).
-     *
-     * @var int|null
+    /** @var int $pref (optional)
+     * The int here is the Preference type
      */
     private $pref;
 
-    /**
-     * label: String (optional).
+    /* @var string $label (optional)
      *
      * @var string|null
      */

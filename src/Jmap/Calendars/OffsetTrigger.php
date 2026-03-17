@@ -7,7 +7,7 @@ use OpenXPort\Util\Logger;
 
 class OffsetTrigger implements JsonSerializable
 {
-    private $type;
+    private $type = 'OffsetTrigger';
     private $offset;
     private $relativeTo;
 
@@ -17,8 +17,6 @@ class OffsetTrigger implements JsonSerializable
         $offset = null,
         $relativeTo = null
     ) {
-        $this->setType('OffsetTrigger');
-
         if ($offset !== null) {
             $this->setOffset($offset);
         }
@@ -27,6 +25,7 @@ class OffsetTrigger implements JsonSerializable
             $this->setRelativeTo($relativeTo);
         }
     }
+    
     public function getType()
     {
         return $this->type;
@@ -132,8 +131,7 @@ class OffsetTrigger implements JsonSerializable
             "relativeTo" => $this->getRelativeTo()
         ];
 
-        $custom = $this->getCustomProperties() !== null ? $this->getCustomProperties() : [];
-        foreach ($custom as $name => $value) {
+        foreach ($this->getCustomProperties() as $name => $value) {
             $objectProperties[$name] = $value;
         }
 

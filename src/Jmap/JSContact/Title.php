@@ -7,7 +7,7 @@ use JsonSerializable;
 class Title extends TypeableEntity implements JsonSerializable
 {
     /**
-     * @var string
+     * @var string $title (mandatory)
      */
     private $name;
 
@@ -17,7 +17,7 @@ class Title extends TypeableEntity implements JsonSerializable
     private $kind = 'title';
 
     /**
-     * @var string|null
+     * @var string $organizationId (optional)
      */
     private $organizationId;
 

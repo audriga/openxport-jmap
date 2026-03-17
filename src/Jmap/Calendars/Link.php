@@ -8,7 +8,7 @@ use OpenXPort\Util\Logger;
 
 class Link implements JsonSerializable
 {
-    private $type;
+    private $type = 'Link';
     private $href;
     private $cid;
     private $contentType;
@@ -17,7 +17,7 @@ class Link implements JsonSerializable
     private $display;
     private $title;
 
-    private $customProperties;
+    private $customProperties = [];
 
     public function __construct(
         $href = null,
@@ -29,8 +29,6 @@ class Link implements JsonSerializable
         $title = null,
         $customProperties = null
     ) {
-        $this->setType('Link');
-
         if ($href !== null) {
             $this->setHref($href);
         }
@@ -58,6 +56,7 @@ class Link implements JsonSerializable
             }
         }
     }
+    
     public function getType()
     {
         return $this->type;

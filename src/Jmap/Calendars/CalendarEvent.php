@@ -86,7 +86,7 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
     /** @var string|null */
     private $privacy;
 
-    /** @var Keyword|null */
+    /** @var array<string,bool>|null */
     private $keywords;
 
     /** @var RecurrenceRule[]|null */
@@ -110,9 +110,6 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
     /** @var string|null */
     private $freeBusyStatus;
 
-    /** @var string|null */
-    private $organizerCalendarAddress;
-
     /** @var bool|null */
     private $useDefaultAlerts;
 
@@ -124,6 +121,39 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
 
     /** @var bool|null */
     private $hideAttendees;
+
+    /** @var array<string,Relation>|null */
+    private $relatedTo;
+
+    /** @var string|null */
+    private $method;
+
+    /** @var array<string,VirtualLocation>|null */
+    private $virtualLocations;
+
+    /** @var int|null */
+    private $priority;
+
+    /** @var string|null */
+    private $color;
+
+    /** @var array<string,Link>|null */
+    private $links;
+
+    /** @var string|null */
+    private $locale;
+
+    /** @var array<string,string>|null */
+    private $replyTo;
+
+    /** @var string|null */
+    private $sentBy;
+
+    /** @var bool|null */
+    private $excluded;
+
+    /** @var string|null */
+    private $recurrenceId;
 
     /** @var array<string,mixed>|null */
     private $customProperties;
@@ -158,17 +188,26 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
      * @param int|null                    $sequence
      * @param string|null                 $description
      * @param string|null                 $privacy
-     * @param Keyword|null                $keywords
-     * @param RecurrenceRule|null         $recurrenceRule
+     * @param array<string,bool>|null     $keywords
      * @param RecurrenceRule[]|null       $recurrenceRules
      * @param array<string,PatchObject>|null $recurrenceOverrides
      * @param array<string,Location>|null $locations
      * @param string|null                 $freeBusyStatus
-     * @param string|null                 $organizerCalendarAddress
      * @param bool|null                   $useDefaultAlerts
      * @param bool|null                   $mayInviteSelf
      * @param bool|null                   $mayInviteOthers
      * @param bool|null                   $hideAttendees
+     * @param array<string,Relation>|null $relatedTo
+     * @param string|null                 $method
+     * @param array<string,VirtualLocation>|null $virtualLocations
+     * @param int|null                    $priority
+     * @param string|null                 $color
+     * @param array<string,Link>|null     $links
+     * @param string|null                 $locale
+     * @param array<string,string>|null   $replyTo
+     * @param string|null                 $sentBy
+     * @param bool|null                   $excluded
+     * @param string|null                 $recurrenceId
      * @param array<string,mixed>|null    $customProperties
      */
     public function __construct(
@@ -200,11 +239,21 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
         $recurrenceOverrides = null,
         $locations = null,
         $freeBusyStatus = null,
-        $organizerCalendarAddress = null,
         $useDefaultAlerts = null,
         $mayInviteSelf = null,
         $mayInviteOthers = null,
         $hideAttendees = null,
+        $relatedTo = null,
+        $method = null,
+        $virtualLocations = null,
+        $priority = null,
+        $color = null,
+        $links = null,
+        $locale = null,
+        $replyTo = null,
+        $sentBy = null,
+        $excluded = null,
+        $recurrenceId = null,
         $customProperties = null
     ) {
         $this->id = $id;
@@ -235,11 +284,21 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
         $this->recurrenceOverrides = $recurrenceOverrides;
         $this->locations = $locations;
         $this->freeBusyStatus = $freeBusyStatus;
-        $this->organizerCalendarAddress = $organizerCalendarAddress;
         $this->useDefaultAlerts = $useDefaultAlerts;
         $this->mayInviteSelf = $mayInviteSelf;
         $this->mayInviteOthers = $mayInviteOthers;
         $this->hideAttendees = $hideAttendees;
+        $this->relatedTo = $relatedTo;
+        $this->method = $method;
+        $this->virtualLocations = $virtualLocations;
+        $this->priority = $priority;
+        $this->color = $color;
+        $this->links = $links;
+        $this->locale = $locale;
+        $this->replyTo = $replyTo;
+        $this->sentBy = $sentBy;
+        $this->excluded = $excluded;
+        $this->recurrenceId = $recurrenceId;
         $this->customProperties = $customProperties;
     }
 
@@ -491,11 +550,17 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
         $this->privacy = $privacy;
     }
 
+    /**
+     * @return array<string,bool>|null
+     */
     public function getKeywords()
     {
         return $this->keywords;
     }
 
+    /**
+     * @param array<string,bool>|null $keywords
+     */
     public function setKeywords($keywords)
     {
         $this->keywords = $keywords;
@@ -559,16 +624,6 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
         $this->freeBusyStatus = $freeBusyStatus;
     }
 
-    public function getOrganizerCalendarAddress()
-    {
-        return $this->organizerCalendarAddress;
-    }
-
-    public function setOrganizerCalendarAddress($organizerCalendarAddress)
-    {
-        $this->organizerCalendarAddress = $organizerCalendarAddress;
-    }
-
     public function getUseDefaultAlerts()
     {
         return $this->useDefaultAlerts;
@@ -607,6 +662,140 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
     public function setHideAttendees($hideAttendees)
     {
         $this->hideAttendees = $hideAttendees;
+    }
+
+    /**
+     * @return array<string,Relation>|null
+     */
+    public function getRelatedTo()
+    {
+        return $this->relatedTo;
+    }
+
+    /**
+     * @param array<string,Relation>|null $relatedTo
+     */
+    public function setRelatedTo($relatedTo)
+    {
+        $this->relatedTo = $relatedTo;
+    }
+
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    public function setMethod($method)
+    {
+        $this->method = $method;
+    }
+
+    /**
+     * @return array<string,VirtualLocation>|null
+     */
+    public function getVirtualLocations()
+    {
+        return $this->virtualLocations;
+    }
+
+    /**
+     * @param array<string,VirtualLocation>|null $virtualLocations
+     */
+    public function setVirtualLocations($virtualLocations)
+    {
+        $this->virtualLocations = $virtualLocations;
+    }
+
+    public function getPriority()
+    {
+        return $this->priority;
+    }
+
+    public function setPriority($priority)
+    {
+        $this->priority = $priority;
+    }
+
+    public function getColor()
+    {
+        return $this->color;
+    }
+
+    public function setColor($color)
+    {
+        $this->color = $color;
+    }
+
+    /**
+     * @return array<string,Link>|null
+     */
+    public function getLinks()
+    {
+        return $this->links;
+    }
+
+    /**
+     * @param array<string,Link>|null $links
+     */
+    public function setLinks($links)
+    {
+        $this->links = $links;
+    }
+
+    public function getLocale()
+    {
+        return $this->locale;
+    }
+
+    public function setLocale($locale)
+    {
+        $this->locale = $locale;
+    }
+
+    /**
+     * @return array<string,string>|null
+     */
+    public function getReplyTo()
+    {
+        return $this->replyTo;
+    }
+
+    /**
+     * @param array<string,string>|null $replyTo
+     */
+    public function setReplyTo($replyTo)
+    {
+        $this->replyTo = $replyTo;
+    }
+
+    public function getSentBy()
+    {
+        return $this->sentBy;
+    }
+
+    public function setSentBy($sentBy)
+    {
+        $this->sentBy = $sentBy;
+    }
+
+    public function getExcluded()
+    {
+        return $this->excluded;
+    }
+
+    public function setExcluded($excluded)
+    {
+        $this->excluded = $excluded;
+    }
+
+    public function getRecurrenceId()
+    {
+        return $this->recurrenceId;
+    }
+
+    public function setRecurrenceId($recurrenceId)
+    {
+        $this->recurrenceId = $recurrenceId;
     }
 
     public function addCustomProperty($propertyName, $value)
@@ -654,11 +843,21 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
             "freeBusyStatus" => $this->getFreeBusyStatus(),
             "calendarIds" => $this->getCalendarIds(),
             "recurrenceOverrides" => $this->getRecurrenceOverrides(),
-            "organizerCalendarAddress" => $this->getOrganizerCalendarAddress(),
             "useDefaultAlerts" => $this->getUseDefaultAlerts(),
             "mayInviteSelf" => $this->getMayInviteSelf(),
             "mayInviteOthers" => $this->getMayInviteOthers(),
             "hideAttendees" => $this->getHideAttendees(),
+            "relatedTo" => $this->getRelatedTo(),
+            "method" => $this->getMethod(),
+            "virtualLocations" => $this->getVirtualLocations(),
+            "priority" => $this->getPriority(),
+            "color" => $this->getColor(),
+            "links" => $this->getLinks(),
+            "locale" => $this->getLocale(),
+            "replyTo" => $this->getReplyTo(),
+            "sentBy" => $this->getSentBy(),
+            "excluded" => $this->getExcluded(),
+            "recurrenceId" => $this->getRecurrenceId(),
         ];
 
         if ($this->customProperties !== null) {
@@ -686,6 +885,9 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
             "participants" => "Participant",
             "locations" => "Location",
             "recurrenceRules" => "RecurrenceRule",
+            "virtualLocations" => "VirtualLocation",
+            "links" => "Link",
+            "relatedTo" => "Relation",
         ];
 
         if (is_string($json)) {
@@ -760,6 +962,13 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
                 }
             }
         }
+        if ($this->virtualLocations) {
+            foreach ($this->virtualLocations as $vloc) {
+                if (method_exists($vloc, 'sanitizeFreeText')) {
+                    $vloc->sanitizeFreeText();
+                }
+            }
+        }
         if ($this->alerts) {
             foreach ($this->alerts as $alert) {
                 if (method_exists($alert, 'sanitizeFreeText')) {
@@ -774,9 +983,15 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
                 }
             }
         }
+        if ($this->links) {
+            foreach ($this->links as $link) {
+                if (method_exists($link, 'sanitizeFreeText')) {
+                    $link->sanitizeFreeText();
+                }
+            }
+        }
 
         $this->title = AdapterUtil::reencode($this->title);
         $this->description = AdapterUtil::reencode($this->description);
-        $this->keywords = AdapterUtil::reencode($this->keywords);
     }
 }

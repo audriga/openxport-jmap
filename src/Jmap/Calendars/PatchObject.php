@@ -10,6 +10,7 @@ class PatchObject implements JsonSerializable
      * Map of JSCalendar patch paths to values, e.g.:
      *  - "start" => "2025-03-05T10:00:00"
      *  - "participants/xxx/participationStatus" => "declined"
+     *  - "excluded" => true (to cancel this occurrence)
      *
      * @var array<string,mixed>
      */

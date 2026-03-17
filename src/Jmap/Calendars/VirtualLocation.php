@@ -8,7 +8,7 @@ use OpenXPort\Util\Logger;
 
 class VirtualLocation implements JsonSerializable
 {
-    private $type;
+    private $type = 'VirtualLocation';
     private $name;
     private $description;
     private $uri;

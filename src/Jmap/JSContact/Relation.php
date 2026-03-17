@@ -7,7 +7,7 @@ use JsonSerializable;
 class Relation extends TypeableEntity implements JsonSerializable
 {
     /**
-     * relation: String[Boolean] (optional; default: empty Object).
+     * @var array<string, boolean> $relation (optional)
      * Keys are relation types (friend, parent, spouse, ...).
      *
      * @var array<string,bool>|null

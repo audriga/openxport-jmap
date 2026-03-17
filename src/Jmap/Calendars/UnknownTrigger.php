@@ -17,8 +17,6 @@ class UnknownTrigger implements JsonSerializable
     ) {
         if ($type !== null) {
             $this->setType($type);
-        } else {
-            $this->setType('UnknownTrigger');
         }
 
         if ($customProperties !== null) {

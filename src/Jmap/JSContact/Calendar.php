@@ -6,10 +6,10 @@ use JsonSerializable;
 
 /**
  * Calendar class represents a calendar resource in JSContact.
- * 
+ *
  * Based on RFC 9553 Section 2.4.1
- * 
- * A Calendar object represents a calendar associated with the entity 
+ *
+ * A Calendar object represents a calendar associated with the entity
  * represented by this card.
  */
 class Calendar implements JsonSerializable

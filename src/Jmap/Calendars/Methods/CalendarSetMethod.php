@@ -17,25 +17,30 @@ class CalendarSetMethod extends SetMethod
         $destroyed = [];
 
         if (isset($arguments["create"]) && !is_null($arguments["create"])) {
-            $calendarToCreate = $arguments["create"];
-            $creationId = array_keys((array)$calendarToCreate)[0];
-
-            // Since we now support deserialization, we can use that here.
-            //
-            // This is a bit sketchy so I will rework this at some point.
-            //
-            // TODO: Since we now deserialize and serialize all over the place,
-            // it might be worth to consider doing this earlier.
-            $calendar = Calendar::fromJson($calendarToCreate->{$creationId});
-            $calendars = [$creationId => $calendar];
-
-            $calendarMap = $mapper->mapFromJmap($calendars, $adapter);
-            $created = $dataAccessors["Calendars"]->create($calendarMap);
+            $calendarsToCreate = $arguments["create"];
+ 
+            foreach ($calendarsToCreate as $creationId => $calendarData) {
+                try {
+                    $calendar = Calendar::fromJson($calendarData);
+                    $calendars = [$creationId => $calendar];
+ 
+                    $calendarMap = $mapper->mapFromJmap($calendars, $adapter);
+                    
+                    $createdCalendars = $dataAccessors["Calendars"]->create($calendarMap);
+                    $created = array_merge($created, $createdCalendars);
+                } catch (\Exception $e) {
+                    error_log("Failed to create calendar $creationId: " . $e->getMessage());
+                }
+            }
         }
         if (isset($arguments["destroy"]) && !is_null($arguments["destroy"])) {
-            $destroyed = $dataAccessors["Calendars"]->destroy($arguments["destroy"]);
+            try {
+                $destroyed = $dataAccessors["Calendars"]->destroy($arguments["destroy"]);
+            } catch (\Exception $e) {
+                // Handle destruction errors
+                error_log("Failed to destroy calendars: " . $e->getMessage());
+            }
         }
-
         return $this->buildMethodResponse($created, $destroyed, $methodCall);
     }
 }

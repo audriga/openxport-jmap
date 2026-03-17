@@ -195,9 +195,9 @@ class ContactCard extends TypeableEntity implements JsonSerializable
 
 
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->setAtType('Card');
-
     }
 
     public function getVersion()

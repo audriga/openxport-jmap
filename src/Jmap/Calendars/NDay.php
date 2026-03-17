@@ -7,11 +7,11 @@ use OpenXPort\Util\Logger;
 
 class NDay extends JSCalendarDataType implements JsonSerializable
 {
-    private $type;
+    private $type = 'NDay';
     private $day;
     private $nthOfPeriod;
 
-    private $customProperties;
+    private $customProperties = [];
 
     public function getType()
     {

@@ -7,50 +7,25 @@ use OpenXPort\Util\Logger;
 
 class RecurrenceRule extends JSCalendarDataType implements JsonSerializable
 {
-    private $type;
+    private $type = "RecurrenceRule";
     private $frequency;
-    private $interval;
+    private $interval = 1;
+    private $rscale = "gregorian";
+    private $skip = "omit";
+    private $firstDayOfWeek = "mo";
     private $byDay;
+    private $byMonthDay;
     private $byMonth;
+    private $byYearDay;
+    private $byWeekNo;
+    private $byHour;
+    private $byMinute;
+    private $bySecond;
     private $bySetPosition;
     private $count;
     private $until;
 
-    private $customProperties;
-
-    public function __construct(
-        $frequency = null,
-        $interval = null,
-        $byDay = null,
-        $byMonth = null,
-        $bySetPosition = null,
-        $count = null,
-        $until = null
-    ) {
-        $this->setType('RecurrenceRule');
-
-        if ($frequency !== null) {
-            $this->setFrequency($frequency);
-        }
-        if ($interval !== null) {
-            $this->setInterval($interval);
-        }
-        if ($byDay !== null) {
-            $this->setByDay($byDay);
-        }
-        if ($byMonth !== null) {
-            $this->setByMonth($byMonth);
-        }
-        if ($bySetPosition !== null) {
-            $this->setBySetPosition($bySetPosition);
-        }
-        if ($count !== null) {
-            $this->setCount($count);
-        }
-        if ($until !== null) {
-            $this->setUntil($until);
-        }
-    }
+    private $customProperties = [];
 
     public function getType()
     {
@@ -82,17 +57,54 @@ class RecurrenceRule extends JSCalendarDataType implements JsonSerializable
         $this->interval = $interval;
     }
 
+    public function getRscale()
+    {
+        return $this->rscale;
+    }
+
+    public function setRscale($rscale)
+    {
+        $this->rscale = $rscale;
+    }
+
+    public function getSkip()
+    {
+        return $this->skip;
+    }
+
+    public function setSkip($skip)
+    {
+        $this->skip = $skip;
+    }
+
+    public function getFirstDayOfWeek()
+    {
+        return $this->firstDayOfWeek;
+    }
+
+    public function setFirstDayOfWeek($firstDayOfWeek)
+    {
+        $this->firstDayOfWeek = $firstDayOfWeek;
+    }
+
     public function getByDay()
     {
         return $this->byDay;
     }
 
-    /**
-     * @param NDay[]|null $byDay
-     */
     public function setByDay($byDay)
     {
         $this->byDay = $byDay;
+    }
+
+    public function getByMonthDay()
+    {
+        return $this->byMonthDay;
+    }
+
+    public function setByMonthDay($byMonthDay)
+    {
+        $this->byMonthDay = $byMonthDay;
     }
 
     public function getByMonth()
@@ -103,6 +115,56 @@ class RecurrenceRule extends JSCalendarDataType implements JsonSerializable
     public function setByMonth($byMonth)
     {
         $this->byMonth = $byMonth;
+    }
+
+    public function getByYearDay()
+    {
+        return $this->byYearDay;
+    }
+
+    public function setByYearDay($byYearDay)
+    {
+        $this->byYearDay = $byYearDay;
+    }
+
+    public function getByWeekNo()
+    {
+        return $this->byWeekNo;
+    }
+
+    public function setByWeekNo($byWeekNo)
+    {
+        $this->byWeekNo = $byWeekNo;
+    }
+
+    public function getByHour()
+    {
+        return $this->byHour;
+    }
+
+    public function setByHour($byHour)
+    {
+        $this->byHour = $byHour;
+    }
+
+    public function getByMinute()
+    {
+        return $this->byMinute;
+    }
+
+    public function setByMinute($byMinute)
+    {
+        $this->byMinute = $byMinute;
+    }
+
+    public function getBySecond()
+    {
+        return $this->bySecond;
+    }
+
+    public function setBySecond($bySecond)
+    {
+        $this->bySecond = $bySecond;
     }
 
     public function getBySetPosition()
@@ -148,7 +210,7 @@ class RecurrenceRule extends JSCalendarDataType implements JsonSerializable
     /**
      * Parses a RecurrenceRule object from the given JSON representation.
      *
-     * @param mixed $json String/Array/object containing a recurrence rule in the JSCalendar format.
+     * @param mixed $json String/Array containing a recurrence rule in the JSCalendar format.
      *
      * @return RecurrenceRule RecurrenceRule object containing any properties that can be
      * parsed from the given JSON string/array.
@@ -161,11 +223,9 @@ class RecurrenceRule extends JSCalendarDataType implements JsonSerializable
             $json = json_decode($json);
         }
 
-        if ($json instanceof \stdClass) {
-            $json = (array) $json;
+        if (is_array($json)) {
+            return parent::fromJsonArray($json);
         }
-
-        // Always build a single RecurrenceRule instance here.
 
         foreach ($json as $key => $value) {
             // The "@type" poperty is defined as "type" in the custom classes.
@@ -202,17 +262,11 @@ class RecurrenceRule extends JSCalendarDataType implements JsonSerializable
 
             // Access the setter method of the given property.
             if ($key == "byDay") {
-                if (is_array($value)) {
-                    $ndays = [];
-                    foreach ($value as $dayJson) {
-                        $ndays[] = NDay::fromJson($dayJson);
-                    }
-                    $classInstance->{$setPropertyMethod}($ndays);
-                } else {
-                    $classInstance->{$setPropertyMethod}([NDay::fromJson($value)]);
-                }
+                $classInstance->{"$setPropertyMethod"}(
+                    NDay::fromJson($value)
+                );
             } else {
-                $classInstance->{$setPropertyMethod}($value);
+                $classInstance->{"$setPropertyMethod"}($value);
             }
         }
 
@@ -226,15 +280,23 @@ class RecurrenceRule extends JSCalendarDataType implements JsonSerializable
             "@type" => $this->getType(),
             "frequency" => $this->getFrequency(),
             "interval" => $this->getInterval(),
+            "rscale" => $this->getRscale(),
+            "skip" => $this->getSkip(),
+            "firstDayOfWeek" => $this->getFirstDayOfWeek(),
             "byDay" => $this->getByDay(),
+            "byMonthDay" => $this->getByMonthDay(),
             "byMonth" => $this->getByMonth(),
+            "byYearDay" => $this->getByYearDay(),
+            "byWeekNo" => $this->getByWeekNo(),
+            "byHour" => $this->getByHour(),
+            "byMinute" => $this->getByMinute(),
+            "bySecond" => $this->getBySecond(),
             "bySetPosition" => $this->getBySetPosition(),
             "count" => $this->getCount(),
             "until" => $this->getUntil()
         ];
 
-        $custom = $this->getCustomProperties() !== null ? $this->getCustomProperties() : [];
-        foreach ($custom as $name => $value) {
+        foreach ($this->getCustomProperties() as $name => $value) {
             $objectProperties[$name] = $value;
         }
 

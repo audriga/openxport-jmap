@@ -9,6 +9,9 @@ use JsonSerializable;
 /**
  * Wrapper for JSCalendar keywords: String[Boolean].
  *
+ * Per RFC 8984 Section 4.2.9, keywords is a set of keywords/tags
+ * represented as a map where keys are the keywords and values MUST be true.
+ *
  * Internally stored as array<string,bool>.
  */
 class Keyword implements JsonSerializable
@@ -21,7 +24,11 @@ class Keyword implements JsonSerializable
      */
     public function __construct(array $values = [])
     {
-        $this->values = $values;
+        foreach ($values as $key => $val) {
+            if ($val === true) {
+                $this->values[$key] = true;
+            }
+        }
     }
 
     /**
@@ -32,14 +39,36 @@ class Keyword implements JsonSerializable
         return $this->values;
     }
 
-    public function set($keyword, $present = true)
+    /**
+     * Add a keyword to the set.
+     * Per RFC 8984, the value is always true.
+     *
+     * @param string $keyword
+     */
+    public function set($keyword)
     {
-        $this->values[$keyword] = $present;
+        $this->values[$keyword] = true;
     }
 
+    /**
+     * Remove a keyword from the set.
+     *
+     * @param string $keyword
+     */
     public function remove($keyword)
     {
         unset($this->values[$keyword]);
+    }
+
+    /**
+     * Check if a keyword exists in the set.
+     *
+     * @param string $keyword
+     * @return bool
+     */
+    public function has($keyword)
+    {
+        return isset($this->values[$keyword]);
     }
 
     #[\ReturnTypeWillChange]
@@ -64,7 +93,10 @@ class Keyword implements JsonSerializable
 
         $values = [];
         foreach ((array) $json as $key => $val) {
-            $values[$key] = (bool) $val;
+            // Per RFC 8984, only accept true values
+            if ($val === true) {
+                $values[$key] = true;
+            }
         }
 
         return new self($values);

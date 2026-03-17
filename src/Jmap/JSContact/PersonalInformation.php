@@ -15,7 +15,7 @@ class PersonalInformation extends TypeableEntity implements JsonSerializable
     private $kind;
 
     /**
-     * value: String (mandatory).
+     * @var string $value (mandatory)
      *
      * @var string
      */

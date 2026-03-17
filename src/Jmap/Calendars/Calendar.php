@@ -14,8 +14,15 @@ class Calendar implements JsonSerializable
     private $color;
     private $sortOrder;
     private $isVisible;
+    private $isSubscribed;
     private $shareWith;
+    private $myRights;
+    private $defaultAlertsWithTime;
+    private $defaultAlertsWithoutTime;
+    private $timeZone;
     private $role;
+
+    private $customProperties = [];
 
     public function getId()
     {
@@ -77,6 +84,16 @@ class Calendar implements JsonSerializable
         $this->isVisible = $isVisible;
     }
 
+    public function getIsSubscribed()
+    {
+        return $this->isSubscribed;
+    }
+
+    public function setIsSubscribed($isSubscribed)
+    {
+        $this->isSubscribed = $isSubscribed;
+    }
+
     public function getShareWith()
     {
         return $this->shareWith;
@@ -87,6 +104,46 @@ class Calendar implements JsonSerializable
         $this->shareWith = $shareWith;
     }
 
+    public function getMyRights()
+    {
+        return $this->myRights;
+    }
+
+    public function setMyRights($myRights)
+    {
+        $this->myRights = $myRights;
+    }
+
+    public function getDefaultAlertsWithTime()
+    {
+        return $this->defaultAlertsWithTime;
+    }
+
+    public function setDefaultAlertsWithTime($defaultAlertsWithTime)
+    {
+        $this->defaultAlertsWithTime = $defaultAlertsWithTime;
+    }
+
+    public function getDefaultAlertsWithoutTime()
+    {
+        return $this->defaultAlertsWithoutTime;
+    }
+
+    public function setDefaultAlertsWithoutTime($defaultAlertsWithoutTime)
+    {
+        $this->defaultAlertsWithoutTime = $defaultAlertsWithoutTime;
+    }
+
+    public function getTimeZone()
+    {
+        return $this->timeZone;
+    }
+
+    public function setTimeZone($timeZone)
+    {
+        $this->timeZone = $timeZone;
+    }
+
     public function getRole()
     {
         return $this->role;
@@ -95,6 +152,16 @@ class Calendar implements JsonSerializable
     public function setRole($role)
     {
         $this->role = $role;
+    }
+
+    public function addCustomProperty($propertyName, $value)
+    {
+        $this->customProperties[$propertyName] = $value;
+    }
+
+    public function getCustomProperties()
+    {
+        return $this->customProperties;
     }
 
     /**
@@ -122,8 +189,7 @@ class Calendar implements JsonSerializable
                 $logger = Logger::getInstance();
                 $logger->warning("File contains property not existing in " . self::class . ": $key");
 
-                // TODO support custom properties for Calendars
-                // $classInstance->addCustomProperty($key, $value);
+                $classInstance->addCustomProperty($key, $value);
                 continue;
             }
 
@@ -139,9 +205,21 @@ class Calendar implements JsonSerializable
                 $logger = Logger::getInstance();
                 $logger->warning(self::class . " is missing a setter for $key.");
 
-                // TODO support custom properties for Calendars
-                //$classInstance->addCustomProperty($key, $value);
+                $classInstance->addCustomProperty($key, $value);
                 continue;
+            }
+
+            // Parse nested objects
+            if ($key == "myRights") {
+                $value = CalendarRights::fromJson($value);
+            } elseif ($key == "defaultAlertsWithTime" || $key == "defaultAlertsWithoutTime") {
+                if (is_object($value) || is_array($value)) {
+                    $alerts = [];
+                    foreach ($value as $alertId => $alertData) {
+                        $alerts[$alertId] = Alert::fromJson([$alertId => $alertData]);
+                    }
+                    $value = $alerts;
+                }
             }
 
             $classInstance->{"$setPropertyMethod"}($value);
@@ -160,7 +238,12 @@ class Calendar implements JsonSerializable
             "color" => $this->getColor(),
             "sortOrder" => $this->getSortOrder(),
             "isVisible" => $this->getIsVisible(),
+            "isSubscribed" => $this->getIsSubscribed(),
             "shareWith" => $this->getShareWith(),
+            "myRights" => $this->getMyRights(),
+            "defaultAlertsWithTime" => $this->getDefaultAlertsWithTime(),
+            "defaultAlertsWithoutTime" => $this->getDefaultAlertsWithoutTime(),
+            "timeZone" => $this->getTimeZone(),
             "role" => $this->getRole()
         ], function ($val) {
             return !is_null($val);

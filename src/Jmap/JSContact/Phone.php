@@ -7,27 +7,29 @@ use JsonSerializable;
 class Phone extends TypeableEntity implements JsonSerializable
 {
     /**
-     * @var string|null
+     * @var string $number (mandatory)
      */
     private $number;
 
     /**
-     * @var array|null
+     *  @var array<string, boolean> $contexts (optional)
+     * The string keys of the array are of type Context
      */
     private $contexts;
 
     /**
-     * @var int|string|null
+     * @var int $pref (optional)
+     * The int here is the Preference type
      */
     private $pref;
 
     /**
-     * @var array|null  // e.g. ['voice' => true, 'fax' => true]
+     * @var array<string, boolean> $features (optional)
      */
     private $features;
 
     /**
-     * @var string|null // free-form label for TEL types that don’t map to features
+     * @var string $label (optional)
      */
     private $label;
 

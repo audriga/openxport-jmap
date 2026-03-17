@@ -13,7 +13,7 @@ class CalendarsAccountCapability extends \OpenXPort\Jmap\Core\AccountCapability
     public function __construct()
     {
         // TODO Make this configurable later on by reading values from a config class
-        $this->options = [
+        $this->options =  array(
             'shareesActAs' => "self",
             'maxCalendarsPerEvent' => null,
             'minDateTime' => "1970-01-01T00:00:00",
@@ -21,7 +21,7 @@ class CalendarsAccountCapability extends \OpenXPort\Jmap\Core\AccountCapability
             'maxExpandedQueryDuration' => "P0D",
             'maxParticipantsPerEvent' => null,
             'mayCreateCalendar' => true
-        ];
+        );
         $this->name = "urn:ietf:params:jmap:calendars";
     }
 
@@ -32,10 +32,10 @@ class CalendarsAccountCapability extends \OpenXPort\Jmap\Core\AccountCapability
 
     public function getMethods()
     {
-        return [
+        return array(
             "CalendarEvent/get" => Methods\CalendarEventGetMethod::class,
             "Calendar/get" => Methods\CalendarGetMethod::class
-        ];
+        );
     }
 
     public function getName()
