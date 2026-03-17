@@ -33,12 +33,11 @@ class AddressComponent extends TypeableEntity implements JsonSerializable
      */
     private $phonetic;
 
-    public function __construct($value = null, $kind = null, $phonetic = null)
+    public function __construct($kind = null, $value = null, $phonetic = null)
     {
         $this->setAtType('AddressComponent');
-
-        $this->setValue($value);
         $this->setKind($kind);
+        $this->setValue($value);
 
         if ($phonetic !== null) {
             $this->setPhonetic($phonetic);
@@ -81,8 +80,8 @@ class AddressComponent extends TypeableEntity implements JsonSerializable
     {
         return (object) array_filter([
             "@type"    => $this->getAtType(),
-            "value"    => $this->getValue(),
             "kind"     => $this->getKind(),
+            "value"    => $this->getValue(),
             "phonetic" => $this->getPhonetic(),
         ], function ($val) {
             return !is_null($val);
