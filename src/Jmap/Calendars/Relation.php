@@ -129,8 +129,7 @@ class Relation implements JsonSerializable
             "relation" => $this->getRelation()
         ];
 
-        $custom = $this->getCustomProperties() !== null ? $this->getCustomProperties() : [];
-        foreach ($custom as $name => $value) {
+        foreach ($this->getCustomProperties() as $name => $value) {
             $objectProperties[$name] = $value;
         }
 

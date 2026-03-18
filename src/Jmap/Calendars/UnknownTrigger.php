@@ -109,8 +109,7 @@ class UnknownTrigger implements JsonSerializable
             "@type" => $this->getType()
         ];
 
-        $custom = $this->getCustomProperties() !== null ? $this->getCustomProperties() : [];
-        foreach ($custom as $name => $value) {
+        foreach ($this->getCustomProperties() as $name => $value) {
             $objectProperties[$name] = $value;
         }
 
