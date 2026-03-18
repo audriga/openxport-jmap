@@ -28,7 +28,7 @@ class CalendarEventSetMethod extends SetMethod
                     $jsCalendar = [$creationId => $jsCalendarEvent];
 
                     $calendarEventMap = $mapper->mapFromJmap($jsCalendar, $adapter);
-                    
+
                     $createdEvents = $dataAccessors["CalendarEvents"]->create($calendarEventMap);
                     $created = array_merge($created, $createdEvents);
                 } catch (\Exception $e) {

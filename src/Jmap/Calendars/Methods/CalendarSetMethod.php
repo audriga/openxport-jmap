@@ -18,14 +18,14 @@ class CalendarSetMethod extends SetMethod
 
         if (isset($arguments["create"]) && !is_null($arguments["create"])) {
             $calendarsToCreate = $arguments["create"];
- 
+
             foreach ($calendarsToCreate as $creationId => $calendarData) {
                 try {
                     $calendar = Calendar::fromJson($calendarData);
                     $calendars = [$creationId => $calendar];
- 
+
                     $calendarMap = $mapper->mapFromJmap($calendars, $adapter);
-                    
+
                     $createdCalendars = $dataAccessors["Calendars"]->create($calendarMap);
                     $created = array_merge($created, $createdCalendars);
                 } catch (\Exception $e) {

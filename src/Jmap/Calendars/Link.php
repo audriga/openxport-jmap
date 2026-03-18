@@ -56,7 +56,7 @@ class Link implements JsonSerializable
             }
         }
     }
-    
+
     public function getType()
     {
         return $this->type;
