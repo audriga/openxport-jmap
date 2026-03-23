@@ -11,7 +11,6 @@ use JsonSerializable;
  */
 class SchedulingAddress extends TypeableEntity implements JsonSerializable
 {
-    private $type = "SchedulingAddress";
     /**
      * kind: String (mandatory).
      * Enum: calendar | freeBusy.
@@ -65,6 +64,8 @@ class SchedulingAddress extends TypeableEntity implements JsonSerializable
         $pref = null,
         $label = null
     ) {
+        $this->setAtType('SchedulingAddress');
+
         $this->setKind($kind);
         $this->setUri($uri);
 
@@ -87,10 +88,6 @@ class SchedulingAddress extends TypeableEntity implements JsonSerializable
         return $this->kind;
     }
 
-    public function getType()
-    {
-        return $this->type;
-    }
     public function setKind($kind)
     {
         $this->kind = $kind;

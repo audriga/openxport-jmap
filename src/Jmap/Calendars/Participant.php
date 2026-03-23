@@ -8,7 +8,7 @@ use OpenXPort\Util\AdapterUtil;
 
 class Participant implements JsonSerializable
 {
-    private $type = 'Participant';
+    private $type;
     private $name;
     private $email;
     private $description;
@@ -60,6 +60,8 @@ class Participant implements JsonSerializable
         $memberOf = null,
         $linkIds = null
     ) {
+        $this->setType("Participant");
+
         if ($name !== null) {
             $this->setName($name);
         }

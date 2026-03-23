@@ -11,7 +11,6 @@ use JsonSerializable;
  */
 class CryptoKey extends TypeableEntity implements JsonSerializable
 {
-    private $type = 'CryptoKey';
     /**
      * kind: String (optional).
      *
@@ -74,6 +73,8 @@ class CryptoKey extends TypeableEntity implements JsonSerializable
         $label = null,
         $data = null
     ) {
+        $this->setAtType('CryptoKey');
+
         $this->setUri($uri);
 
         if ($kind !== null) {
@@ -170,11 +171,6 @@ class CryptoKey extends TypeableEntity implements JsonSerializable
     public function setData($data)
     {
         $this->data = $data;
-    }
-
-    public function getType()
-    {
-        return $this->type;
     }
 
     #[\ReturnTypeWillChange]

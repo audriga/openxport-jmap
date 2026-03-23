@@ -19,8 +19,6 @@ class ContactCard extends TypeableEntity implements JsonSerializable
     /** @var string */
     private $uid;
 
-    private $type = 'Card';
-
     /**
      * addressBookIds: Id[Boolean] (JMAP ContactCard).
      *
@@ -196,16 +194,16 @@ class ContactCard extends TypeableEntity implements JsonSerializable
     }
 
 
+
+    public function __construct()
+    {
+        $this->setAtType('Card');
+    }
+
     public function getVersion()
     {
         return $this->version;
     }
-
-    public function getType()
-    {
-        return $this->type;
-    }
-
 
     public function setVersion($version)
     {

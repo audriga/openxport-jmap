@@ -7,12 +7,12 @@ use OpenXPort\Util\Logger;
 
 class RecurrenceRule extends JSCalendarDataType implements JsonSerializable
 {
-    private $type = "RecurrenceRule";
+    private $type;
     private $frequency;
-    private $interval = 1;
-    private $rscale = "gregorian";
-    private $skip = "omit";
-    private $firstDayOfWeek = "mo";
+    private $interval;
+    private $rscale;
+    private $skip;
+    private $firstDayOfWeek;
     private $byDay;
     private $byMonthDay;
     private $byMonth;
@@ -26,6 +26,16 @@ class RecurrenceRule extends JSCalendarDataType implements JsonSerializable
     private $until;
 
     private $customProperties = [];
+
+    public function __construct()
+    {
+        //defaults
+        $this->setType("RecurrenceRule");
+        $this->setInterval(1);
+        $this->setRscale("gregorian");
+        $this->setSkip("omit");
+        $this->setFirstDayOfWeek("mo");
+    }
 
     public function getType()
     {

@@ -6,8 +6,6 @@ use JsonSerializable;
 
 class Title extends TypeableEntity implements JsonSerializable
 {
-    private $type = 'Title';
-
     /**
      * @var string $title (mandatory)
      */
@@ -16,8 +14,7 @@ class Title extends TypeableEntity implements JsonSerializable
     /**
      * @var string|null
      */
-    private $kind = 'title'; //default in tfc 9553
-
+    private $kind = 'title';
 
     /**
      * @var string $organizationId (optional)
@@ -26,6 +23,8 @@ class Title extends TypeableEntity implements JsonSerializable
 
     public function __construct($name = null, $kind = null, $organizationId = null)
     {
+        $this->setAtType('Title');
+
         if ($name !== null) {
             $this->name = $name;
         }
@@ -35,11 +34,6 @@ class Title extends TypeableEntity implements JsonSerializable
         if ($organizationId !== null) {
             $this->organizationId = $organizationId;
         }
-    }
-
-    public function getType()
-    {
-        return $this->type;
     }
 
     public function getName()

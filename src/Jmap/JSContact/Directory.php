@@ -11,7 +11,6 @@ use JsonSerializable;
  */
 class Directory extends TypeableEntity implements JsonSerializable
 {
-    private $type = 'Directory';
     /**
      * kind: String (mandatory).
      * Enum: directory | entry.
@@ -82,6 +81,8 @@ class Directory extends TypeableEntity implements JsonSerializable
         $serviceType = null,
         $listAs = null
     ) {
+        $this->setAtType('Directory');
+
         $this->setKind($kind);
         $this->setUri($uri);
 
@@ -113,11 +114,6 @@ class Directory extends TypeableEntity implements JsonSerializable
     public function setListAs($listAs)
     {
         $this->listAs = $listAs;
-    }
-
-    public function getType()
-    {
-        return $this->type;
     }
 
     public function getKind()

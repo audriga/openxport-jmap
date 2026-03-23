@@ -8,7 +8,7 @@ use OpenXPort\Util\Logger;
 
 class Alert implements JsonSerializable
 {
-    private $type = "Alert";
+    private $type;
     private $trigger;
     private $acknowledged;
     private $relatedTo;
@@ -23,6 +23,8 @@ class Alert implements JsonSerializable
         $action = null,
         $customProperties = null
     ) {
+        $this->setType('Alert');
+
         if ($trigger !== null) {
             $this->setTrigger($trigger);
         }

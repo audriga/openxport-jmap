@@ -48,8 +48,6 @@ class Address extends TypeableEntity implements JsonSerializable
     /** @var string|null phoneticSystem (optional) */
     private $phoneticSystem;
 
-    private $type = 'Address';
-
     public function __construct(
         $components = null,
         $isOrdered = null,
@@ -63,6 +61,8 @@ class Address extends TypeableEntity implements JsonSerializable
         $phoneticScript = null,
         $phoneticSystem = null
     ) {
+        $this->setAtType('Address');
+
         if ($components !== null) {
             $this->setComponents($components);
         }
@@ -117,11 +117,6 @@ class Address extends TypeableEntity implements JsonSerializable
     public function getIsOrdered()
     {
         return $this->isOrdered;
-    }
-
-    public function getType()
-    {
-        return $this->type;
     }
 
     public function setIsOrdered($isOrdered)

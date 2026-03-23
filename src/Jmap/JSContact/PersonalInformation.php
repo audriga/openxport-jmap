@@ -6,7 +6,6 @@ use JsonSerializable;
 
 class PersonalInformation extends TypeableEntity implements JsonSerializable
 {
-    private $type = 'PersonalInfo';
     /**
      * kind: String (mandatory).
      * Enum: expertise | hobby | interest.
@@ -46,6 +45,8 @@ class PersonalInformation extends TypeableEntity implements JsonSerializable
 
     public function __construct($kind, $value, $level = null, $listAs = null, $label = null)
     {
+        $this->setAtType('PersonalInfo');
+
         $this->setKind($kind);
         $this->setValue($value);
 
@@ -60,9 +61,6 @@ class PersonalInformation extends TypeableEntity implements JsonSerializable
         }
     }
 
-    public function getType(){
-        return $this->type;
-    }
     public function getKind()
     {
         return $this->kind;

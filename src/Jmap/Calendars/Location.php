@@ -8,7 +8,7 @@ use OpenXPort\Util\Logger;
 
 class Location implements JsonSerializable
 {
-    private $type = 'Location';
+    private $type;
     private $name;
     private $description;
     private $relativeTo;
@@ -30,6 +30,8 @@ class Location implements JsonSerializable
         $links = null,
         $linkIds = null
     ) {
+        $this->setType('Location');
+
         if ($name !== null) {
             $this->setName($name);
         }

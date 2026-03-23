@@ -6,7 +6,6 @@ use JsonSerializable;
 
 class OrgUnit extends TypeableEntity implements JsonSerializable
 {
-    private $type = 'OrgUnit';
     /**
      * name: String (mandatory).
      *
@@ -23,15 +22,13 @@ class OrgUnit extends TypeableEntity implements JsonSerializable
 
     public function __construct($name, $sortAs = null)
     {
+        $this->setAtType('OrgUnit');
+
         $this->setName($name);
 
         if ($sortAs !== null) {
             $this->setSortAs($sortAs);
         }
-    }
-
-    public function getAtType(){
-        return $this->type;
     }
 
     public function getName()

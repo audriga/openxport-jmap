@@ -6,7 +6,6 @@ use JsonSerializable;
 
 class Nickname extends TypeableEntity implements JsonSerializable
 {
-    private $type = "Nickname";
     /**
      * @var string|null
      */
@@ -14,13 +13,11 @@ class Nickname extends TypeableEntity implements JsonSerializable
 
     public function __construct($name = null)
     {
+        $this->setAtType('Nickname');
+
         if ($name !== null) {
             $this->name = $name;
         }
-    }
-    public function getType()
-    {
-        return $this->type;
     }
 
     public function getName()

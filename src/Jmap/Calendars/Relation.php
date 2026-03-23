@@ -7,7 +7,7 @@ use OpenXPort\Util\Logger;
 
 class Relation implements JsonSerializable
 {
-    private $type = "Relation";
+    private $type;
     private $relation;
 
     private $customProperties = [];
@@ -15,6 +15,8 @@ class Relation implements JsonSerializable
     public function __construct(
         $relation = null
     ) {
+        $this->setType('Relation');
+
         if ($relation !== null) {
             $this->setRelation($relation);
         }

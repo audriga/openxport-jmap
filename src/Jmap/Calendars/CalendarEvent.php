@@ -22,7 +22,7 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
     private $isOrigin;
     private $utcStart;
     private $utcEnd;
-    private $type = 'Event';
+    private $type;
     private $uid;
     private $relatedTo;
     private $prodId;
@@ -60,6 +60,11 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
     private $keywords;
     private $color;
     private $customProperties;
+
+    public function __construct()
+    {
+        $this->setType('Event');
+    }
 
     /**
      * Get the event ID

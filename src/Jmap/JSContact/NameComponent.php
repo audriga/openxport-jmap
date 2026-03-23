@@ -6,7 +6,6 @@ use JsonSerializable;
 
 class NameComponent extends TypeableEntity implements JsonSerializable
 {
-    private $type = "NameComponent";
     /**
      * @var string|null
      */
@@ -19,17 +18,14 @@ class NameComponent extends TypeableEntity implements JsonSerializable
 
     public function __construct($kind = null, $value = null)
     {
+        $this->setAtType('NameComponent');
+
         if ($kind !== null) {
             $this->kind = $kind;
         }
         if ($value !== null) {
             $this->value = $value;
         }
-    }
-
-    public function getType()
-    {
-        return $this->type;
     }
 
     public function getKind()

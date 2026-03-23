@@ -6,8 +6,6 @@ use JsonSerializable;
 
 class Name extends TypeableEntity implements JsonSerializable
 {
-    private $type = "Name";
-
     /** @var NameComponent[]|null components (optional) */
     private $components;
 
@@ -43,6 +41,8 @@ class Name extends TypeableEntity implements JsonSerializable
         $phoneticScript = null,
         $phoneticSystem = null
     ) {
+        $this->setAtType('Name');
+
         if ($components !== null) {
             $this->setComponents($components);
         }
@@ -64,11 +64,6 @@ class Name extends TypeableEntity implements JsonSerializable
         if ($phoneticSystem !== null) {
             $this->setPhoneticSystem($phoneticSystem);
         }
-    }
-
-    public function getType()
-    {
-        return $this->type;
     }
 
     /**

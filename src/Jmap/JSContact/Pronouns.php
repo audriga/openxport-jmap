@@ -7,7 +7,7 @@ use JsonSerializable;
 class Pronouns extends TypeableEntity implements JsonSerializable
 {
     /** @var string pronouns (mandatory) */
-    private $pronouns = "Pronouns";
+    private $pronouns;
 
     /**
      * contexts: String[Boolean] (optional).
@@ -25,6 +25,8 @@ class Pronouns extends TypeableEntity implements JsonSerializable
 
     public function __construct($pronouns, $contexts = null, $pref = null)
     {
+        $this->setAtType('Pronouns');
+
         $this->setPronouns($pronouns);
 
         if ($contexts !== null) {

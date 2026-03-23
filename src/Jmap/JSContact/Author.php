@@ -11,8 +11,6 @@ use JsonSerializable;
  */
 class Author extends TypeableEntity implements JsonSerializable
 {
-    private $type = 'Author';
-
     /** @var string|null */
     private $name;
 
@@ -21,6 +19,8 @@ class Author extends TypeableEntity implements JsonSerializable
 
     public function __construct($name = null, $uri = null)
     {
+        $this->setAtType('Author');
+
         if ($name !== null) {
             $this->setName($name);
         }
@@ -47,11 +47,6 @@ class Author extends TypeableEntity implements JsonSerializable
     public function setUri($uri = null)
     {
         $this->uri = $uri;
-    }
-
-    public function getType()
-    {
-        return $this->type;
     }
 
     #[\ReturnTypeWillChange]

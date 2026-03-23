@@ -5,7 +5,7 @@ namespace OpenXPort\Jmap\JSContact;
 use JsonSerializable;
 use OpenXPort\Util\AdapterUtil;
 
-class AddressBook implements JsonSerializable
+class AddressBook extends TypeableEntity implements JsonSerializable
 {
     /** @var string|null Id (immutable; server-set) */
     protected $id;
@@ -16,7 +16,7 @@ class AddressBook implements JsonSerializable
      *
      * @var string|null
      */
-    protected $type = 'AddressBook';
+    protected $type;
 
     /** @var string User-visible name (non-empty, <= 255 UTF-8 octets) */
     protected $name;
@@ -76,6 +76,8 @@ class AddressBook implements JsonSerializable
         $shareWith = null,
         $myRights = null
     ) {
+        $this->setAtType('AddressBook');
+
         if ($id !== null) {
             $this->setId($id);
         }

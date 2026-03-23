@@ -6,7 +6,6 @@ use JsonSerializable;
 
 class Phone extends TypeableEntity implements JsonSerializable
 {
-    private $type = 'Phone';
     /**
      * @var string $number (mandatory)
      */
@@ -37,6 +36,8 @@ class Phone extends TypeableEntity implements JsonSerializable
 
     public function __construct($number = null, $contexts = null, $pref = null)
     {
+        $this->setAtType('Phone');
+
         if ($number !== null) {
             $this->number = $number;
         }
@@ -48,9 +49,6 @@ class Phone extends TypeableEntity implements JsonSerializable
         }
     }
 
-    public function getType(){
-        return $this->type;
-    }
 
     public function getNumber()
     {
