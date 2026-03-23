@@ -6,6 +6,8 @@ use JsonSerializable;
 
 class Anniversary extends TypeableEntity implements JsonSerializable
 {
+
+    private $type = 'Anniversary';
     /**
      * kind: String (mandatory).
      * Enum: birth | death | wedding.
@@ -34,8 +36,6 @@ class Anniversary extends TypeableEntity implements JsonSerializable
 
     public function __construct($kind = null, $date = null, $place = null, $label = null)
     {
-        $this->setAtType('Anniversary');
-
         if ($kind !== null) {
             $this->setKind($kind);
         }
@@ -90,6 +90,11 @@ class Anniversary extends TypeableEntity implements JsonSerializable
         $this->place = $place;
     }
 
+    public function getType()
+    {
+        return $this->type;
+    }
+    
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {

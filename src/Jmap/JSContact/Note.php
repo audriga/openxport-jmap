@@ -13,6 +13,8 @@ use JsonSerializable;
  */
 class Note extends TypeableEntity implements JsonSerializable
 {
+    private $type = "Note";
+
     /** @var string */
     private $note;
 
@@ -24,8 +26,6 @@ class Note extends TypeableEntity implements JsonSerializable
 
     public function __construct($note = null, $created = null, $author = null)
     {
-        $this->setAtType('Note');
-
         $this->setNote($note);
 
         if ($created !== null) {
@@ -36,6 +36,11 @@ class Note extends TypeableEntity implements JsonSerializable
         }
     }
 
+    public function getType()
+    {
+        return $this->type;
+    }
+    
     public function getNote()
     {
         return $this->note;

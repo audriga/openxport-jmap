@@ -11,6 +11,8 @@ use JsonSerializable;
  */
 class Link extends TypeableEntity implements JsonSerializable
 {
+    private $type = 'Link';
+
     /**
      * kind: String (optional).
      * Enum: contact.
@@ -62,8 +64,6 @@ class Link extends TypeableEntity implements JsonSerializable
         $pref = null,
         $label = null
     ) {
-        $this->setAtType('Link');
-
         $this->setUri($uri);
 
         if ($kind !== null) {
@@ -147,6 +147,11 @@ class Link extends TypeableEntity implements JsonSerializable
     public function setLabel($label)
     {
         $this->label = $label;
+    }
+
+    public function getType()
+    {
+        return $this->type;
     }
 
     #[\ReturnTypeWillChange]

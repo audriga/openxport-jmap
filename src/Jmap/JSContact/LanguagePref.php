@@ -14,10 +14,10 @@ class LanguagePref extends TypeableEntity implements JsonSerializable
 
     /** @var int|null */
     private $pref;
+    private $type = 'LanguagePref';
 
     public function __construct($language = null, $contexts = null, $pref = null)
     {
-        $this->setAtType('LanguagePref');
 
         if ($language !== null) {
             $this->language = $language;
@@ -58,6 +58,11 @@ class LanguagePref extends TypeableEntity implements JsonSerializable
     public function setPref($pref)
     {
         $this->pref = $pref;
+    }
+
+    public function getType()
+    {
+        return $this->type;
     }
 
     #[\ReturnTypeWillChange]

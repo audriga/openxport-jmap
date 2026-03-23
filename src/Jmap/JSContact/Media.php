@@ -12,6 +12,7 @@ use JsonSerializable;
  */
 class Media extends TypeableEntity implements JsonSerializable
 {
+    private $type = 'Media';
     /**
      * kind: String (mandatory).
      * Enum: photo | sound | logo.
@@ -73,8 +74,6 @@ class Media extends TypeableEntity implements JsonSerializable
         $label = null,
         $blobId = null
     ) {
-        $this->setAtType('Media');
-
         $this->setKind($kind);
 
         if ($uri !== null) {
@@ -171,6 +170,11 @@ class Media extends TypeableEntity implements JsonSerializable
     public function setBlobId($blobId)
     {
         $this->blobId = $blobId;
+    }
+
+    public function getType()
+    {
+        return $this->type;
     }
 
     #[\ReturnTypeWillChange]

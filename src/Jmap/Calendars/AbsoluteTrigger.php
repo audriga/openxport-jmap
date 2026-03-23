@@ -7,7 +7,7 @@ use OpenXPort\Util\Logger;
 
 class AbsoluteTrigger implements JsonSerializable
 {
-    private $type;
+    private $type = "AbsoluteTrigger";
     private $when;
 
     private $customProperties;
@@ -16,8 +16,6 @@ class AbsoluteTrigger implements JsonSerializable
         $when = null,
         $customProperties = null
     ) {
-        $this->setType('AbsoluteTrigger');
-
         if ($when !== null) {
             $this->setWhen($when);
         }

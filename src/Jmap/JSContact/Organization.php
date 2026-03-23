@@ -6,6 +6,8 @@ use JsonSerializable;
 
 class Organization extends TypeableEntity implements JsonSerializable
 {
+    private $type = "Organization";
+
     /** @var string|null name (optional) */
     private $name;
 
@@ -28,8 +30,6 @@ class Organization extends TypeableEntity implements JsonSerializable
         $sortAs = null,
         $contexts = null
     ) {
-        $this->setAtType('Organization');
-
         if ($name !== null) {
             $this->setName($name);
         }
@@ -44,6 +44,9 @@ class Organization extends TypeableEntity implements JsonSerializable
         }
     }
 
+    public function getType(){
+        return $this->type;
+    }
     public function getName()
     {
         return $this->name;

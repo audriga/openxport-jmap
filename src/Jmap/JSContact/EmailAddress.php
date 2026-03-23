@@ -5,7 +5,8 @@ namespace OpenXPort\Jmap\JSContact;
 use JsonSerializable;
 
 class EmailAddress extends TypeableEntity implements JsonSerializable
-{
+{   
+    private $type = 'EmailAddress';
     /**
      * address: String (mandatory).
      * The email address.
@@ -34,8 +35,6 @@ class EmailAddress extends TypeableEntity implements JsonSerializable
 
     public function __construct($address = null, $contexts = null, $pref = null, $label = null)
     {
-        $this->setAtType('EmailAddress');
-
         $this->setAddress($address);
 
         if ($contexts !== null) {
@@ -47,6 +46,11 @@ class EmailAddress extends TypeableEntity implements JsonSerializable
         if ($label !== null) {
             $this->setLabel($label);
         }
+    }
+
+    public function getType()
+    {
+        return $this->type;
     }
 
     public function getAddress()

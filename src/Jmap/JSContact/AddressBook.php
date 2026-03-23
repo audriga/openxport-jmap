@@ -16,7 +16,7 @@ class AddressBook implements JsonSerializable
      *
      * @var string|null
      */
-    protected $type;
+    protected $type = 'AddressBook';
 
     /** @var string User-visible name (non-empty, <= 255 UTF-8 octets) */
     protected $name;
