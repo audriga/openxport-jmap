@@ -49,134 +49,248 @@ class PatchObject implements JsonSerializable
         unset($this->properties[$path]);
     }
 
-    /**
-     * Get the "excluded" property (true means this occurrence is cancelled)
-     *
-     * @return bool|null
-     */
+    // Properties called by mapAllJmapPropertiesToICal()
+
     public function getExcluded()
     {
         return $this->properties['excluded'] ?? null;
     }
 
-    /**
-     * Set the "excluded" property
-     *
-     * @param bool $excluded
-     */
     public function setExcluded($excluded)
     {
         $this->properties['excluded'] = $excluded;
     }
 
-    /**
-     * Get the "start" property
-     *
-     * @return string|null
-     */
-    public function getStart()
-    {
-        return $this->properties['start'] ?? null;
-    }
-
-    /**
-     * Set the "start" property
-     *
-     * @param string $start
-     */
-    public function setStart($start)
-    {
-        $this->properties['start'] = $start;
-    }
-
-    /**
-     * Get the "duration" property
-     *
-     * @return string|null
-     */
-    public function getDuration()
-    {
-        return $this->properties['duration'] ?? null;
-    }
-
-    /**
-     * Set the "duration" property
-     *
-     * @param string $duration
-     */
-    public function setDuration($duration)
-    {
-        $this->properties['duration'] = $duration;
-    }
-
-    /**
-     * Get the "title" property
-     *
-     * @return string|null
-     */
     public function getTitle()
     {
         return $this->properties['title'] ?? null;
     }
 
-    /**
-     * Set the "title" property
-     *
-     * @param string $title
-     */
     public function setTitle($title)
     {
         $this->properties['title'] = $title;
     }
 
-    /**
-     * Get the "description" property
-     *
-     * @return string|null
-     */
     public function getDescription()
     {
         return $this->properties['description'] ?? null;
     }
 
-    /**
-     * Set the "description" property
-     *
-     * @param string $description
-     */
     public function setDescription($description)
     {
         $this->properties['description'] = $description;
     }
 
-    /**
-     * Get the "status" property
-     *
-     * @return string|null
-     */
+    public function getCreated()
+    {
+        return $this->properties['created'] ?? null;
+    }
+
+    public function setCreated($created)
+    {
+        $this->properties['created'] = $created;
+    }
+
+    public function getUpdated()
+    {
+        return $this->properties['updated'] ?? null;
+    }
+
+    public function setUpdated($updated)
+    {
+        $this->properties['updated'] = $updated;
+    }
+
+    public function getStart()
+    {
+        return $this->properties['start'] ?? null;
+    }
+
+    public function setStart($start)
+    {
+        $this->properties['start'] = $start;
+    }
+
+    public function getDuration()
+    {
+        return $this->properties['duration'] ?? null;
+    }
+
+    public function setDuration($duration)
+    {
+        $this->properties['duration'] = $duration;
+    }
+
+    public function getTimeZone()
+    {
+        return $this->properties['timeZone'] ?? null;
+    }
+
+    public function setTimeZone($timeZone)
+    {
+        $this->properties['timeZone'] = $timeZone;
+    }
+
+    public function getShowWithoutTime()
+    {
+        return $this->properties['showWithoutTime'] ?? null;
+    }
+
+    public function setShowWithoutTime($showWithoutTime)
+    {
+        $this->properties['showWithoutTime'] = $showWithoutTime;
+    }
+
+    public function getKeywords()
+    {
+        return $this->properties['keywords'] ?? null;
+    }
+
+    public function setKeywords($keywords)
+    {
+        $this->properties['keywords'] = $keywords;
+    }
+
+    public function getLocations()
+    {
+        return $this->properties['locations'] ?? null;
+    }
+
+    public function setLocations($locations)
+    {
+        $this->properties['locations'] = $locations;
+    }
+
+    public function getFreeBusyStatus()
+    {
+        return $this->properties['freeBusyStatus'] ?? null;
+    }
+
+    public function setFreeBusyStatus($freeBusyStatus)
+    {
+        $this->properties['freeBusyStatus'] = $freeBusyStatus;
+    }
+
     public function getStatus()
     {
         return $this->properties['status'] ?? null;
     }
 
-    /**
-     * Set the "status" property
-     *
-     * @param string $status
-     */
     public function setStatus($status)
     {
         $this->properties['status'] = $status;
     }
 
-    /**
-     * Check if this patch represents an excluded occurrence
-     *
-     * @return bool
-     */
+    public function getColor()
+    {
+        return $this->properties['color'] ?? null;
+    }
+
+    public function setColor($color)
+    {
+        $this->properties['color'] = $color;
+    }
+
+    public function getPriority()
+    {
+        return $this->properties['priority'] ?? null;
+    }
+
+    public function setPriority($priority)
+    {
+        $this->properties['priority'] = $priority;
+    }
+
+    public function getAlerts()
+    {
+        $alerts = $this->properties['alerts'] ?? null;
+
+        if (is_null($alerts)) {
+            return null;
+        }
+
+        // Convert stdClass to array
+        if (is_object($alerts) && $alerts instanceof \stdClass) {
+            $alerts = (array) $alerts;
+        }
+
+        // Convert stdClass alerts to Alert objects using Alert::fromJson()
+        if (is_array($alerts)) {
+            foreach ($alerts as $alert) {
+                if (is_object($alert) && $alert instanceof \stdClass) {
+                    return Alert::fromJson((object) $alerts);
+                }
+            }
+        }
+
+        return $alerts;
+    }
+    public function setAlerts($alerts)
+    {
+        // Ensure alerts is always an array
+        if (is_object($alerts) && $alerts instanceof \stdClass) {
+            $alerts = (array) $alerts;
+        }
+
+        $this->properties['alerts'] = $alerts;
+    }
+
+    public function getParticipants()
+    {
+        return $this->properties['participants'] ?? null;
+    }
+
+    public function setParticipants($participants)
+    {
+        $this->properties['participants'] = $participants;
+    }
+
+    public function getLinks()
+    {
+        $links = $this->properties['links'] ?? null;
+
+        if (is_null($links)) {
+            return null;
+        }
+
+        if ($links instanceof \stdClass) {
+            $links = (array) $links;
+        }
+
+        if (!is_array($links)) {
+            return null;
+        }
+
+        $normalizedLinks = [];
+
+        foreach ($links as $id => $link) {
+            $normalizedLink = \OpenXPort\Jmap\Calendar\Link::fromMixed($link);
+
+            if (!is_null($normalizedLink)) {
+                $normalizedLinks[$id] = $normalizedLink;
+            }
+        }
+        return $normalizedLinks;
+    }
+
+    public function setLinks($links)
+    {
+        $this->properties['links'] = $links;
+    }
+
     public function isExcluded()
     {
         return $this->getExcluded() === true;
+    }
+
+    public function getVirtualLocations()
+    {
+        return $this->properties['virtualLocations'] ?? null;
+    }
+
+    public function setVirtualLocations($virtualLocations)
+    {
+        $this->properties['virtualLocations'] = $virtualLocations;
     }
 
     #[\ReturnTypeWillChange]

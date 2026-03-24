@@ -1127,7 +1127,6 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
 
                     $recurrenceOverrides[$id] = $patchObject;
                 }
-
                 $classInstance->setRecurrenceOverrides($recurrenceOverrides);
             } else {
                 // These properties are saved as associative arrays, so doing this prevents them from being

@@ -150,6 +150,69 @@ class Link implements JsonSerializable
     }
 
     /**
+     * Parses a single Link object from the given JSON representation.
+     *
+     * @param mixed $json String/Array/Object containing a single link in the JSCalendar format.
+     *
+     * @return Link|null
+     */
+    public static function fromJsonObject($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json);
+        }
+
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        if (!($json instanceof \stdClass)) {
+            return null;
+        }
+
+        $classInstance = new self();
+
+        foreach ($json as $key => $value) {
+            // The "@type" poperty is defined as "type" in the custom classes.
+            if ($key == "@type") {
+                $key = "type";
+            }
+
+            if (!property_exists($classInstance, $key)) {
+                $logger = Logger::getInstance();
+                $logger->warning("File contains property not existing in " . self::class . ": $key");
+
+                $classInstance->addCustomProperty($key, $value);
+                continue;
+            }
+
+            // Since all of the properties are private, using this will allow acces to the setter
+            // functions of any given property.
+            // Caution! In order for this to work, every setter method needs to match the property
+            // name. So for a var fooBar, the setter needs to be named setFooBar($fooBar).
+            $setPropertyMethod = "set" . ucfirst($key);
+
+            // As custom properties are already added to the object this will only happen if there is a
+            // mistake in the class as in a missing or misspelled setter.
+            if (!method_exists($classInstance, $setPropertyMethod)) {
+                $logger = Logger::getInstance();
+                $logger->warning(
+                    self::class . " is missing a setter for $key. "
+                    . "\"$key\": \"$value\" added to custom properties instead."
+                );
+
+                $classInstance->addCustomProperty($key, $value);
+                continue;
+            }
+
+            // Set the property in the class' instance.
+            $classInstance->{"$setPropertyMethod"}($value);
+        }
+
+        return $classInstance;
+    }
+
+    /**
      * Parses a Link object from the given JSON representation.
      *
      * @param mixed $json String/Array/Object containing a link in the JSCalendar format.
@@ -163,55 +226,43 @@ class Link implements JsonSerializable
             $json = json_decode($json);
         }
 
-        $links = [];
+        if ($json instanceof \stdClass) {
+            $json = (array) $json;
+        }
 
+        if (!is_array($json)) {
+            return [];
+        }
+
+        $links = [];
 
         // In JSCalendar, links are stored in an Id[Link] array. Therefore we must loop through
         // each entry in that array and create a Link object for that specific one.
         foreach ($json as $id => $object) {
-            $classInstance = new self();
+            $classInstance = self::fromJsonObject($object);
 
-            foreach ($object as $key => $value) {
-                // The "@type" poperty is defined as "type" in the custom classes.
-                if ($key == "@type") {
-                    $key = "type";
-                }
-
-                if (!property_exists($classInstance, $key)) {
-                    $logger = Logger::getInstance();
-                    $logger->warning("File contains property not existing in " . self::class . ": $key");
-
-                    $classInstance->addCustomProperty($key, $value);
-                    continue;
-                }
-
-                // Since all of the properties are private, using this will allow acces to the setter
-                // functions of any given property.
-                // Caution! In order for this to work, every setter method needs to match the property
-                // name. So for a var fooBar, the setter needs to be named setFooBar($fooBar).
-                $setPropertyMethod = "set" . ucfirst($key);
-
-                // As custom properties are already added to the object this will only happen if there is a
-                // mistake in the class as in a missing or misspelled setter.
-                if (!method_exists($classInstance, $setPropertyMethod)) {
-                    $logger = Logger::getInstance();
-                    $logger->warning(
-                        self::class . " is missing a setter for $key. "
-                        . "\"$key\": \"$value\" added to custom properties instead."
-                    );
-
-                    $classInstance->addCustomProperty($key, $value);
-                    continue;
-                }
-
-                // Set the property in the class' instance.
-                $classInstance->{"$setPropertyMethod"}($value);
+            if (!is_null($classInstance)) {
+                $links[$id] = $classInstance;
             }
-
-            $links[$id] = $classInstance;
         }
 
         return $links;
+    }
+
+    /**
+     * Parses a mixed value into a single Link object.
+     *
+     * @param mixed $link String/Array/Object/Link containing a single link in the JSCalendar format.
+     *
+     * @return Link|null
+     */
+    public static function fromMixed($link)
+    {
+        if ($link instanceof self) {
+            return $link;
+        }
+
+        return self::fromJsonObject($link);
     }
 
     #[\ReturnTypeWillChange]
