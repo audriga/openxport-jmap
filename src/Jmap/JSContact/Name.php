@@ -153,6 +153,7 @@ class Name extends TypeableEntity implements JsonSerializable
     {
         return (object) array_filter([
             "@type"            => $this->getAtType(),
+            "components"       => $this->getComponents(),
             "isOrdered"        => $this->getIsOrdered(),
             "defaultSeparator" => $this->getDefaultSeparator(),
             "full"             => $this->getFull(),

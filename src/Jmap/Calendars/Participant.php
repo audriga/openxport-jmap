@@ -32,6 +32,7 @@ class Participant implements JsonSerializable
     private $delegatedFrom;
     private $memberOf;
     private $linkIds;
+    private $links;
 
     private $customProperties = [];
 
@@ -395,6 +396,16 @@ class Participant implements JsonSerializable
         $this->linkIds = $linkIds;
     }
 
+    public function getLinks()
+    {
+        return $this->links;
+    }
+
+    public function setLinks($links)
+    {
+        $this->links = $links;
+    }
+
     public function addCustomProperty($propertyName, $value)
     {
         $this->customProperties[$propertyName] = $value;
@@ -415,6 +426,11 @@ class Participant implements JsonSerializable
      */
     public static function fromJson($json)
     {
+        // Array of every variable that has a custom object type.
+        $objectVariables = [
+            "links" => "Link"
+        ];
+
         if (is_string($json)) {
             $json = json_decode($json);
         }
@@ -460,7 +476,14 @@ class Participant implements JsonSerializable
                     continue;
                 }
 
-                if (
+                // Access the setter method of the given property. If the property is an Object in the JSCalendar
+                // spec itself, call that class' fromJson method to parse the JSON object accordingly.
+                if (array_key_exists($key, $objectVariables)) {
+                    $className = "OpenXPort\Jmap\Calendar\\$objectVariables[$key]";
+                    $classInstance->{"$setPropertyMethod"}(
+                        $className::fromJson($value)
+                    );
+                } elseif (
                     in_array($key, array(
                     "sendTo",
                     "roles",
@@ -471,10 +494,12 @@ class Participant implements JsonSerializable
                     ))
                 ) {
                         $value = (array) $value;
+                        // Set the property in the class' instance.
+                        $classInstance->{"$setPropertyMethod"}($value);
+                } else {
+                    // Set the property in the class' instance.
+                    $classInstance->{"$setPropertyMethod"}($value);
                 }
-
-                // Set the property in the class' instance.
-                $classInstance->{"$setPropertyMethod"}($value);
             }
 
             $participants[$id] = $classInstance;
@@ -510,7 +535,8 @@ class Participant implements JsonSerializable
             "delegatedTo" => $this->getDelegatedTo(),
             "delegatedFrom" => $this->getDelegatedFrom(),
             "memberOf" => $this->getMemberOf(),
-            "linkIds" => $this->getLinkIds()
+            "linkIds" => $this->getLinkIds(),
+            "links" => $this->getLinks()
         ];
 
         foreach ($this->getCustomProperties() as $name => $value) {
@@ -535,6 +561,11 @@ class Participant implements JsonSerializable
         }
         if ($this->name !== null) {
             $this->name = AdapterUtil::reencode($this->name);
+        }
+        if ($this->links) {
+            foreach ($this->links as $id => $link) {
+                $link->sanitizeFreeText();
+            }
         }
     }
 }

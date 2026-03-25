@@ -33,11 +33,11 @@ class CalendarSetMethod extends SetMethod
                 }
             }
         }
+        // Handle destroy operations
         if (isset($arguments["destroy"]) && !is_null($arguments["destroy"])) {
             try {
                 $destroyed = $dataAccessors["Calendars"]->destroy($arguments["destroy"]);
             } catch (\Exception $e) {
-                // Handle destruction errors
                 error_log("Failed to destroy calendars: " . $e->getMessage());
             }
         }

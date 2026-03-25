@@ -14,13 +14,13 @@ class Calendar implements JsonSerializable
     private $color;
     private $sortOrder;
     private $isVisible;
-    private $isSubscribed;
     private $shareWith;
+    private $role;
+    private $isSubscribed;
     private $myRights;
     private $defaultAlertsWithTime;
     private $defaultAlertsWithoutTime;
     private $timeZone;
-    private $role;
 
     private $customProperties = [];
 
@@ -84,16 +84,6 @@ class Calendar implements JsonSerializable
         $this->isVisible = $isVisible;
     }
 
-    public function getIsSubscribed()
-    {
-        return $this->isSubscribed;
-    }
-
-    public function setIsSubscribed($isSubscribed)
-    {
-        $this->isSubscribed = $isSubscribed;
-    }
-
     public function getShareWith()
     {
         return $this->shareWith;
@@ -102,6 +92,26 @@ class Calendar implements JsonSerializable
     public function setShareWith($shareWith)
     {
         $this->shareWith = $shareWith;
+    }
+
+    public function getRole()
+    {
+        return $this->role;
+    }
+
+    public function setRole($role)
+    {
+        $this->role = $role;
+    }
+
+    public function getIsSubscribed()
+    {
+        return $this->isSubscribed;
+    }
+
+    public function setIsSubscribed($isSubscribed)
+    {
+        $this->isSubscribed = $isSubscribed;
     }
 
     public function getMyRights()
@@ -142,16 +152,6 @@ class Calendar implements JsonSerializable
     public function setTimeZone($timeZone)
     {
         $this->timeZone = $timeZone;
-    }
-
-    public function getRole()
-    {
-        return $this->role;
-    }
-
-    public function setRole($role)
-    {
-        $this->role = $role;
     }
 
     public function addCustomProperty($propertyName, $value)
@@ -238,13 +238,13 @@ class Calendar implements JsonSerializable
             "color" => $this->getColor(),
             "sortOrder" => $this->getSortOrder(),
             "isVisible" => $this->getIsVisible(),
-            "isSubscribed" => $this->getIsSubscribed(),
             "shareWith" => $this->getShareWith(),
+            "role" => $this->getRole(),
+            "isSubscribed" => $this->getIsSubscribed(),
             "myRights" => $this->getMyRights(),
             "defaultAlertsWithTime" => $this->getDefaultAlertsWithTime(),
             "defaultAlertsWithoutTime" => $this->getDefaultAlertsWithoutTime(),
-            "timeZone" => $this->getTimeZone(),
-            "role" => $this->getRole()
+            "timeZone" => $this->getTimeZone()
         ], function ($val) {
             return !is_null($val);
         });

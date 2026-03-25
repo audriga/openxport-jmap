@@ -2,18 +2,14 @@
 
 namespace OpenXPort\Jmap\Calendar;
 
+use OpenXPort\Util\AdapterUtil;
 use JsonSerializable;
 
+/**
+ * Represents a patch object for recurrence overrides in JSCalendar events.
+ */
 class PatchObject implements JsonSerializable
 {
-    /**
-     * Map of JSCalendar patch paths to values, e.g.:
-     *  - "start" => "2025-03-05T10:00:00"
-     *  - "participants/xxx/participationStatus" => "declined"
-     *  - "excluded" => true (to cancel this occurrence)
-     *
-     * @var array<string,mixed>
-     */
     private $properties = [];
 
     public function __construct(array $properties = [])
@@ -22,233 +18,161 @@ class PatchObject implements JsonSerializable
     }
 
     /**
-     * @return array<string,mixed>
+     * Get a property value dynamically.
+     */
+    public function __get($name)
+    {
+        return $this->properties[$name] ?? null;
+    }
+
+    /**
+     * Set a property value dynamically.
+     */
+    public function __set($name, $value)
+    {
+        $this->properties[$name] = $value;
+    }
+
+    /**
+     * Get all properties.
      */
     public function getProperties()
     {
         return $this->properties;
     }
 
+    /**
+     * Set a specific property by path.
+     */
     public function setProperty($path, $value)
     {
         $this->properties[$path] = $value;
     }
 
+    /**
+     * Get a specific property by path.
+     */
     public function getProperty($path)
     {
         return $this->properties[$path] ?? null;
     }
 
+    /**
+     * Check if a property exists.
+     */
     public function hasProperty($path)
     {
         return isset($this->properties[$path]);
     }
 
+    /**
+     * Remove a property.
+     */
     public function removeProperty($path)
     {
         unset($this->properties[$path]);
     }
 
-    // Properties called by mapAllJmapPropertiesToICal()
-
+    /**
+     * Get the excluded flag.
+     */
     public function getExcluded()
     {
         return $this->properties['excluded'] ?? null;
     }
 
+    /**
+     * Set the excluded flag.
+     */
     public function setExcluded($excluded)
     {
         $this->properties['excluded'] = $excluded;
     }
 
-    public function getTitle()
+    /**
+     * Check if this occurrence is excluded.
+     */
+    public function isExcluded()
     {
-        return $this->properties['title'] ?? null;
+        return $this->getExcluded() === true;
     }
 
-    public function setTitle($title)
-    {
-        $this->properties['title'] = $title;
-    }
-
-    public function getDescription()
-    {
-        return $this->properties['description'] ?? null;
-    }
-
-    public function setDescription($description)
-    {
-        $this->properties['description'] = $description;
-    }
-
-    public function getCreated()
-    {
-        return $this->properties['created'] ?? null;
-    }
-
-    public function setCreated($created)
-    {
-        $this->properties['created'] = $created;
-    }
-
-    public function getUpdated()
-    {
-        return $this->properties['updated'] ?? null;
-    }
-
-    public function setUpdated($updated)
-    {
-        $this->properties['updated'] = $updated;
-    }
-
-    public function getStart()
-    {
-        return $this->properties['start'] ?? null;
-    }
-
-    public function setStart($start)
-    {
-        $this->properties['start'] = $start;
-    }
-
-    public function getDuration()
-    {
-        return $this->properties['duration'] ?? null;
-    }
-
-    public function setDuration($duration)
-    {
-        $this->properties['duration'] = $duration;
-    }
-
-    public function getTimeZone()
-    {
-        return $this->properties['timeZone'] ?? null;
-    }
-
-    public function setTimeZone($timeZone)
-    {
-        $this->properties['timeZone'] = $timeZone;
-    }
-
-    public function getShowWithoutTime()
-    {
-        return $this->properties['showWithoutTime'] ?? null;
-    }
-
-    public function setShowWithoutTime($showWithoutTime)
-    {
-        $this->properties['showWithoutTime'] = $showWithoutTime;
-    }
-
-    public function getKeywords()
-    {
-        return $this->properties['keywords'] ?? null;
-    }
-
-    public function setKeywords($keywords)
-    {
-        $this->properties['keywords'] = $keywords;
-    }
-
-    public function getLocations()
-    {
-        return $this->properties['locations'] ?? null;
-    }
-
-    public function setLocations($locations)
-    {
-        $this->properties['locations'] = $locations;
-    }
-
-    public function getFreeBusyStatus()
-    {
-        return $this->properties['freeBusyStatus'] ?? null;
-    }
-
-    public function setFreeBusyStatus($freeBusyStatus)
-    {
-        $this->properties['freeBusyStatus'] = $freeBusyStatus;
-    }
-
-    public function getStatus()
-    {
-        return $this->properties['status'] ?? null;
-    }
-
-    public function setStatus($status)
-    {
-        $this->properties['status'] = $status;
-    }
-
-    public function getColor()
-    {
-        return $this->properties['color'] ?? null;
-    }
-
-    public function setColor($color)
-    {
-        $this->properties['color'] = $color;
-    }
-
-    public function getPriority()
-    {
-        return $this->properties['priority'] ?? null;
-    }
-
-    public function setPriority($priority)
-    {
-        $this->properties['priority'] = $priority;
-    }
-
+    /**
+     * Get alerts, converting from JSON if needed.
+     */
     public function getAlerts()
     {
         $alerts = $this->properties['alerts'] ?? null;
-
         if (is_null($alerts)) {
             return null;
         }
 
-        // Convert stdClass to array
-        if (is_object($alerts) && $alerts instanceof \stdClass) {
+        if ($alerts instanceof \stdClass) {
             $alerts = (array) $alerts;
         }
 
-        // Convert stdClass alerts to Alert objects using Alert::fromJson()
-        if (is_array($alerts)) {
-            foreach ($alerts as $alert) {
-                if (is_object($alert) && $alert instanceof \stdClass) {
-                    return Alert::fromJson((object) $alerts);
-                }
+        if (!is_array($alerts)) {
+            return ($alerts instanceof Alert) ? $alerts : null;
+        }
+
+        $allAreAlerts = true;
+        foreach ($alerts as $alert) {
+            if (!($alert instanceof Alert)) {
+                $allAreAlerts = false;
+                break;
             }
         }
 
-        return $alerts;
+        if ($allAreAlerts) {
+            return $alerts;
+        }
+
+        $convertedAlerts = [];
+        foreach ($alerts as $key => $alert) {
+            if ($alert instanceof Alert) {
+                $convertedAlerts[$key] = $alert;
+            } elseif (is_object($alert) || is_array($alert)) {
+                $convertedAlerts[$key] = Alert::fromJson($alert);
+            }
+        }
+
+        return empty($convertedAlerts) ? null : $convertedAlerts;
     }
+
+    /**
+     * Set alerts, converting to Alert objects.
+     */
     public function setAlerts($alerts)
     {
-        // Ensure alerts is always an array
-        if (is_object($alerts) && $alerts instanceof \stdClass) {
+        if ($alerts instanceof \stdClass) {
             $alerts = (array) $alerts;
         }
 
-        $this->properties['alerts'] = $alerts;
+        if (is_array($alerts)) {
+            $convertedAlerts = [];
+            foreach ($alerts as $key => $alert) {
+                if ($alert instanceof Alert) {
+                    $convertedAlerts[$key] = $alert;
+                } elseif (is_object($alert) || is_array($alert)) {
+                    $wrappedAlert = [$key => $alert];
+                    $parsedAlerts = Alert::fromJson($wrappedAlert);
+                    if (isset($parsedAlerts[$key])) {
+                        $convertedAlerts[$key] = $parsedAlerts[$key];
+                    }
+                }
+            }
+            $this->properties['alerts'] = $convertedAlerts;
+        } else {
+            $this->properties['alerts'] = $alerts;
+        }
     }
 
-    public function getParticipants()
-    {
-        return $this->properties['participants'] ?? null;
-    }
-
-    public function setParticipants($participants)
-    {
-        $this->properties['participants'] = $participants;
-    }
-
+    /**
+     * Get links, normalizing from JSON.
+     */
     public function getLinks()
     {
         $links = $this->properties['links'] ?? null;
-
         if (is_null($links)) {
             return null;
         }
@@ -262,10 +186,8 @@ class PatchObject implements JsonSerializable
         }
 
         $normalizedLinks = [];
-
         foreach ($links as $id => $link) {
             $normalizedLink = \OpenXPort\Jmap\Calendar\Link::fromMixed($link);
-
             if (!is_null($normalizedLink)) {
                 $normalizedLinks[$id] = $normalizedLink;
             }
@@ -273,36 +195,93 @@ class PatchObject implements JsonSerializable
         return $normalizedLinks;
     }
 
+    /**
+     * Set links.
+     */
     public function setLinks($links)
     {
         $this->properties['links'] = $links;
     }
 
-    public function isExcluded()
+    /**
+     * Handles dynamic property getters and setters.
+     */
+    public function __call($method, $args)
     {
-        return $this->getExcluded() === true;
-    }
+        if (strpos($method, 'get') === 0) {
+            $property = lcfirst(substr($method, 3));
+            return $this->properties[$property] ?? null;
+        }
 
-    public function getVirtualLocations()
-    {
-        return $this->properties['virtualLocations'] ?? null;
-    }
+        if (strpos($method, 'set') === 0) {
+            $property = lcfirst(substr($method, 3));
+            $this->properties[$property] = $args[0] ?? null;
+            return;
+        }
 
-    public function setVirtualLocations($virtualLocations)
-    {
-        $this->properties['virtualLocations'] = $virtualLocations;
-    }
-
-    #[\ReturnTypeWillChange]
-    public function jsonSerialize()
-    {
-        return (object) $this->properties;
+        throw new \BadMethodCallException("Method {$method} does not exist");
     }
 
     /**
-     * @param mixed $json
-     *
-     * @return PatchObject
+     * Sanitize text fields for encoding issues.
+     */
+    public function sanitizeFreeText()
+    {
+        if (isset($this->properties['alerts']) && is_array($this->properties['alerts'])) {
+            foreach ($this->properties['alerts'] as $alert) {
+                if ($alert instanceof Alert) {
+                    $alert->sanitizeFreeText();
+                }
+            }
+        }
+
+        if (isset($this->properties['title'])) {
+            $this->properties['title'] = AdapterUtil::reencode($this->properties['title']);
+        }
+        if (isset($this->properties['description'])) {
+            $this->properties['description'] = AdapterUtil::reencode($this->properties['description']);
+        }
+    }
+
+    /**
+     * Check if patch object has no properties set.
+     */
+    public function isEmpty()
+    {
+        $checkProps = ['title', 'description', 'created', 'updated', 'sequence', 'start',
+                       'duration', 'timeZone', 'keywords', 'locations', 'vLocations',
+                       'coordinates', 'url', 'relatedTo', 'virtualLocations', 'freeBusyStatus',
+                       'status', 'color', 'priority', 'alerts', 'participants', 'links',
+                       'showWithoutTime', 'replyTo', 'requestStatus'];
+
+        foreach ($checkProps as $prop) {
+            if ($this->hasProperty($prop)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Serialize to JSON.
+     */
+    public function jsonSerialize(): mixed
+    {
+        $props = $this->properties;
+
+        if (isset($props['alerts']) && is_array($props['alerts'])) {
+            $serializedAlerts = [];
+            foreach ($props['alerts'] as $key => $alert) {
+                $serializedAlerts[$key] = ($alert instanceof Alert) ? $alert->jsonSerialize() : $alert;
+            }
+            $props['alerts'] = $serializedAlerts;
+        }
+
+        return (object) $props;
+    }
+
+    /**
+     * Create from JSON data.
      */
     public static function fromJson($json)
     {
@@ -313,6 +292,15 @@ class PatchObject implements JsonSerializable
             $json = (array) $json;
         }
 
-        return new self((array) $json);
+        $patchObject = new self((array) $json);
+
+        if (isset($patchObject->properties['alerts'])) {
+            $alerts = $patchObject->properties['alerts'];
+            if (is_object($alerts) || is_array($alerts)) {
+                $patchObject->setAlerts($alerts);
+            }
+        }
+
+        return $patchObject;
     }
 }

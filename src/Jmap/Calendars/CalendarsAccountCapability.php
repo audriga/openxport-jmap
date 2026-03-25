@@ -13,7 +13,7 @@ class CalendarsAccountCapability extends \OpenXPort\Jmap\Core\AccountCapability
     public function __construct()
     {
         // TODO Make this configurable later on by reading values from a config class
-        $this->options =  array(
+        $this->options = array(
             'shareesActAs' => "self",
             'maxCalendarsPerEvent' => null,
             'minDateTime' => "1970-01-01T00:00:00",
