@@ -65,7 +65,7 @@ class CryptoKey extends TypeableEntity implements JsonSerializable
     private $data;
 
     public function __construct(
-        $uri,
+        $uri = null,
         $kind = null,
         $mediaType = null,
         $contexts = null,

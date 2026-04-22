@@ -72,8 +72,8 @@ class Directory extends TypeableEntity implements JsonSerializable
 
 
     public function __construct(
-        $kind,
-        $uri,
+        $kind = null,
+        $uri = null,
         $mediaType = null,
         $contexts = null,
         $pref = null,

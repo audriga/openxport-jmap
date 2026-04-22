@@ -65,7 +65,7 @@ class Media extends TypeableEntity implements JsonSerializable
     private $blobId;
 
     public function __construct(
-        $kind,
+        $kind = null,
         $uri = null,
         $mediaType = null,
         $contexts = null,
