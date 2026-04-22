@@ -16,7 +16,7 @@ class ContactCardDeserializer
      * @param \stdClass $data The JSON-decoded contact data
      * @return ContactCard
      */
-    public static function fromStdClass($data)
+    public static function fromStdClass(\stdClass $data)
     {
         $card = new ContactCard();
 
@@ -61,12 +61,10 @@ class ContactCardDeserializer
             $card->setMembers((array)$data->members);
         }
 
-        // Name object
         if (isset($data->name)) {
             $card->setName(self::deserializeName($data->name));
         }
 
-        // Nicknames
         if (isset($data->nicknames)) {
             $nicks = [];
             foreach ($data->nicknames as $id => $n) {
@@ -75,7 +73,6 @@ class ContactCardDeserializer
             $card->setNicknames($nicks);
         }
 
-        // Organizations
         if (isset($data->organizations)) {
             $orgs = [];
             foreach ($data->organizations as $id => $o) {
@@ -84,7 +81,6 @@ class ContactCardDeserializer
             $card->setOrganizations($orgs);
         }
 
-        // Titles
         if (isset($data->titles)) {
             $titles = [];
             foreach ($data->titles as $id => $t) {
@@ -93,7 +89,6 @@ class ContactCardDeserializer
             $card->setTitles($titles);
         }
 
-        // Email addresses
         if (isset($data->emails)) {
             $emails = [];
             foreach ($data->emails as $id => $e) {
@@ -102,7 +97,6 @@ class ContactCardDeserializer
             $card->setEmails($emails);
         }
 
-        // Phones
         if (isset($data->phones)) {
             $phones = [];
             foreach ($data->phones as $id => $p) {
@@ -111,7 +105,6 @@ class ContactCardDeserializer
             $card->setPhones($phones);
         }
 
-        // Online Services
         if (isset($data->onlineServices)) {
             $services = [];
             foreach ($data->onlineServices as $id => $os) {
@@ -120,7 +113,6 @@ class ContactCardDeserializer
             $card->setOnlineServices($services);
         }
 
-        // Addresses
         if (isset($data->addresses)) {
             $addresses = [];
             foreach ($data->addresses as $id => $a) {
@@ -129,7 +121,6 @@ class ContactCardDeserializer
             $card->setAddresses($addresses);
         }
 
-        // Media (photos)
         if (isset($data->media)) {
             $mediaItems = [];
             foreach ($data->media as $id => $m) {
@@ -138,7 +129,6 @@ class ContactCardDeserializer
             $card->setMedia($mediaItems);
         }
 
-        // Anniversaries
         if (isset($data->anniversaries)) {
             $anns = [];
             foreach ($data->anniversaries as $a) {
@@ -147,7 +137,6 @@ class ContactCardDeserializer
             $card->setAnniversaries($anns);
         }
 
-        // Pronouns
         if (isset($data->pronouns)) {
             $pronounsList = [];
             foreach ($data->pronouns as $id => $p) {
@@ -156,7 +145,6 @@ class ContactCardDeserializer
             $card->setPronouns($pronounsList);
         }
 
-        // Preferred Languages
         if (isset($data->preferredLanguages)) {
             $langs = [];
             foreach ($data->preferredLanguages as $id => $l) {
@@ -165,7 +153,6 @@ class ContactCardDeserializer
             $card->setPreferredLanguages($langs);
         }
 
-        // Note Objects
         if (isset($data->noteObjects)) {
             $notes = [];
             foreach ($data->noteObjects as $id => $n) {
@@ -174,7 +161,6 @@ class ContactCardDeserializer
             $card->setNoteObjects($notes);
         }
 
-        // Personal Info
         if (isset($data->personalInfo)) {
             $infos = [];
             foreach ($data->personalInfo as $id => $pi) {
@@ -183,7 +169,6 @@ class ContactCardDeserializer
             $card->setPersonalInfo($infos);
         }
 
-        // Related To
         if (isset($data->relatedTo)) {
             $relations = [];
             foreach ($data->relatedTo as $uid => $r) {
@@ -192,7 +177,6 @@ class ContactCardDeserializer
             $card->setRelatedTo($relations);
         }
 
-        // Scheduling Addresses
         if (isset($data->schedulingAddresses)) {
             $schedAddrs = [];
             foreach ($data->schedulingAddresses as $id => $sa) {
@@ -201,7 +185,6 @@ class ContactCardDeserializer
             $card->setSchedulingAddresses($schedAddrs);
         }
 
-        // Calendars
         if (isset($data->calendars)) {
             $cals = [];
             foreach ($data->calendars as $id => $c) {
@@ -210,7 +193,6 @@ class ContactCardDeserializer
             $card->setCalendars($cals);
         }
 
-        // Crypto Keys
         if (isset($data->cryptoKeys)) {
             $keys = [];
             foreach ($data->cryptoKeys as $id => $ck) {
@@ -219,7 +201,6 @@ class ContactCardDeserializer
             $card->setCryptoKeys($keys);
         }
 
-        // Directories
         if (isset($data->directories)) {
             $dirs = [];
             foreach ($data->directories as $id => $d) {
@@ -228,7 +209,6 @@ class ContactCardDeserializer
             $card->setDirectories($dirs);
         }
 
-        // Links
         if (isset($data->links)) {
             $links = [];
             foreach ($data->links as $id => $l) {
@@ -237,7 +217,6 @@ class ContactCardDeserializer
             $card->setLinks($links);
         }
 
-        // SpeakToAs
         if (isset($data->speakToAs)) {
             $card->setSpeakToAs(self::deserializeSpeakToAs($data->speakToAs));
         }

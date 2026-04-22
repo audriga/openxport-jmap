@@ -63,9 +63,10 @@ php56_mode: composer_lts
 .PHONY: php70_mode
 php70_mode: composer_lts
 	git checkout composer.json composer.lock
+	rm -f composer.lock
 	rm $(build_tools_directory)/composer.phar || true
 	ln $(build_tools_directory)/composer_lts.phar $(build_tools_directory)/composer.phar
-	php $(build_tools_directory)/composer.phar require psr/log:'<2' phpunit/phpunit:'<10' phar-io/manifest:'<2' phpunit/php-code-coverage:'<6' phpunit/php-file-iterator:'<2' phpunit/php-timer:'<6' phpunit/php-text-template:'<2' phar-io/version:'<3'
+	php $(build_tools_directory)/composer.phar require psr/log:'<2' phpunit/phpunit:'<10' phar-io/manifest:'<2' phpunit/php-code-coverage:'<6' phpunit/php-file-iterator:'<2' phpunit/php-timer:'<6' phpunit/php-text-template:'<2' phar-io/version:'<3' squizlabs/php_codesniffer:'<3.6'
 	php $(build_tools_directory)/composer.phar update --prefer-dist --no-dev
 
 	# Lint for PHP 7.0

@@ -745,6 +745,10 @@ class ContactCard extends TypeableEntity implements JsonSerializable
             }
         }
     }
+    public static function deserialize(\stdClass $data)
+    {
+        return ContactCardDeserializer::fromStdClass($data);
+    }
 
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
