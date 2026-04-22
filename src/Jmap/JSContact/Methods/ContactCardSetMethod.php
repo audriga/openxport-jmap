@@ -3,6 +3,7 @@
 namespace OpenXPort\Jmap\JSContact\Methods;
 
 use OpenXPort\Jmap\Core\Methods\SetMethod;
+use OpenXPort\Jmap\JSContact\ContactCardDeserializer;
 
 class ContactCardSetMethod extends SetMethod
 {
@@ -20,7 +21,11 @@ class ContactCardSetMethod extends SetMethod
 
         if (isset($arguments['create']) && $arguments['create'] !== null) {
             // Map JSContact ContactCard objects from the JMAP request into backend records
-            $contactMap = $mapper->mapFromJmap($arguments['create'], $adapter);
+            $contactCards = [];
+            foreach ($arguments['create'] as $creationId => $data) {
+                $contactCards[$creationId] = ContactCardDeserializer::fromStdClass($data);
+            }
+            $contactMap = $mapper->mapFromJmap($contactCards, $adapter);
             $created    = $dataAccessors['ContactCard']->create($contactMap);
         }
 
