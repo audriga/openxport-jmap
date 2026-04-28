@@ -46,6 +46,6 @@ class CalendarEventSetMethod extends SetMethod
             }
         }
 
-        return $this->buildMethodResponse($created, $updated, $destroyed, $methodCall);
+                return $this->buildMethodResponse($created, $destroyed, $methodCall);
     }
 }

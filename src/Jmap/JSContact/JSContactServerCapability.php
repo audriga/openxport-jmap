@@ -15,7 +15,7 @@ class JSContactServerCapability extends \OpenXPort\Jmap\Core\ServerCapability
         return array(
             "ContactCard/get" => Methods\ContactCardGetMethod::class,
             "ContactCard/set" => Methods\ContactCardSetMethod::class,
-            "ContactCard/changes" => Methods\ContactCardChangesMethod::class,
+            "ContactCard/query" => Methods\ContactCardQueryMethod::class,
             "AddressBook/get" => Methods\AddressBookGetMethod::class,
             "AddressBook/set" => Methods\AddressBookSetMethod::class,
         );
