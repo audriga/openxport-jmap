@@ -22,7 +22,7 @@ class ContactCardSetMethod extends SetMethod
             // Map JSContact ContactCard objects from the JMAP request into backend records
             $contactCards = [];
             foreach ($arguments['create'] as $creationId => $data) {
-                $contactCards[$creationId] = \OpenXPort\Jmap\JSContact\ContactCard::deserialize($data);
+                $contactCards[$creationId] = \OpenXPort\Jmap\JSContact\ContactCard::fromJson($data);
             }
             $contactMap = $mapper->mapFromJmap($contactCards, $adapter);
             $created    = $dataAccessors['ContactCard']->create($contactMap);

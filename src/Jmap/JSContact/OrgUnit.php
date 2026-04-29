@@ -51,6 +51,22 @@ class OrgUnit extends TypeableEntity implements JsonSerializable
         $this->sortAs = $sortAs;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+    // name is mandatory, so default to empty string if missing
+        $name = isset($json->name) ? $json->name : '';
+        $sortAs = isset($json->sortAs) ? $json->sortAs : null;
+
+        return new self($name, $sortAs);
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {

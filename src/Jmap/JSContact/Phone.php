@@ -105,6 +105,37 @@ class Phone extends TypeableEntity implements JsonSerializable
         $this->label = $label;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $instance = new self();
+
+        if (isset($json->number)) {
+            $instance->setNumber($json->number);
+        }
+        if (isset($json->contexts)) {
+            $instance->setContexts((array) $json->contexts);
+        }
+        if (isset($json->pref)) {
+            $instance->setPref($json->pref);
+        }
+        if (isset($json->label)) {
+            $instance->setLabel($json->label);
+        }
+        if (isset($json->features)) {
+            $instance->setFeatures((array) $json->features);
+        }
+
+        return $instance;
+    }
+
 
     #[\ReturnTypeWillChange]
     public function jsonSerialize()

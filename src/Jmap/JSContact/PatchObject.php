@@ -53,6 +53,19 @@ class PatchObject implements JsonSerializable
         $this->patches[$path] = $value;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            // Convert object to array
+            $json = (array) $json;
+        }
+
+        return new self($json);
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {

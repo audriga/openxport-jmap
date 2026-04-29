@@ -33,6 +33,24 @@ class Member implements JsonSerializable
         $this->uid = $uid;
     }
 
+    public static function fromJson($json)
+    {
+        // Member is just a uid string, so create directly
+        if (is_string($json)) {
+            return new self($json);
+        }
+
+        if (is_object($json) && isset($json->uid)) {
+            return new self($json->uid);
+        }
+
+        if (is_array($json) && isset($json['uid'])) {
+            return new self($json['uid']);
+        }
+
+        return new self();
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {

@@ -220,6 +220,65 @@ class Address extends TypeableEntity implements JsonSerializable
         $this->phoneticSystem = $phoneticSystem;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $instance = new self();
+
+        if (isset($json->{'@type'})) {
+            $instance->setAtType($json->{'@type'});
+        }
+
+        if (isset($json->components)) {
+            $components = [];
+            foreach ($json->components as $comp) {
+                if (is_object($comp) || is_array($comp)) {
+                    $components[] = AddressComponent::fromJson($comp);
+                }
+            }
+            $instance->setComponents($components);
+        }
+
+        if (isset($json->isOrdered)) {
+            $instance->setIsOrdered($json->isOrdered);
+        }
+        if (isset($json->defaultSeparator)) {
+            $instance->setDefaultSeparator($json->defaultSeparator);
+        }
+        if (isset($json->full)) {
+            $instance->setFullAddress($json->full);
+        }
+        if (isset($json->countryCode)) {
+            $instance->setCountryCode($json->countryCode);
+        }
+        if (isset($json->coordinates)) {
+            $instance->setCoordinates($json->coordinates);
+        }
+        if (isset($json->timeZone)) {
+            $instance->setTimeZone($json->timeZone);
+        }
+        if (isset($json->contexts)) {
+            $instance->setContexts((array) $json->contexts);
+        }
+        if (isset($json->pref)) {
+            $instance->setPref($json->pref);
+        }
+        if (isset($json->phoneticScript)) {
+            $instance->setPhoneticScript($json->phoneticScript);
+        }
+        if (isset($json->phoneticSystem)) {
+            $instance->setPhoneticSystem($json->phoneticSystem);
+        }
+
+        return $instance;
+    }
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {

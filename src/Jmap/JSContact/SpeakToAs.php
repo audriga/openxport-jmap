@@ -54,6 +54,27 @@ class SpeakToAs extends TypeableEntity implements JsonSerializable
         $this->pronouns = $pronouns;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $instance = new self();
+
+        if (isset($json->grammaticalGender)) {
+            $instance->setGrammaticalGender($json->grammaticalGender);
+        }
+        if (isset($json->pronouns)) {
+            $instance->setPronouns((array) $json->pronouns);
+        }
+
+        return $instance;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {

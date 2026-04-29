@@ -173,6 +173,36 @@ class Media extends TypeableEntity implements JsonSerializable
         $this->blobId = $blobId;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $instance = new self();
+
+        if (isset($json->kind)) {
+            $instance->setKind($json->kind);
+        }
+        if (isset($json->uri)) {
+            $instance->setUri($json->uri);
+        }
+        if (isset($json->mediaType)) {
+            $instance->setMediaType($json->mediaType);
+        }
+        if (isset($json->pref)) {
+            $instance->setPref($json->pref);
+        }
+        if (isset($json->contexts)) {
+            $instance->setContexts((array) $json->contexts);
+        }
+
+        return $instance;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {

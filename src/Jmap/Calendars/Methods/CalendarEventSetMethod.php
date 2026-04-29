@@ -37,6 +37,65 @@ class CalendarEventSetMethod extends SetMethod
             }
         }
 
+        // Handle update operations
+        if (isset($arguments["update"]) && !is_null($arguments["update"])) {
+            $eventsToUpdate = $arguments["update"];
+
+            foreach ($eventsToUpdate as $id => $partialEventData) {
+                try {
+                    $existingEvents = $dataAccessors["CalendarEvents"]->get([$id]);
+
+                    if (empty($existingEvents) || !isset($existingEvents[$id])) {
+                        continue;
+                    }
+
+                    $existingEvent = $existingEvents[$id];
+                    $existingJsCalendar = $mapper->mapToJmap([$id => $existingEvent], $adapter);
+
+                    if (empty($existingJsCalendar)) {
+                        continue;
+                    }
+
+                    $existingJsEvent = reset($existingJsCalendar);
+                    $existingArray = json_decode(json_encode($existingJsEvent), true);
+                    $updateArray = is_array($partialEventData) ? $partialEventData
+                     : json_decode(json_encode($partialEventData), true);
+
+                    if (!isset($updateArray['calendarIds']) && isset($existingArray['calendarIds'])) {
+                        $updateArray['calendarIds'] = $existingArray['calendarIds'];
+                    }
+
+                    $mergedArray = array_merge($existingArray, $updateArray);
+                    $mergedJsEvent = CalendarEvent::fromJson($mergedArray);
+
+                    if (
+                        is_null($mergedJsEvent->getCalendarIds())
+                         && isset($existingEvent['oxpProperties']['calendarId'])
+                    ) {
+                        $mergedJsEvent->setCalendarIds($existingEvent['oxpProperties']['calendarId']);
+                    }
+
+                    $tempId = 'temp_' . md5($id);
+                    $calendarEventMap = $mapper->mapFromJmap([$tempId => $mergedJsEvent], $adapter);
+
+                    $remappedEventMap = [];
+                    if (!empty($calendarEventMap)) {
+                        $firstElement = reset($calendarEventMap);
+                        $eventData = reset($firstElement);
+                        $remappedEventMap[$id] = $eventData;
+                    }
+
+                    $updatedEvents = $dataAccessors["CalendarEvents"]->update($remappedEventMap);
+
+                    if (isset($updatedEvents[$id]) && $updatedEvents[$id] === true) {
+                        $updated[$id] = (object)[];
+                    }
+                } catch (\Exception $e) {
+                    error_log("Failed to update event $id: " . $e->getMessage());
+                }
+            }
+        }
+
         // Handle destroy operations
         if (isset($arguments["destroy"]) && !is_null($arguments["destroy"])) {
             try {
@@ -46,6 +105,6 @@ class CalendarEventSetMethod extends SetMethod
             }
         }
 
-                return $this->buildMethodResponse($created, $destroyed, $methodCall);
+                return $this->buildMethodResponse($created, $destroyed, $methodCall, $updated);
     }
 }

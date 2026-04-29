@@ -66,6 +66,26 @@ class Note extends TypeableEntity implements JsonSerializable
         $this->author = $author;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $instance = new self();
+
+        if (isset($json->note)) {
+            $instance->setNote($json->note);
+        }
+        if (isset($json->created)) {
+            $instance->setCreated($json->created);
+        }
+
+        return $instance;
+    }
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {

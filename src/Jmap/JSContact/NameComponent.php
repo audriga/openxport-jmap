@@ -48,6 +48,27 @@ class NameComponent extends TypeableEntity implements JsonSerializable
         $this->value = $value;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $instance = new self();
+
+        if (isset($json->kind)) {
+            $instance->setKind($json->kind);
+        }
+        if (isset($json->value)) {
+            $instance->setValue($json->value);
+        }
+
+        return $instance;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {

@@ -148,6 +148,37 @@ class Name extends TypeableEntity implements JsonSerializable
         $this->phoneticSystem = $phoneticSystem;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $instance = new self();
+
+        if (isset($json->full)) {
+            $instance->setFull($json->full);
+        }
+        if (isset($json->isOrdered)) {
+            $instance->setIsOrdered($json->isOrdered);
+        }
+        if (isset($json->defaultSeparator)) {
+            $instance->setDefaultSeparator($json->defaultSeparator);
+        }
+        if (isset($json->components)) {
+            $comps = [];
+            foreach ($json->components as $c) {
+                $comps[] = NameComponent::fromJson($c);
+            }
+            $instance->setComponents($comps);
+        }
+
+        return $instance;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {

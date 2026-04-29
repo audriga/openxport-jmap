@@ -49,6 +49,21 @@ class Author extends TypeableEntity implements JsonSerializable
         $this->uri = $uri;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $name = isset($json->name) ? $json->name : null;
+        $uri = isset($json->uri) ? $json->uri : null;
+
+        return new self($name, $uri);
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {

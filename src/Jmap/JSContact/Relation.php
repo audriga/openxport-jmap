@@ -47,6 +47,24 @@ class Relation extends TypeableEntity implements JsonSerializable
         $this->relation[$type] = true;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $instance = new self();
+
+        if (isset($json->relation)) {
+            $instance->setRelation((array) $json->relation);
+        }
+
+        return $instance;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {

@@ -96,6 +96,33 @@ class Organization extends TypeableEntity implements JsonSerializable
         $this->contexts = $contexts;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $instance = new self();
+
+        if (isset($json->name)) {
+            $instance->setName($json->name);
+        }
+        if (isset($json->units)) {
+            $instance->setUnits((array) $json->units);
+        }
+        if (isset($json->sortAs)) {
+            $instance->setSortAs($json->sortAs);
+        }
+        if (isset($json->contexts)) {
+            $instance->setContexts((array) $json->contexts);
+        }
+
+        return $instance;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {

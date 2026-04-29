@@ -101,6 +101,33 @@ class PersonalInformation extends TypeableEntity implements JsonSerializable
         $this->listAs = $listAs;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $instance = new self();
+
+        if (isset($json->kind)) {
+            $instance->setKind($json->kind);
+        }
+        if (isset($json->value)) {
+            $instance->setValue($json->value);
+        }
+        if (isset($json->level)) {
+            $instance->setLevel($json->level);
+        }
+        if (isset($json->listAs)) {
+            $instance->setListAs($json->listAs);
+        }
+
+        return $instance;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {

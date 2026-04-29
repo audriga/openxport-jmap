@@ -745,9 +745,83 @@ class ContactCard extends TypeableEntity implements JsonSerializable
             }
         }
     }
-    public static function deserialize(\stdClass $data)
+    public static function fromJson($json)
     {
-        return ContactCardDeserializer::fromStdClass($data);
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $card = new self();
+
+        $simpleProps = ['uid', 'kind', 'language', 'created', 'updated', 'prodId',
+                    'description', 'sortAs', 'notes', 'version'];
+        foreach ($simpleProps as $prop) {
+            if (isset($json->$prop)) {
+                $setter = 'set' . ucfirst($prop);
+                $card->$setter($json->$prop);
+            }
+        }
+
+        $arrayProps = ['addressBookIds', 'keywords', 'members'];
+        foreach ($arrayProps as $prop) {
+            if (isset($json->$prop)) {
+                $setter = 'set' . ucfirst($prop);
+                $card->$setter((array) $json->$prop);
+            }
+        }
+
+        if (isset($json->name)) {
+            $card->setName(Name::fromJson($json->name));
+        }
+        if (isset($json->speakToAs)) {
+            $card->setSpeakToAs(SpeakToAs::fromJson($json->speakToAs));
+        }
+
+        $mapProps = [
+        'nicknames' => Nickname::class,
+        'organizations' => Organization::class,
+        'titles' => Title::class,
+        'emails' => EmailAddress::class,
+        'phones' => Phone::class,
+        'onlineServices' => OnlineService::class,
+        'addresses' => Address::class,
+        'media' => Media::class,
+        'pronouns' => Pronouns::class,
+        'preferredLanguages' => LanguagePref::class,
+        'noteObjects' => Note::class,
+        'personalInfo' => PersonalInformation::class,
+        'relatedTo' => Relation::class,
+        'schedulingAddresses' => SchedulingAddress::class,
+        'calendars' => Calendar::class,
+        'cryptoKeys' => CryptoKey::class,
+        'directories' => Directory::class,
+        'links' => Link::class,
+        'localizations' => PatchObject::class
+        ];
+
+        foreach ($mapProps as $prop => $class) {
+            if (isset($json->$prop)) {
+                $items = [];
+                foreach ($json->$prop as $id => $data) {
+                    $items[$id] = $class::fromJson($data);
+                }
+                $setter = 'set' . ucfirst($prop);
+                $card->$setter($items);
+            }
+        }
+
+        if (isset($json->anniversaries)) {
+            $anns = [];
+            foreach ($json->anniversaries as $a) {
+                $anns[] = Anniversary::fromJson($a);
+            }
+            $card->setAnniversaries($anns);
+        }
+
+        return $card;
     }
 
     #[\ReturnTypeWillChange]

@@ -60,6 +60,22 @@ class LanguagePref extends TypeableEntity implements JsonSerializable
         $this->pref = $pref;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $language = isset($json->language) ? $json->language : null;
+        $contexts = isset($json->contexts) ? (array) $json->contexts : null;
+        $pref = isset($json->pref) ? $json->pref : null;
+
+        return new self($language, $contexts, $pref);
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
