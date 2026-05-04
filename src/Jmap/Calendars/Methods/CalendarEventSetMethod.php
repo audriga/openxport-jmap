@@ -37,7 +37,7 @@ class CalendarEventSetMethod extends SetMethod
             }
         }
 
-        // Handle update operations
+        // Handle update
         if (isset($arguments["update"]) && !is_null($arguments["update"])) {
             $eventsToUpdate = $arguments["update"];
 
@@ -58,19 +58,22 @@ class CalendarEventSetMethod extends SetMethod
 
                     $existingJsEvent = reset($existingJsCalendar);
                     $existingArray = json_decode(json_encode($existingJsEvent), true);
-                    $updateArray = is_array($partialEventData) ? $partialEventData
-                     : json_decode(json_encode($partialEventData), true);
+                    $updateArray = is_array($partialEventData) ? $partialEventData :
+                     json_decode(json_encode($partialEventData), true);
 
                     if (!isset($updateArray['calendarIds']) && isset($existingArray['calendarIds'])) {
                         $updateArray['calendarIds'] = $existingArray['calendarIds'];
                     }
 
                     $mergedArray = array_merge($existingArray, $updateArray);
-                    $mergedJsEvent = CalendarEvent::fromJson($mergedArray);
+
+                    // Convert array to object before passing to fromJson
+                    $mergedObject = json_decode(json_encode($mergedArray));
+                    $mergedJsEvent = CalendarEvent::fromJson($mergedObject);
 
                     if (
-                        is_null($mergedJsEvent->getCalendarIds())
-                         && isset($existingEvent['oxpProperties']['calendarId'])
+                        is_null($mergedJsEvent->getCalendarIds()) &&
+                        isset($existingEvent['oxpProperties']['calendarId'])
                     ) {
                         $mergedJsEvent->setCalendarIds($existingEvent['oxpProperties']['calendarId']);
                     }
