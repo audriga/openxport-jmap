@@ -13,7 +13,7 @@ class CalendarEventQueryMethod extends QueryMethod
         $filter = isset($arguments['filter']) ? $arguments['filter'] : null;
 
         // Call query method in data accessor
-        $ids = $dataAccessors['CalendarEvent']->query($accountId, $filter);
+        $ids = $dataAccessors['CalendarEvents']->query($accountId, $filter);
 
         // Use base class to build response
         return $this->buildMethodResponse($ids, $methodCall);
