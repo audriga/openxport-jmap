@@ -4,7 +4,7 @@ namespace OpenXPort\Jmap\Calendar\Methods;
 
 use OpenXPort\Jmap\Core\Methods\QueryMethod;
 
-class CalendarQueryMethod extends QueryMethod
+class CalendarEventQueryMethod extends QueryMethod
 {
     public function handle($methodCall, $dataAccessors, $dataAdapters, $dataMappers)
     {
@@ -13,10 +13,7 @@ class CalendarQueryMethod extends QueryMethod
         $filter = isset($arguments['filter']) ? $arguments['filter'] : null;
 
         // Call query method in data accessor
-        $ids = $dataAccessors['Calendars']->query($accountId, $filter);
-
-        // Convert IDs to strings for JMAP
-        $ids = array_map('strval', $ids);
+        $ids = $dataAccessors['CalendarEvent']->query($accountId, $filter);
 
         // Use base class to build response
         return $this->buildMethodResponse($ids, $methodCall);
