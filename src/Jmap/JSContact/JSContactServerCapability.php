@@ -18,6 +18,7 @@ class JSContactServerCapability extends \OpenXPort\Jmap\Core\ServerCapability
             "ContactCard/query" => Methods\ContactCardQueryMethod::class,
             "AddressBook/get" => Methods\AddressBookGetMethod::class,
             "AddressBook/set" => Methods\AddressBookSetMethod::class,
+            "AddressBook/query" => Methods\AddressBookQueryMethod::class
         );
     }
 }
