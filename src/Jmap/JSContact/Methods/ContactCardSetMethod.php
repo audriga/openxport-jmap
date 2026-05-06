@@ -30,7 +30,8 @@ class ContactCardSetMethod extends SetMethod
         }
 
         // Handle update operations
-        if (isset($arguments['update']) && $arguments['update'] !== null) {
+        // fetch existing, merge with changes, convert back to vCard format, then update backend
+        if (isset($arguments['update']) && !is_null($arguments['update'])) {
             $contactsToUpdate = $arguments['update'];
 
             foreach ($contactsToUpdate as $id => $partialContactData) {
@@ -58,9 +59,19 @@ class ContactCardSetMethod extends SetMethod
 
                     // Map merged data back to vCard format
                     $mergedContact = \OpenXPort\Jmap\JSContact\ContactCard::fromJson($mergedArray);
-                    $mappedContact = $mapper->mapFromJmap([$id => $mergedContact], $adapter);
 
-                    $updatedContacts = $dataAccessors['ContactCard']->update([$id => reset($mappedContact)]);
+                    // Use temp ID and remap to ensure correct mapping back to original ID after merging
+                    $tempId = 'temp_' . md5($id);
+                    $mappedContact = $mapper->mapFromJmap([$tempId => $mergedContact], $adapter);
+
+                    $remappedContactMap = [];
+                    if (!empty($mappedContact)) {
+                        $firstElement = reset($mappedContact);
+                        $contactData = reset($firstElement);
+                        $remappedContactMap[$id] = $contactData;
+                    }
+
+                    $updatedContacts = $dataAccessors['ContactCard']->update($remappedContactMap);
 
                     if (isset($updatedContacts[$id]) && $updatedContacts[$id] === true) {
                         $updated[$id] = (object)[];
