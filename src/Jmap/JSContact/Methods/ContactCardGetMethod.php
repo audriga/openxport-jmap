@@ -10,7 +10,6 @@ class ContactCardGetMethod extends GetMethod
     {
         $arguments  = $methodCall->getArguments();
         $methodName = $methodCall->getName();
-        $state = "";
 
         // IETF ContactCard
         $adapter = $dataAdapters['ContactCard'];
@@ -23,6 +22,9 @@ class ContactCardGetMethod extends GetMethod
         }
 
         $list = $mapper->mapToJmap($contacts, $adapter);
+
+        // Get current state
+        $state = $dataAccessors['ContactCard']->getCurrentState();
 
         return $this->buildMethodResponse($list, $state, $methodCall);
     }
