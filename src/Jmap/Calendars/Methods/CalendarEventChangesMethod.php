@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenXPort\Jmap\JSCalendar\Methods;
+namespace OpenXPort\Jmap\Calendar\Methods;
 
 use OpenXPort\Jmap\Core\Methods\ChangesMethod;
 
