@@ -4,7 +4,7 @@ namespace OpenXPort\Jmap\Calendar\Methods;
 
 use OpenXPort\Jmap\Core\Methods\ChangesMethod;
 
-class CalendarEventChangesMethod extends ChangesMethod
+class CalendarChangesMethod extends ChangesMethod
 {
     public function handle($methodCall, $dataAccessors, $dataAdapters, $dataMappers)
     {
@@ -13,7 +13,7 @@ class CalendarEventChangesMethod extends ChangesMethod
         $sinceState = $arguments['sinceState'];
         $maxChanges = $arguments['maxChanges'] ?? 500;
 
-        $changes = $dataAccessors['CalendarEvents']->getChanges($sinceState, $maxChanges, $accountId);
+        $changes = $dataAccessors['Calendars']->getChanges($sinceState, $maxChanges, $accountId);
 
         return $this->buildMethodResponse($changes, $methodCall);
     }
