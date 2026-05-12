@@ -1,10 +1,10 @@
 <?php
 
-namespace OpenXPort\Jmap\JSContact\Methods;
+namespace OpenXPort\Jmap\JSCalendar\Methods;
 
 use OpenXPort\Jmap\Core\Methods\ChangesMethod;
 
-class ContactCardChangesMethod extends ChangesMethod
+class CalendarEventChangesMethod extends ChangesMethod
 {
     public function handle($methodCall, $dataAccessors, $dataAdapters, $dataMappers)
     {
@@ -13,7 +13,7 @@ class ContactCardChangesMethod extends ChangesMethod
         $sinceState = $arguments['sinceState'];
         $maxChanges = $arguments['maxChanges'] ?? 1000;
 
-        $changes = $dataAccessors['ContactCard']->getChanges($sinceState, $maxChanges, $accountId);
+        $changes = $dataAccessors['CalendarEvent']->getChanges($sinceState, $maxChanges, $accountId);
 
         return $this->buildMethodResponse($changes, $methodCall);
     }
