@@ -11,9 +11,9 @@ class CalendarEventChangesMethod extends ChangesMethod
         $arguments = $methodCall->getArguments();
         $accountId = $arguments['accountId'];
         $sinceState = $arguments['sinceState'];
-        $maxChanges = $arguments['maxChanges'] ?? 1000;
+        $maxChanges = $arguments['maxChanges'] ?? 500;
 
-        $changes = $dataAccessors['CalendarEvent']->getChanges($sinceState, $maxChanges, $accountId);
+        $changes = $dataAccessors['CalendarEvents']->getChanges($sinceState, $maxChanges, $accountId);
 
         return $this->buildMethodResponse($changes, $methodCall);
     }
