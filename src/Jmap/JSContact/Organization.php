@@ -111,7 +111,11 @@ class Organization extends TypeableEntity implements JsonSerializable
             $instance->setName($json->name);
         }
         if (isset($json->units)) {
-            $instance->setUnits((array) $json->units);
+            $units = [];
+            foreach ($json->units as $unitData) {
+                $units[] = OrgUnit::fromJson($unitData);
+            }
+            $instance->setUnits($units);
         }
         if (isset($json->sortAs)) {
             $instance->setSortAs($json->sortAs);
