@@ -1,0 +1,46 @@
+- hosts: contactCard_mock_servers
+  gather_facts: false
+  connection: local
+
+  tasks:
+    - name: Create test folder
+      ansible.builtin.file:
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: 127.0.0.1
+      
+    - name: Fetch ContactCard list for admin account
+      ansible.builtin.uri:
+        body: >
+          {
+            "using": [
+              "urn:ietf:params:jmap:core",
+              "urn:ietf:params:jmap:contacts"
+            ],
+            "methodCalls": [[
+              "ContactCard/get",
+              {
+                "accountId": "{{ admin_user }}",
+                "ids": null
+              },
+              "c1"
+            ]]
+          }
+        body_format: json
+        force_basic_auth: true
+        url: "{{ local_address }}"
+        url_username: "{{ admin_user }}"
+        url_password: "{{ admin_pass }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: contactcard_response
+      failed_when: "'ContactCard/get' not in contactcard_response.content"
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ contactcard_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/contactcard_get.json"
+      delegate_to: 127.0.0.1

@@ -4,6 +4,7 @@ namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
 use OpenXPort\Util\AdapterUtil;
+use OpenXPort\Util\Logger;
 
 class Calendar implements JsonSerializable
 {
@@ -15,6 +16,13 @@ class Calendar implements JsonSerializable
     private $isVisible;
     private $shareWith;
     private $role;
+    private $isSubscribed;
+    private $myRights;
+    private $defaultAlertsWithTime;
+    private $defaultAlertsWithoutTime;
+    private $timeZone;
+
+    private $customProperties = [];
 
     public function getId()
     {
@@ -96,6 +104,66 @@ class Calendar implements JsonSerializable
         $this->role = $role;
     }
 
+    public function getIsSubscribed()
+    {
+        return $this->isSubscribed;
+    }
+
+    public function setIsSubscribed($isSubscribed)
+    {
+        $this->isSubscribed = $isSubscribed;
+    }
+
+    public function getMyRights()
+    {
+        return $this->myRights;
+    }
+
+    public function setMyRights($myRights)
+    {
+        $this->myRights = $myRights;
+    }
+
+    public function getDefaultAlertsWithTime()
+    {
+        return $this->defaultAlertsWithTime;
+    }
+
+    public function setDefaultAlertsWithTime($defaultAlertsWithTime)
+    {
+        $this->defaultAlertsWithTime = $defaultAlertsWithTime;
+    }
+
+    public function getDefaultAlertsWithoutTime()
+    {
+        return $this->defaultAlertsWithoutTime;
+    }
+
+    public function setDefaultAlertsWithoutTime($defaultAlertsWithoutTime)
+    {
+        $this->defaultAlertsWithoutTime = $defaultAlertsWithoutTime;
+    }
+
+    public function getTimeZone()
+    {
+        return $this->timeZone;
+    }
+
+    public function setTimeZone($timeZone)
+    {
+        $this->timeZone = $timeZone;
+    }
+
+    public function addCustomProperty($propertyName, $value)
+    {
+        $this->customProperties[$propertyName] = $value;
+    }
+
+    public function getCustomProperties()
+    {
+        return $this->customProperties;
+    }
+
     /**
      * Parses a Calendar object from the given JSON representation.
      *
@@ -121,8 +189,7 @@ class Calendar implements JsonSerializable
                 $logger = Logger::getInstance();
                 $logger->warning("File contains property not existing in " . self::class . ": $key");
 
-                // TODO support custom properties for Calendars
-                // $classInstance->addCustomProperty($key, $value);
+                $classInstance->addCustomProperty($key, $value);
                 continue;
             }
 
@@ -138,9 +205,21 @@ class Calendar implements JsonSerializable
                 $logger = Logger::getInstance();
                 $logger->warning(self::class . " is missing a setter for $key.");
 
-                // TODO support custom properties for Calendars
-                //$classInstance->addCustomProperty($key, $value);
+                $classInstance->addCustomProperty($key, $value);
                 continue;
+            }
+
+            // Parse nested objects
+            if ($key == "myRights") {
+                $value = CalendarRights::fromJson($value);
+            } elseif ($key == "defaultAlertsWithTime" || $key == "defaultAlertsWithoutTime") {
+                if (is_object($value) || is_array($value)) {
+                    $alerts = [];
+                    foreach ($value as $alertId => $alertData) {
+                        $alerts[$alertId] = Alert::fromJson([$alertId => $alertData]);
+                    }
+                    $value = $alerts;
+                }
             }
 
             $classInstance->{"$setPropertyMethod"}($value);
@@ -160,7 +239,12 @@ class Calendar implements JsonSerializable
             "sortOrder" => $this->getSortOrder(),
             "isVisible" => $this->getIsVisible(),
             "shareWith" => $this->getShareWith(),
-            "role" => $this->getRole()
+            "role" => $this->getRole(),
+            "isSubscribed" => $this->getIsSubscribed(),
+            "myRights" => $this->getMyRights(),
+            "defaultAlertsWithTime" => $this->getDefaultAlertsWithTime(),
+            "defaultAlertsWithoutTime" => $this->getDefaultAlertsWithoutTime(),
+            "timeZone" => $this->getTimeZone()
         ], function ($val) {
             return !is_null($val);
         });

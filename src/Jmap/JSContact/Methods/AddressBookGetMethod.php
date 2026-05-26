@@ -12,6 +12,7 @@ class AddressBookGetMethod extends GetMethod
         $methodName = $methodCall->getName();
         $adapter = $dataAdapters["AddressBooks"];
         $mapper = $dataMappers["AddressBooks"];
+        $state = "";
 
         if (isset($arguments["ids"]) && !is_null($arguments["ids"])) {
             $addressBooks = $dataAccessors["AddressBooks"]->get($arguments["ids"]);
@@ -21,6 +22,6 @@ class AddressBookGetMethod extends GetMethod
 
         $list = $mapper->mapToJmap($addressBooks, $adapter);
 
-        return $this->buildMethodResponse($list, $methodCall);
+        return $this->buildMethodResponse($list, $state, $methodCall);
     }
 }

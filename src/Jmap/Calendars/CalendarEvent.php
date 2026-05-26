@@ -49,6 +49,23 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
 
     private $customProperties;
 
+    private $baseEventId;
+    private $calendarIds;
+    private $isDraft;
+    private $isOrigin;
+    private $utcStart;
+    private $utcEnd;
+    private $method;
+    private $vLocations;
+    private $coordinates;
+    private $recurrenceId;
+    private $sentBy;
+    private $mayInviteSelf;
+    private $mayInviteOthers;
+    private $hideAttendees;
+    private $url;
+    private $requestStatus;
+
     public function getId()
     {
         return $this->id;
@@ -416,6 +433,166 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
         return $this->customProperties;
     }
 
+    public function getBaseEventId()
+    {
+        return $this->baseEventId;
+    }
+
+    public function setBaseEventId($baseEventId)
+    {
+        $this->baseEventId = $baseEventId;
+    }
+
+    public function getCalendarIds()
+    {
+        return $this->calendarIds;
+    }
+
+    public function setCalendarIds($calendarIds)
+    {
+        $this->calendarIds = $calendarIds;
+    }
+
+    public function getIsDraft()
+    {
+        return $this->isDraft;
+    }
+
+    public function setIsDraft($isDraft)
+    {
+        $this->isDraft = $isDraft;
+    }
+
+    public function getIsOrigin()
+    {
+        return $this->isOrigin;
+    }
+
+    public function setIsOrigin($isOrigin)
+    {
+        $this->isOrigin = $isOrigin;
+    }
+
+    public function getUtcStart()
+    {
+        return $this->utcStart;
+    }
+
+    public function setUtcStart($utcStart)
+    {
+        $this->utcStart = $utcStart;
+    }
+
+    public function getUtcEnd()
+    {
+        return $this->utcEnd;
+    }
+
+    public function setUtcEnd($utcEnd)
+    {
+        $this->utcEnd = $utcEnd;
+    }
+
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    public function setMethod($method)
+    {
+        $this->method = $method;
+    }
+
+    public function getVLocations()
+    {
+        return $this->vLocations;
+    }
+
+    public function setVLocations($vLocations)
+    {
+        $this->vLocations = $vLocations;
+    }
+
+    public function getCoordinates()
+    {
+        return $this->coordinates;
+    }
+
+    public function setCoordinates($coordinates)
+    {
+        $this->coordinates = $coordinates;
+    }
+
+    public function getRecurrenceId()
+    {
+        return $this->recurrenceId;
+    }
+
+    public function setRecurrenceId($recurrenceId)
+    {
+        $this->recurrenceId = $recurrenceId;
+    }
+
+    public function getSentBy()
+    {
+        return $this->sentBy;
+    }
+
+    public function setSentBy($sentBy)
+    {
+        $this->sentBy = $sentBy;
+    }
+
+    public function getMayInviteSelf()
+    {
+        return $this->mayInviteSelf;
+    }
+
+    public function setMayInviteSelf($mayInviteSelf)
+    {
+        $this->mayInviteSelf = $mayInviteSelf;
+    }
+
+    public function getMayInviteOthers()
+    {
+        return $this->mayInviteOthers;
+    }
+
+    public function setMayInviteOthers($mayInviteOthers)
+    {
+        $this->mayInviteOthers = $mayInviteOthers;
+    }
+
+    public function getHideAttendees()
+    {
+        return $this->hideAttendees;
+    }
+
+    public function setHideAttendees($hideAttendees)
+    {
+        $this->hideAttendees = $hideAttendees;
+    }
+
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+    public function setUrl($url)
+    {
+        $this->url = $url;
+    }
+
+    public function getRequestStatus()
+    {
+        return $this->requestStatus;
+    }
+
+    public function setRequestStatus($requestStatus)
+    {
+        $this->requestStatus = $requestStatus;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
@@ -453,7 +630,24 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
             "participants" => $this->getParticipants(),
             "useDefaultAlerts" => $this->getUseDefaultAlerts(),
             "alerts" => $this->getAlerts(),
-            "timeZone" => $this->getTimeZone()
+            "timeZone" => $this->getTimeZone(),
+            "color" => $this->getColor(),
+            "baseEventId" => $this->getBaseEventId(),
+            "calendarIds" => $this->getCalendarIds(),
+            "isDraft" => $this->getIsDraft(),
+            "isOrigin" => $this->getIsOrigin(),
+            "utcStart" => $this->getUtcStart(),
+            "utcEnd" => $this->getUtcEnd(),
+            "method" => $this->getMethod(),
+            "vLocations" => $this->getVLocations(),
+            "coordinates" => $this->getCoordinates(),
+            "recurrenceId" => $this->getRecurrenceId(),
+            "sentBy" => $this->getSentBy(),
+            "mayInviteSelf" => $this->getMayInviteSelf(),
+            "mayInviteOthers" => $this->getMayInviteOthers(),
+            "hideAttendees" => $this->getHideAttendees(),
+            "url" => $this->getUrl(),
+            "requestStatus" => $this->getRequestStatus(),
         ];
 
         if (AdapterUtil::isSetNotNullAndNotEmpty($this->getCustomProperties())) {
@@ -486,7 +680,8 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
             "recurrenceRules" => "RecurrenceRule",
             "participants" => "Participant",
             "alerts" => "Alert",
-            "relatedTo" => "Relation"
+            "relatedTo" => "Relation",
+            "vLocations" => "Location",
         ];
 
         if (is_string($json)) {
@@ -536,17 +731,26 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
             // spec itself, call that class' fromJson method to parse the JSON object accordingly.
             if (array_key_exists($key, $objectVariables)) {
                 $className = "OpenXPort\Jmap\Calendar\\$objectVariables[$key]";
-                $classInstance->{"$setPropertyMethod"}(
-                    $className::fromJson($value)
-                );
+
+                // Special handling for recurrenceRules which is an array of RecurrenceRule objects
+                if ($key == "recurrenceRules" && is_array($value)) {
+                    $rules = [];
+                    foreach ($value as $ruleJson) {
+                        $rules[] = $className::fromJson($ruleJson);
+                    }
+                    $classInstance->{"$setPropertyMethod"}($rules);
+                } else {
+                    $classInstance->{"$setPropertyMethod"}(
+                        $className::fromJson($value)
+                    );
+                }
             } elseif ($key == "recurrenceOverrides") {
                 // In the JSCalendar RFC, recurrenceOverrides are Instances of PatchObjects.
-                // Since all of the the properties, an override can have, are present in this
-                // class, we will use this one.
+                // PatchObject represents partial updates, not full events.
                 $recurrenceOverrides = [];
-
                 foreach ($value as $id => $override) {
-                    $patchObject = self::fromJson($override);
+                    $patchObjectClass = "OpenXPort\Jmap\Calendar\PatchObject";
+                    $patchObject = $patchObjectClass::fromJson($override);
 
                     $recurrenceOverrides[$id] = $patchObject;
                 }
@@ -555,7 +759,11 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
             } else {
                 // These properties are saved as associative arrays, so doing this prevents them from being
                 // saved as stdClass objects through json_decode().
-                if ($key == "keywords" || $key == "replyTo") {
+                if (
+                    $key == "keywords" || $key == "replyTo" ||
+                    $key == "calendarIds" || $key == "customProperties" ||
+                    $key == "requestStatus"
+                ) {
                     $value = (array) $value;
                 }
 
@@ -578,18 +786,33 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
             }
         }
         if ($this->virtualLocations) {
-            foreach ($this->virtualLocations as $id => $loc) {
-                $loc->sanitizeFreeText();
+            foreach ($this->virtualLocations as $id => $vloc) {
+                $vloc->sanitizeFreeText();
             }
         }
         if ($this->links) {
-            foreach ($this->links as $id => $lin) {
-                $lin->sanitizeFreeText();
+            foreach ($this->links as $id => $link) {
+                $link->sanitizeFreeText();
             }
         }
         if ($this->recurrenceOverrides) {
-            foreach ($this->recurrenceOverrides as $id => $rec) {
-                $rec->sanitizeFreeText();
+            foreach ($this->recurrenceOverrides as $id => $override) {
+                $override->sanitizeFreeText();
+            }
+        }
+        if ($this->vLocations) {
+            foreach ($this->vLocations as $id => $vloc) {
+                $vloc->sanitizeFreeText();
+            }
+        }
+        if ($this->alerts) {
+            foreach ($this->alerts as $id => $alert) {
+                $alert->sanitizeFreeText();
+            }
+        }
+        if ($this->participants) {
+            foreach ($this->participants as $id => $participant) {
+                $participant->sanitizeFreeText();
             }
         }
 

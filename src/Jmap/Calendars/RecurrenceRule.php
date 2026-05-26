@@ -25,7 +25,17 @@ class RecurrenceRule extends JSCalendarDataType implements JsonSerializable
     private $count;
     private $until;
 
-    private $customProperties;
+    private $customProperties = [];
+
+    public function __construct()
+    {
+        //defaults
+        $this->setType("RecurrenceRule");
+        $this->setInterval(1);
+        $this->setRscale("gregorian");
+        $this->setSkip("omit");
+        $this->setFirstDayOfWeek("mo");
+    }
 
     public function getType()
     {
@@ -208,11 +218,11 @@ class RecurrenceRule extends JSCalendarDataType implements JsonSerializable
     }
 
     /**
-     * Parses a CalendarEvent object from the given JSON representation.
+     * Parses a RecurrenceRule object from the given JSON representation.
      *
-     * @param mixed $json String/Array containing a calendar event in the JSCalendar format.
+     * @param mixed $json String/Array containing a recurrence rule in the JSCalendar format.
      *
-     * @return CalendarEvent CalendarEvent object containing any properties that can be
+     * @return RecurrenceRule RecurrenceRule object containing any properties that can be
      * parsed from the given JSON string/array.
      */
     public static function fromJson($json)

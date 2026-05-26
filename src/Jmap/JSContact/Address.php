@@ -6,51 +6,132 @@ use JsonSerializable;
 
 class Address extends TypeableEntity implements JsonSerializable
 {
-    /** @var string $fullAddress (optional) */
+    /** @var AddressComponent[]|null components (optional) */
+    private $components;
+
+    /** @var bool|null isOrdered (optional; default: false) */
+    private $isOrdered;
+
+    /** @var string|null defaultSeparator (optional) */
+    private $defaultSeparator;
+
+    /** @var string|null full (optional) */
     private $fullAddress;
 
-    /** @var StreetComponent[] $street (optional) */
-    private $street;
-
-    /** @var string $locality (optional) */
-    private $locality;
-
-    /** @var string $region (optional) */
-    private $region;
-
-    /** @var string $country (optional) */
-    private $country;
-
-    /** @var string $postcode (optional) */
-    private $postcode;
-
-    /** @var string $countryCode (optional) */
+    /** @var string|null countryCode (optional) */
     private $countryCode;
 
-    /** @var string $coordinates (optional) */
+    /** @var string|null coordinates (optional, "geo:" URI) */
     private $coordinates;
 
-    /** @var string $timeZone (optional) */
+    /** @var string|null timeZone (optional, IANA TZ name) */
     private $timeZone;
 
-    /** @var array<string, boolean> $contexts (optional)
-     * The string keys of the array are of type Context
-     * (see https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09#section-1.5.1)
+    /**
+     * contexts: String[Boolean] (optional).
+     * Keys are Context values, all values MUST be true.
+     *
+     * @var array<string,bool>|null
      */
     private $contexts;
 
-    /** @var int $pref (optional)
-     * The int here is the Preference type
-     * (see https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09#section-1.5.4)
+    /**
+     * pref: UnsignedInt (optional).
+     *
+     * @var int|null
      */
     private $pref;
 
-    /** @var string $label (optional) */
-    private $label;
+    /** @var string|null phoneticScript (optional) */
+    private $phoneticScript;
 
-    public function __construct()
+    /** @var string|null phoneticSystem (optional) */
+    private $phoneticSystem;
+
+    public function __construct(
+        $components = null,
+        $isOrdered = null,
+        $defaultSeparator = null,
+        $fullAddress = null,
+        $countryCode = null,
+        $coordinates = null,
+        $timeZone = null,
+        $contexts = null,
+        $pref = null,
+        $phoneticScript = null,
+        $phoneticSystem = null
+    ) {
+        $this->setAtType('Address');
+
+        if ($components !== null) {
+            $this->setComponents($components);
+        }
+        if ($isOrdered !== null) {
+            $this->setIsOrdered($isOrdered);
+        }
+        if ($defaultSeparator !== null) {
+            $this->setDefaultSeparator($defaultSeparator);
+        }
+        if ($fullAddress !== null) {
+            $this->setFullAddress($fullAddress);
+        }
+        if ($countryCode !== null) {
+            $this->setCountryCode($countryCode);
+        }
+        if ($coordinates !== null) {
+            $this->setCoordinates($coordinates);
+        }
+        if ($timeZone !== null) {
+            $this->setTimeZone($timeZone);
+        }
+        if ($contexts !== null) {
+            $this->setContexts($contexts);
+        }
+        if ($pref !== null) {
+            $this->setPref($pref);
+        }
+        if ($phoneticScript !== null) {
+            $this->setPhoneticScript($phoneticScript);
+        }
+        if ($phoneticSystem !== null) {
+            $this->setPhoneticSystem($phoneticSystem);
+        }
+    }
+
+    /**
+     * @return AddressComponent[]|null
+     */
+    public function getComponents()
     {
-        $this->atType = "Address";
+        return $this->components;
+    }
+
+    /**
+     * @param AddressComponent[]|null $components
+     */
+    public function setComponents($components)
+    {
+        $this->components = $components;
+    }
+
+    public function getIsOrdered()
+    {
+        return $this->isOrdered;
+    }
+
+    public function setIsOrdered($isOrdered)
+    {
+        $this->isOrdered = $isOrdered;
+    }
+
+    public function getDefaultSeparator()
+    {
+        return $this->defaultSeparator;
+    }
+
+    public function setDefaultSeparator($defaultSeparator)
+    {
+        $this->defaultSeparator = $defaultSeparator;
     }
 
     public function getFullAddress()
@@ -61,56 +142,6 @@ class Address extends TypeableEntity implements JsonSerializable
     public function setFullAddress($fullAddress)
     {
         $this->fullAddress = $fullAddress;
-    }
-
-    public function getStreet()
-    {
-        return $this->street;
-    }
-
-    public function setStreet($street)
-    {
-        $this->street = $street;
-    }
-
-    public function getLocality()
-    {
-        return $this->locality;
-    }
-
-    public function setLocality($locality)
-    {
-        $this->locality = $locality;
-    }
-
-    public function getRegion()
-    {
-        return $this->region;
-    }
-
-    public function setRegion($region)
-    {
-        $this->region = $region;
-    }
-
-    public function getCountry()
-    {
-        return $this->country;
-    }
-
-    public function setCountry($country)
-    {
-        $this->country = $country;
-    }
-
-    public function getPostcode()
-    {
-        return $this->postcode;
-    }
-
-    public function setPostcode($postcode)
-    {
-        $this->postcode = $postcode;
     }
 
     public function getCountryCode()
@@ -143,11 +174,17 @@ class Address extends TypeableEntity implements JsonSerializable
         $this->timeZone = $timeZone;
     }
 
+    /**
+     * @return array<string,bool>|null
+     */
     public function getContexts()
     {
         return $this->contexts;
     }
 
+    /**
+     * @param array<string,bool>|null $contexts
+     */
     public function setContexts($contexts)
     {
         $this->contexts = $contexts;
@@ -163,39 +200,101 @@ class Address extends TypeableEntity implements JsonSerializable
         $this->pref = $pref;
     }
 
-    /* Deprecated in newest JSContact spec */
-    public function getLabel()
+    public function getPhoneticScript()
     {
-        return $this->label;
+        return $this->phoneticScript;
     }
 
-    /* Deprecated in newest JSContact spec */
-    public function setLabel($label)
+    public function setPhoneticScript($phoneticScript)
     {
-        trigger_error(
-            "Called method " . __METHOD__ . " is outdated and will be removed in the future.",
-            E_USER_DEPRECATED
-        );
-        $this->label = $label;
+        $this->phoneticScript = $phoneticScript;
     }
 
+    public function getPhoneticSystem()
+    {
+        return $this->phoneticSystem;
+    }
+
+    public function setPhoneticSystem($phoneticSystem)
+    {
+        $this->phoneticSystem = $phoneticSystem;
+    }
+
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $instance = new self();
+
+        if (isset($json->{'@type'})) {
+            $instance->setAtType($json->{'@type'});
+        }
+
+        if (isset($json->components)) {
+            $components = [];
+            foreach ($json->components as $comp) {
+                if (is_object($comp) || is_array($comp)) {
+                    $components[] = AddressComponent::fromJson($comp);
+                }
+            }
+            $instance->setComponents($components);
+        }
+
+        if (isset($json->isOrdered)) {
+            $instance->setIsOrdered($json->isOrdered);
+        }
+        if (isset($json->defaultSeparator)) {
+            $instance->setDefaultSeparator($json->defaultSeparator);
+        }
+        if (isset($json->full)) {
+            $instance->setFullAddress($json->full);
+        }
+        if (isset($json->countryCode)) {
+            $instance->setCountryCode($json->countryCode);
+        }
+        if (isset($json->coordinates)) {
+            $instance->setCoordinates($json->coordinates);
+        }
+        if (isset($json->timeZone)) {
+            $instance->setTimeZone($json->timeZone);
+        }
+        if (isset($json->contexts)) {
+            $instance->setContexts((array) $json->contexts);
+        }
+        if (isset($json->pref)) {
+            $instance->setPref($json->pref);
+        }
+        if (isset($json->phoneticScript)) {
+            $instance->setPhoneticScript($json->phoneticScript);
+        }
+        if (isset($json->phoneticSystem)) {
+            $instance->setPhoneticSystem($json->phoneticSystem);
+        }
+
+        return $instance;
+    }
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->getAtType(),
-            "label" => $this->getLabel(),
-            "street" => $this->getStreet(),
-            "locality" => $this->getLocality(),
-            "region" => $this->getRegion(),
-            "country" => $this->getCountry(),
-            "postcode" => $this->getPostcode(),
-            "countryCode" => $this->getCountryCode(),
-            "coordinates" => $this->getCoordinates(),
-            "timeZone" => $this->getTimeZone(),
-            "contexts" => $this->getContexts(),
-            "fullAddress" => $this->getFullAddress(),
-            "pref" => $this->getPref()
+            "@type"            => $this->getAtType(),
+            "components"       => $this->getComponents(),
+            "isOrdered"        => $this->getIsOrdered(),
+            "defaultSeparator" => $this->getDefaultSeparator(),
+            "full"             => $this->getFullAddress(),
+            "countryCode"      => $this->getCountryCode(),
+            "coordinates"      => $this->getCoordinates(),
+            "timeZone"         => $this->getTimeZone(),
+            "contexts"         => $this->getContexts(),
+            "pref"             => $this->getPref(),
+            "phoneticScript"   => $this->getPhoneticScript(),
+            "phoneticSystem"   => $this->getPhoneticSystem(),
         ], function ($val) {
             return !is_null($val);
         });

@@ -13,6 +13,7 @@ class CalendarGetMethod extends GetMethod
         $methodName = $methodCall->getName();
         $adapter = $dataAdapters["Calendars"];
         $mapper = $dataMappers["Calendars"];
+        $state = "";
 
         if (isset($arguments["ids"]) && !is_null($arguments["ids"])) {
             $calendars = $dataAccessors["Calendars"]->get($arguments["ids"]);
@@ -25,6 +26,6 @@ class CalendarGetMethod extends GetMethod
 
         $logger->debug("Now returning " . sizeof($list) . " calendars");
 
-        return $this->buildMethodResponse($list, $methodCall);
+        return $this->buildMethodResponse($list, $state, $methodCall);
     }
 }

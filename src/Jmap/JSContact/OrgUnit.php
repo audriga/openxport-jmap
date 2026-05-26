@@ -6,15 +6,29 @@ use JsonSerializable;
 
 class OrgUnit extends TypeableEntity implements JsonSerializable
 {
-    /** @var string $name (optional) */
+    /**
+     * name: String (mandatory).
+     *
+     * @var string
+     */
     private $name;
 
-    /** @var string $sortAs (optional) */
+    /**
+     * sortAs: String (optional).
+     *
+     * @var string|null
+     */
     private $sortAs;
 
-    public function __construct()
+    public function __construct($name, $sortAs = null)
     {
-        $this->atType = "OrgUnit";
+        $this->setAtType('OrgUnit');
+
+        $this->setName($name);
+
+        if ($sortAs !== null) {
+            $this->setSortAs($sortAs);
+        }
     }
 
     public function getName()
@@ -37,12 +51,28 @@ class OrgUnit extends TypeableEntity implements JsonSerializable
         $this->sortAs = $sortAs;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+    // name is mandatory, so default to empty string if missing
+        $name = isset($json->name) ? $json->name : '';
+        $sortAs = isset($json->sortAs) ? $json->sortAs : null;
+
+        return new self($name, $sortAs);
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->getAtType(),
-            "name" => $this->getName(),
+            "@type"  => $this->getAtType(),
+            "name"   => $this->getName(),
             "sortAs" => $this->getSortAs(),
         ], function ($val) {
             return !is_null($val);

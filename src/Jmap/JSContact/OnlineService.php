@@ -6,57 +6,77 @@ use JsonSerializable;
 
 class OnlineService extends TypeableEntity implements JsonSerializable
 {
-    /** @var string $user (mandatory) */
-    private $user;
-
-    /** @var string $type (mandatory) */
-    private $type;
-
-    /** @var string $service (optional)
-     *  This SHOULD be the canonical service name including capitalization. Examples are GitHub, kakao, Mastodon.
-     * */
+    /**
+     * service: String (optional).
+     *
+     * @var string|null
+     */
     private $service;
 
-    /** @var array<string, boolean> $contexts (optional)
-     * The string keys of the array are of type Context
-     * (see https://www.ietf.org/archive/id/draft-ietf-calext-jscontact-07.html#section-2.3.2-3.5)
+    /**
+     * uri: String (optional).
+     * MUST be a URI as per RFC 3986.
+     *
+     * @var string|null
+     */
+    private $uri;
+
+    /**
+     * user: String (optional).
+     *
+     * @var string|null
+     */
+    private $user;
+
+    /**
+     * contexts: String[Boolean] (optional).
+     *
+     * @var array<string,bool>|null
      */
     private $contexts;
 
-    /** @var int $pref (optional)
-     * The int here is the Preference type
-     * (see https://www.ietf.org/archive/id/draft-ietf-calext-jscontact-07.html#section-2.3.2-3.6)
+    /**
+     * pref: UnsignedInt (optional).
+     *
+     * @var int|null
      */
     private $pref;
 
-    /** @var string $label (optional) */
+    /**
+     * label: String (optional).
+     *
+     * @var string|null
+     */
     private $label;
 
-    public function __construct($user, $type)
-    {
-        $this->user = $user;
-        $this->type = $type;
-        $this->atType = "OnlineService";
-    }
+    public function __construct(
+        $service = null,
+        $uri = null,
+        $user = null,
+        $contexts = null,
+        $pref = null,
+        $label = null
+    ) {
+        $this->setAtType('OnlineService');
 
-    public function getUser()
-    {
-        return $this->user;
-    }
-
-    public function setUser($user)
-    {
-        $this->user = $user;
-    }
-
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    public function setType($type)
-    {
-        $this->type = $type;
+        if ($service !== null) {
+            $this->setService($service);
+        }
+        if ($uri !== null) {
+            $this->setUri($uri);
+        }
+        if ($user !== null) {
+            $this->setUser($user);
+        }
+        if ($contexts !== null) {
+            $this->setContexts($contexts);
+        }
+        if ($pref !== null) {
+            $this->setPref($pref);
+        }
+        if ($label !== null) {
+            $this->setLabel($label);
+        }
     }
 
     public function getService()
@@ -69,11 +89,37 @@ class OnlineService extends TypeableEntity implements JsonSerializable
         $this->service = $service;
     }
 
+    public function getUri()
+    {
+        return $this->uri;
+    }
+
+    public function setUri($uri)
+    {
+        $this->uri = $uri;
+    }
+
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * @return array<string,bool>|null
+     */
     public function getContexts()
     {
         return $this->contexts;
     }
 
+    /**
+     * @param array<string,bool>|null $contexts
+     */
     public function setContexts($contexts)
     {
         $this->contexts = $contexts;
@@ -99,17 +145,50 @@ class OnlineService extends TypeableEntity implements JsonSerializable
         $this->label = $label;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $instance = new self();
+
+        if (isset($json->service)) {
+            $instance->setService($json->service);
+        }
+        if (isset($json->uri)) {
+            $instance->setUri($json->uri);
+        }
+        if (isset($json->user)) {
+            $instance->setUser($json->user);
+        }
+        if (isset($json->contexts)) {
+            $instance->setContexts((array) $json->contexts);
+        }
+        if (isset($json->pref)) {
+            $instance->setPref($json->pref);
+        }
+        if (isset($json->label)) {
+            $instance->setLabel($json->label);
+        }
+
+        return $instance;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->getAtType(),
-            "user" => $this->getUser(),
-            "type" => $this->getType(),
-            "service" => $this->getService(),
+            "@type"    => $this->getAtType(),
+            "service"  => $this->getService(),
+            "uri"      => $this->getUri(),
+            "user"     => $this->getUser(),
             "contexts" => $this->getContexts(),
-            "pref" => $this->getPref(),
-            "label" => $this->getLabel()
+            "pref"     => $this->getPref(),
+            "label"    => $this->getLabel(),
         ], function ($val) {
             return !is_null($val);
         });

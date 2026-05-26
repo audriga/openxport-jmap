@@ -13,8 +13,11 @@ class VirtualLocation implements JsonSerializable
     private $description;
     private $uri;
     private $features;
-
     private $customProperties;
+    public function __construct()
+    {
+        $this->setType("VirtualLocation");
+    }
 
     public function getType()
     {

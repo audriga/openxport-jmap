@@ -6,35 +6,83 @@ use JsonSerializable;
 
 class Phone extends TypeableEntity implements JsonSerializable
 {
-    /** @var string $phone (mandatory) */
-    private $phone;
+    /**
+     * @var string $number (mandatory)
+     */
+    private $number;
 
-    /** @var array<string, boolean> $features (optional) */
-    private $features;
-
-    /** @var array<string, boolean> $contexts (optional)
+    /**
+     *  @var array<string, boolean> $contexts (optional)
      * The string keys of the array are of type Context
-     * (see https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09#section-1.5.1)
      */
     private $contexts;
 
-    /** @var int $pref (optional)
+    /**
+     * @var int $pref (optional)
      * The int here is the Preference type
-     * (see https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09#section-1.5.4)
      */
     private $pref;
 
-    /** @var string $label (optional) */
+    /**
+     * @var array<string, boolean> $features (optional)
+     */
+    private $features;
+
+    /**
+     * @var string $label (optional)
+     */
     private $label;
 
-    public function getPhone()
+
+    public function __construct($number = null, $contexts = null, $pref = null)
     {
-        return $this->phone;
+        $this->setAtType('Phone');
+
+        if ($number !== null) {
+            $this->number = $number;
+        }
+        if ($contexts !== null) {
+            $this->contexts = $contexts;
+        }
+        if ($pref !== null) {
+            $this->pref = $pref;
+        }
     }
 
-    public function setPhone($phone)
+
+    public function getNumber()
     {
-        $this->phone = $phone;
+        return $this->number;
+    }
+
+
+    public function setNumber($number)
+    {
+        $this->number = $number;
+    }
+
+
+    public function getContexts()
+    {
+        return $this->contexts;
+    }
+
+
+    public function setContexts($contexts)
+    {
+        $this->contexts = $contexts;
+    }
+
+
+    public function getPref()
+    {
+        return $this->pref;
+    }
+
+
+    public function setPref($pref)
+    {
+        $this->pref = $pref;
     }
 
     public function getFeatures()
@@ -47,26 +95,6 @@ class Phone extends TypeableEntity implements JsonSerializable
         $this->features = $features;
     }
 
-    public function getContexts()
-    {
-        return $this->contexts;
-    }
-
-    public function setContexts($contexts)
-    {
-        $this->contexts = $contexts;
-    }
-
-    public function getPref()
-    {
-        return $this->pref;
-    }
-
-    public function setPref($pref)
-    {
-        $this->pref = $pref;
-    }
-
     public function getLabel()
     {
         return $this->label;
@@ -77,16 +105,48 @@ class Phone extends TypeableEntity implements JsonSerializable
         $this->label = $label;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $instance = new self();
+
+        if (isset($json->number)) {
+            $instance->setNumber($json->number);
+        }
+        if (isset($json->contexts)) {
+            $instance->setContexts((array) $json->contexts);
+        }
+        if (isset($json->pref)) {
+            $instance->setPref($json->pref);
+        }
+        if (isset($json->label)) {
+            $instance->setLabel($json->label);
+        }
+        if (isset($json->features)) {
+            $instance->setFeatures((array) $json->features);
+        }
+
+        return $instance;
+    }
+
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->getAtType(),
-            "phone" => $this->getPhone(),
-            "features" => $this->getFeatures(),
-            "contexts" => $this->getContexts(),
-            "pref" => $this->getPref(),
-            "label" => $this->getLabel()
+            '@type'    => $this->getAtType(),
+            'number'   => $this->getNumber(),
+            'contexts' => $this->getContexts(),
+            'pref'     => $this->getPref(),
+            'features' => $this->getFeatures(),
+            'label'    => $this->getLabel(),
         ], function ($val) {
             return !is_null($val);
         });

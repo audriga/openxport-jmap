@@ -10,7 +10,18 @@ class Relation implements JsonSerializable
     private $type;
     private $relation;
 
-    private $customProperties;
+    private $customProperties = [];
+
+    public function __construct(
+        $relation = null
+    ) {
+        $this->setType('Relation');
+
+        if ($relation !== null) {
+            $this->setRelation($relation);
+        }
+    }
+
 
     public function getType()
     {
@@ -57,7 +68,6 @@ class Relation implements JsonSerializable
         }
 
         $relations = [];
-
 
         // In JSCalendar, relations are stored in a String[Relation] array. Therefore we must loop through
         // each entry in that array and create a Relation object for that specific one.

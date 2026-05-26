@@ -5,7 +5,7 @@ namespace OpenXPort\Jmap\JSContact;
 class TypeableEntity
 {
     /** @var string $atType
-     * This is the @type property, used for various objects in JSContact
+     * This is the @type property, used for various objects in Contact
      */
     protected $atType;
 

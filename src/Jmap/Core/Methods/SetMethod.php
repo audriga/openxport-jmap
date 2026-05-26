@@ -6,15 +6,17 @@ use OpenXPort\Jmap\Core\Invocation;
 
 abstract class SetMethod implements \OpenXPort\Jmap\Core\Method
 {
-    protected function buildMethodResponse($createMap, $destroyMap, $methodCall)
+    protected function buildMethodResponse($createMap, $destroyMap, $methodCall, $updateMap = [])
     {
         $accountId = $methodCall->getArguments()["accountId"];
 
         // TODO We would need to support the Session->getState() somehow
         $newState = "";
         $created = [];
+        $updated = [];
         $destroyed = [];
         $notCreated = [];
+        $notUpdated = [];
         $notDestroyed = [];
 
         if ($createMap) {
@@ -29,6 +31,21 @@ abstract class SetMethod implements \OpenXPort\Jmap\Core\Method
                 } else {
                     $additional_props = array("id" => $id, "uid" => $id);
                     $created[$createId] = $additional_props;
+                }
+            }
+        }
+
+        if ($updateMap) {
+            foreach (array_keys($updateMap) as $updateId) {
+                $success = $updateMap[$updateId];
+
+                if ($success === false || $success === 0) {
+                    $setError = array(
+                        "type" => "invalidProperties",
+                        "description" => "There was an error when updating the object");
+                    $notUpdated[$updateId] = $setError;
+                } else {
+                    $updated[$updateId] = (object)[];
                 }
             }
         }
@@ -52,8 +69,10 @@ abstract class SetMethod implements \OpenXPort\Jmap\Core\Method
             "accountId" => $accountId,
             "newState" => $newState,
             "created" => $created,
+            "updated" => $updated,
             "destroyed" => $destroyed,
             "notCreated" => $notCreated,
+            "notUpdated" => $notUpdated,
             "notDestroyed" => $notDestroyed
         );
 

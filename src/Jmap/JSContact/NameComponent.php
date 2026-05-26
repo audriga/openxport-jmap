@@ -6,14 +6,37 @@ use JsonSerializable;
 
 class NameComponent extends TypeableEntity implements JsonSerializable
 {
-    /** @var string $value (mandatory) */
+    /**
+     * @var string|null
+     */
+    private $kind;
+
+    /**
+     * @var string|null
+     */
     private $value;
 
-    /** @var string $type (mandatory) */
-    private $type;
+    public function __construct($kind = null, $value = null)
+    {
+        $this->setAtType('NameComponent');
 
-    /** @var int $nth (optional, default: 1) */
-    private $nth;
+        if ($kind !== null) {
+            $this->kind = $kind;
+        }
+        if ($value !== null) {
+            $this->value = $value;
+        }
+    }
+
+    public function getKind()
+    {
+        return $this->kind;
+    }
+
+    public function setKind($kind)
+    {
+        $this->kind = $kind;
+    }
 
     public function getValue()
     {
@@ -25,34 +48,34 @@ class NameComponent extends TypeableEntity implements JsonSerializable
         $this->value = $value;
     }
 
-    public function getType()
+    public static function fromJson($json)
     {
-        return $this->type;
-    }
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
 
-    public function setType($type)
-    {
-        $this->type = $type;
-    }
+        $instance = new self();
 
-    public function getNth()
-    {
-        return $this->nth;
-    }
+        if (isset($json->kind)) {
+            $instance->setKind($json->kind);
+        }
+        if (isset($json->value)) {
+            $instance->setValue($json->value);
+        }
 
-    public function setNth($nth)
-    {
-        $this->nth = $nth;
+        return $instance;
     }
 
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->getAtType(),
-            "value" => $this->getValue(),
-            "type" => $this->getType(),
-            "nth" => $this->getNth()
+            '@type' => $this->getAtType(),
+            'kind'  => $this->getKind(),
+            'value' => $this->getValue(),
         ], function ($val) {
             return !is_null($val);
         });

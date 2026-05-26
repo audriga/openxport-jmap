@@ -6,36 +6,68 @@ use JsonSerializable;
 
 class Anniversary extends TypeableEntity implements JsonSerializable
 {
-    /** @var string $date (mandatory)
-     * The date of this anniversary, in the form "YYYY-MM-DD"
-     * (any part may be all 0s for unknown)
-     * or a [RFC3339] timestamp.
-    */
+    /**
+     * kind: String (mandatory).
+     * Enum: birth | death | wedding.
+     *
+     * @var string
+     */
+    private $kind;
+
+    /**
+     * date: PartialDate|Timestamp (mandatory).
+     * Either a PartialDate object (year/month/day) or a Timestamp object.
+     *
+     * @var mixed
+     */
     private $date;
 
-    /** @var string $type (optional) */
-    private $type;
-
-    /** @var Address $place (optional) */
+    /**
+     * place: Address (optional).
+     *
+     * @var Address|null
+     */
     private $place;
 
-    /** @var string $label (optional) */
+    /** @var string|null */
     private $label;
 
-    public function __construct($date = null)
+    public function __construct($kind = null, $date = null, $place = null, $label = null)
     {
-        $this->atType = "Anniversary";
-        $this->date = $date;
+        $this->setAtType('Anniversary');
+
+        if ($kind !== null) {
+            $this->setKind($kind);
+        }
+        if ($date !== null) {
+            $this->setDate($date);
+        }
+
+        if ($place !== null) {
+            $this->setPlace($place);
+        }
+        if ($label !== null) {
+            $this->setLabel($label);
+        }
+    }
+    public function getLabel()
+    {
+        return $this->label;
     }
 
-    public function getType()
+    public function setLabel($label)
     {
-        return $this->type;
+        $this->label = $label;
     }
 
-    public function setType($type)
+    public function getKind()
     {
-        $this->type = $type;
+        return $this->kind;
+    }
+
+    public function setKind($kind)
+    {
+        $this->kind = $kind;
     }
 
     public function getDate()
@@ -58,20 +90,28 @@ class Anniversary extends TypeableEntity implements JsonSerializable
         $this->place = $place;
     }
 
-    /* Deprecated in newest JSContact spec */
-    public function getLabel()
+    public static function fromJson($json)
     {
-        return $this->label;
-    }
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
 
-    /* Deprecated in newest JSContact spec */
-    public function setLabel($label)
-    {
-        trigger_error(
-            "Called method " . __METHOD__ . " is outdated and will be removed in the future.",
-            E_USER_DEPRECATED
-        );
-        $this->label = $label;
+        $instance = new self();
+
+        if (isset($json->kind)) {
+            $instance->setKind($json->kind);
+        }
+        if (isset($json->date)) {
+            $instance->setDate($json->date);
+        }
+        if (isset($json->label)) {
+            $instance->setLabel($json->label);
+        }
+
+        return $instance;
     }
 
     #[\ReturnTypeWillChange]
@@ -79,10 +119,9 @@ class Anniversary extends TypeableEntity implements JsonSerializable
     {
         return (object) array_filter([
             "@type" => $this->getAtType(),
-            "type" => $this->getType(),
-            "date" => $this->getDate(),
+            "kind"  => $this->getKind(),
+            "date"  => $this->getDate(),
             "place" => $this->getPlace(),
-            "label" => $this->getLabel()
         ], function ($val) {
             return !is_null($val);
         });

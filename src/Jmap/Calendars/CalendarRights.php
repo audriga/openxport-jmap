@@ -3,6 +3,7 @@
 namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
+use OpenXPort\Util\Logger;
 
 class CalendarRights implements JsonSerializable
 {
@@ -126,6 +127,48 @@ class CalendarRights implements JsonSerializable
     public function setMayDelete($mayDelete)
     {
         $this->mayDelete = $mayDelete;
+    }
+
+    /**
+     * Parses a CalendarRights object from the given JSON representation.
+     *
+     * @param mixed $json String/Array/Object containing calendar rights.
+     *
+     * @return CalendarRights
+     */
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json);
+        }
+
+        if ($json instanceof \stdClass) {
+            $json = (array) $json;
+        }
+
+        $classInstance = new self();
+
+        foreach ((array) $json as $key => $value) {
+            if (!property_exists($classInstance, $key)) {
+                $logger = Logger::getInstance();
+                $logger->warning("File contains property not existing in " . self::class . ": $key");
+                continue;
+            }
+
+            $setPropertyMethod = "set" . ucfirst($key);
+
+            if (!method_exists($classInstance, $setPropertyMethod)) {
+                $logger = Logger::getInstance();
+                $logger->warning(
+                    self::class . " is missing a setter for $key."
+                );
+                continue;
+            }
+
+            $classInstance->{$setPropertyMethod}($value);
+        }
+
+        return $classInstance;
     }
 
     #[\ReturnTypeWillChange]

@@ -24,4 +24,7 @@ abstract class AbstractDataAccess
     // Collects multiple ids
     // TODO support multiple FilterConditions like in JMAP standard
     abstract public function query($accountId, $filter = null);
+
+    // Updates specific entities
+    abstract public function update($entitiesToUpdate, $accountId = null);
 }

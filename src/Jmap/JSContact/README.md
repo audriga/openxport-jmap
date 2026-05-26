@@ -1,1 +1,1 @@
-**Implementation note:** Currently we use [JSContact draft version 09](https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09) for the implementation of the JSContact data model
+**Implementation note:** The ContactCard data model implementation is now based on [JSContact 1.0 (RFC 9553)](https://www.rfc-editor.org/rfc/rfc9553.html). Earlier versions of this library were aligned with draft-ietf-jmap-jscontact-09.

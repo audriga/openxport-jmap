@@ -3,6 +3,7 @@
 namespace OpenXPort\Jmap\Calendar;
 
 use JsonSerializable;
+use OpenXPort\Util\AdapterUtil;
 use OpenXPort\Util\Logger;
 
 class Alert implements JsonSerializable
@@ -14,6 +15,38 @@ class Alert implements JsonSerializable
     private $action;
 
     private $customProperties;
+
+    public function __construct(
+        $trigger = null,
+        $acknowledged = null,
+        $relatedTo = null,
+        $action = null,
+        $customProperties = null
+    ) {
+        $this->setType('Alert');
+
+        if ($trigger !== null) {
+            $this->setTrigger($trigger);
+        }
+
+        if ($acknowledged !== null) {
+            $this->setAcknowledged($acknowledged);
+        }
+
+        if ($relatedTo !== null) {
+            $this->setRelatedTo($relatedTo);
+        }
+
+        if ($action !== null) {
+            $this->setAction($action);
+        }
+
+        if ($customProperties !== null) {
+            foreach ($customProperties as $name => $value) {
+                $this->addCustomProperty($name, $value);
+            }
+        }
+    }
 
     public function getType()
     {
@@ -91,7 +124,6 @@ class Alert implements JsonSerializable
 
         $alerts = [];
 
-
         // In JSCalendar, alerts are stored in an Id[Alert] array. Therefore we must loop through
         // each entry in that array and create an Alert object for that specific one.
         foreach ($json as $id => $object) {
@@ -102,7 +134,6 @@ class Alert implements JsonSerializable
                 if ($key == "@type") {
                     $key = "type";
                 }
-
 
                 if (!property_exists($classInstance, $key)) {
                     $logger = Logger::getInstance();
@@ -163,12 +194,20 @@ class Alert implements JsonSerializable
             "action" => $this->getAction()
         ];
 
-        foreach ($this->getCustomProperties() as $name => $value) {
+        $custom = $this->getCustomProperties() !== null ? $this->getCustomProperties() : [];
+        foreach ($custom as $name => $value) {
             $objectProperties[$name] = $value;
         }
 
         return (object) array_filter($objectProperties, function ($val) {
             return !is_null($val);
         });
+    }
+
+    public function sanitizeFreeText()
+    {
+        if ($this->action !== null) {
+            $this->action = AdapterUtil::reencode($this->action);
+        }
     }
 }

@@ -55,7 +55,7 @@ class Invocation implements JsonSerializable
         $arguments = array_filter(
             $this->arguments,
             function ($val) {
-                return !empty($val);
+                return $val !== null; // Only filter out null, keep empty arrays and false
             }
         );
         return [$this->getName(), $arguments, $this->getMethodCallId()];

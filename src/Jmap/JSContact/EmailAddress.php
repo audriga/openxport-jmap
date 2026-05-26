@@ -6,39 +6,70 @@ use JsonSerializable;
 
 class EmailAddress extends TypeableEntity implements JsonSerializable
 {
-    /** @var string $email (optional) */
-    private $email;
+    /**
+     * address: String (mandatory).
+     * The email address.
+     *
+     * @var string
+     */
+    private $address;
 
-    /** @var array<string, boolean> $contexts (optional)
-     * The string keys of the array are of type Context
-     * (see https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09#section-1.5.1)
+    /**
+     * @var array<string, boolean> $contexts (optional)
+     *
+     * @var array<string,bool>|null
      */
     private $contexts;
 
     /** @var int $pref (optional)
      * The int here is the Preference type
-     * (see https://datatracker.ietf.org/doc/html/draft-ietf-jmap-jscontact-09#section-1.5.4)
      */
     private $pref;
 
-    /** @var string $label (optional) */
+    /* @var string $label (optional)
+     *
+     * @var string|null
+     */
     private $label;
 
-    public function getEmail()
+    public function __construct($address = null, $contexts = null, $pref = null, $label = null)
     {
-        return $this->email;
+        $this->setAtType('EmailAddress');
+
+        $this->setAddress($address);
+
+        if ($contexts !== null) {
+            $this->setContexts($contexts);
+        }
+        if ($pref !== null) {
+            $this->setPref($pref);
+        }
+        if ($label !== null) {
+            $this->setLabel($label);
+        }
     }
 
-    public function setEmail($email)
+    public function getAddress()
     {
-        $this->email = $email;
+        return $this->address;
     }
 
+    public function setAddress($address)
+    {
+        $this->address = $address;
+    }
+
+    /**
+     * @return array<string,bool>|null
+     */
     public function getContexts()
     {
         return $this->contexts;
     }
 
+    /**
+     * @param array<string,bool>|null $contexts
+     */
     public function setContexts($contexts)
     {
         $this->contexts = $contexts;
@@ -64,15 +95,42 @@ class EmailAddress extends TypeableEntity implements JsonSerializable
         $this->label = $label;
     }
 
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $instance = new self();
+
+        if (isset($json->address)) {
+            $instance->setAddress($json->address);
+        }
+        if (isset($json->contexts)) {
+            $instance->setContexts((array) $json->contexts);
+        }
+        if (isset($json->pref)) {
+            $instance->setPref($json->pref);
+        }
+        if (isset($json->label)) {
+            $instance->setLabel($json->label);
+        }
+
+        return $instance;
+    }
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->getAtType(),
-            "email" => $this->getEmail(),
+            "@type"    => $this->getAtType(),
+            "address"  => $this->getAddress(),
             "contexts" => $this->getContexts(),
-            "pref" => $this->getPref(),
-            "label" => $this->getLabel()
+            "pref"     => $this->getPref(),
+            "label"    => $this->getLabel(),
         ], function ($val) {
             return !is_null($val);
         });

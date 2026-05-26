@@ -11,7 +11,12 @@ class NDay extends JSCalendarDataType implements JsonSerializable
     private $day;
     private $nthOfPeriod;
 
-    private $customProperties;
+    private $customProperties = [];
+
+    public function __construct()
+    {
+        $this->setType('NDay');
+    }
 
     public function getType()
     {

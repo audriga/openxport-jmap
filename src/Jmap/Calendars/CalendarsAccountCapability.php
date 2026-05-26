@@ -4,6 +4,12 @@ namespace OpenXPort\Jmap\Calendar;
 
 class CalendarsAccountCapability extends \OpenXPort\Jmap\Core\AccountCapability
 {
+    /** @var array<string,mixed> */
+    protected $options = [];
+
+    /** @var string */
+    protected $name;
+
     public function __construct()
     {
         // TODO Make this configurable later on by reading values from a config class

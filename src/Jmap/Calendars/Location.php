@@ -18,7 +18,45 @@ class Location implements JsonSerializable
     private $links;
     private $linkIds;
 
-    private $customProperties;
+    private $customProperties = [];
+
+    public function __construct(
+        $name = null,
+        $description = null,
+        $relativeTo = null,
+        $timeZone = null,
+        $locationTypes = null,
+        $coordinates = null,
+        $links = null,
+        $linkIds = null
+    ) {
+        $this->setType('Location');
+
+        if ($name !== null) {
+            $this->setName($name);
+        }
+        if ($description !== null) {
+            $this->setDescription($description);
+        }
+        if ($relativeTo !== null) {
+            $this->setRelativeTo($relativeTo);
+        }
+        if ($timeZone !== null) {
+            $this->setTimeZone($timeZone);
+        }
+        if ($locationTypes !== null) {
+            $this->setLocationTypes($locationTypes);
+        }
+        if ($coordinates !== null) {
+            $this->setCoordinates($coordinates);
+        }
+        if ($links !== null) {
+            $this->setLinks($links);
+        }
+        if ($linkIds !== null) {
+            $this->setLinkIds($linkIds);
+        }
+    }
 
     public function getType()
     {
@@ -142,7 +180,6 @@ class Location implements JsonSerializable
         }
 
         $locations = [];
-
 
         // In JSCalendar, locations are stored in an Id[Location] array. Therefore we must loop through
         // each entry in that array and create a Location object for that specific one.

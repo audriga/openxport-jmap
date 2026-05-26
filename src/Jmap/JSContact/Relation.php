@@ -6,25 +6,71 @@ use JsonSerializable;
 
 class Relation extends TypeableEntity implements JsonSerializable
 {
-    /** @var array<string, boolean> $relation (optional) */
+    /**
+     * @var array<string, boolean> $relation (optional)
+     * Keys are relation types (friend, parent, spouse, ...).
+     *
+     * @var array<string,bool>|null
+     */
     private $relation;
 
+    public function __construct($relation = null)
+    {
+        $this->setAtType('Relation');
+
+        if ($relation !== null) {
+            $this->setRelation($relation);
+        }
+    }
+
+    /**
+     * @return array<string,bool>|null
+     */
     public function getRelation()
     {
         return $this->relation;
     }
 
+    /**
+     * @param array<string,bool>|null $relation
+     */
     public function setRelation($relation)
     {
         $this->relation = $relation;
+    }
+
+    public function addRelationType($type)
+    {
+        if ($this->relation === null) {
+            $this->relation = [];
+        }
+        $this->relation[$type] = true;
+    }
+
+    public static function fromJson($json)
+    {
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        }
+        if (is_array($json)) {
+            $json = (object) $json;
+        }
+
+        $instance = new self();
+
+        if (isset($json->relation)) {
+            $instance->setRelation((array) $json->relation);
+        }
+
+        return $instance;
     }
 
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "@type" => $this->getAtType(),
-            "relation" => $this->getRelation()
+            "@type"    => $this->getAtType(),
+            "relation" => is_null($this->getRelation()) ? (object) [] : $this->getRelation(),
         ], function ($val) {
             return !is_null($val);
         });
