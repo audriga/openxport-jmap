@@ -129,7 +129,7 @@ class EmailAddress extends TypeableEntity implements JsonSerializable
             "@type"    => $this->getAtType(),
             "address"  => $this->getAddress(),
             "contexts" => $this->getContexts(),
-            "pref"     => $this->getPref(),
+            "pref"     => $this->getPref() !== null ? (string)$this->getPref() : null,
             "label"    => $this->getLabel(),
         ], function ($val) {
             return !is_null($val);

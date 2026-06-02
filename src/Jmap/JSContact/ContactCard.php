@@ -832,7 +832,7 @@ class ContactCard extends TypeableEntity implements JsonSerializable
             "@type"          => $this->getAtType(),   // "Card"
             "version"        => $this->getVersion(),
             "uid"            => $this->getUid(),
-            "addressBookIds" => $this->getAddressBookIds(),
+            "addressBookIds" => $this->getAddressBookIds() ? (object)$this->getAddressBookIds() : null,
             "kind"           => $this->getKind(),
             "language"       => $this->getLanguage(),
             "created"        => $this->getCreated(),
