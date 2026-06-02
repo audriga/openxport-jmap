@@ -21,6 +21,6 @@ class PreferencesGetMethod extends GetMethod
 
         $list = $mapper->mapToJmap($preferences, $adapter);
 
-        return $this->buildMethodResponse($list, $methodCall);
+        return $this->buildMethodResponse($list, "", $methodCall);
     }
 }

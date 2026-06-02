@@ -13,6 +13,10 @@ class IdentitySetMethod extends SetMethod
         $adapter = $dataAdapters["Identities"];
         $mapper = $dataMappers["Identities"];
 
+        $created = [];
+        $destroyed = [];
+        $updated = [];
+
         if (isset($arguments["create"]) && !is_null($arguments["create"])) {
             $identityMap = $mapper->mapFromJmap($arguments["create"], $adapter);
             $created = $dataAccessors["Identities"]->create($identityMap);
@@ -24,6 +28,6 @@ class IdentitySetMethod extends SetMethod
             die($msg);
         }
 
-        return $this->buildMethodResponse($created, $destroyed, $methodCall);
+        return $this->buildMethodResponse($created, $destroyed, $methodCall, $updated);
     }
 }

@@ -21,6 +21,6 @@ class NotebookGetMethod extends GetMethod
 
         $list = $mapper->mapToJmap($notebooks, $adapter);
 
-        return $this->buildMethodResponse($list, $methodCall);
+        return $this->buildMethodResponse($list, "", $methodCall);
     }
 }

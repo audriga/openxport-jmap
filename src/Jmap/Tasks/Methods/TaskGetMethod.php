@@ -21,6 +21,6 @@ class TaskGetMethod extends GetMethod
 
         $list = $mapper->mapToJmap($tasks, $adapter);
 
-        return $this->buildMethodResponse($list, $methodCall);
+        return $this->buildMethodResponse($list, "", $methodCall);
     }
 }
