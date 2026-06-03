@@ -73,7 +73,7 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
 
     public function setId($id)
     {
-        $this->id = $id;
+        $this->id = (string)$id;
     }
 
     public function getCalendarId()

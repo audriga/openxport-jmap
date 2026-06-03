@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OpenXPort\Jmap\JSContact;
 
 use JsonSerializable;
+use Calendar;
 
 /**
  * JSContact Card object as defined in RFC 9553.
@@ -18,6 +19,9 @@ class ContactCard extends TypeableEntity implements JsonSerializable
 
     /** @var string */
     private $uid;
+
+    /** @var string|null JMAP id (DB key, distinct from vCard uid) */
+    private $id;
 
     /**
      * addressBookIds: Id[Boolean] (JMAP ContactCard).
@@ -218,6 +222,16 @@ class ContactCard extends TypeableEntity implements JsonSerializable
     public function setUid($uid)
     {
         $this->uid = $uid;
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function setId($id)
+    {
+        $this->id = (string)$id;
     }
 
     public function getKind()
@@ -828,7 +842,7 @@ class ContactCard extends TypeableEntity implements JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "_debugMarker"   => "ContactCard-jsonSerialize-hit",
+            "id"             => $this->getId() ?? $this->getUid(),
             "@type"          => $this->getAtType(),   // "Card"
             "version"        => $this->getVersion(),
             "uid"            => $this->getUid(),
