@@ -9,10 +9,8 @@ class IdentitySetMethod extends SetMethod
     public function handle($methodCall, $dataAccessors, $dataAdapters, $dataMappers)
     {
         $arguments = $methodCall->getArguments();
-        $methodName = $methodCall->getName();
         $adapter = $dataAdapters["Identities"];
         $mapper = $dataMappers["Identities"];
-
         $created = [];
         $destroyed = [];
         $updated = [];
@@ -20,12 +18,10 @@ class IdentitySetMethod extends SetMethod
         if (isset($arguments["create"]) && !is_null($arguments["create"])) {
             $identityMap = $mapper->mapFromJmap($arguments["create"], $adapter);
             $created = $dataAccessors["Identities"]->create($identityMap);
-        } else {
-            $msg = ErrorHandler::raiseInvalidArgument(
-                $methodCallId,
-                "Identity/Set currently requires create parameter."
-            );
-            die($msg);
+        }
+
+        if (isset($arguments["destroy"]) && !is_null($arguments["destroy"])) {
+            $destroyed = $dataAccessors["Identities"]->destroy($arguments["destroy"]);
         }
 
         return $this->buildMethodResponse($created, $destroyed, $methodCall, $updated);
