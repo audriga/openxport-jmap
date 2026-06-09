@@ -13,7 +13,7 @@ class CalendarGetMethod extends GetMethod
         $methodName = $methodCall->getName();
         $adapter = $dataAdapters["Calendars"];
         $mapper = $dataMappers["Calendars"];
-        $state = "";
+        $state = $dataAccessors["Calendars"]->getCurrentState($arguments["accountId"]);
 
         if (isset($arguments["ids"]) && !is_null($arguments["ids"])) {
             $calendars = $dataAccessors["Calendars"]->get($arguments["ids"]);
