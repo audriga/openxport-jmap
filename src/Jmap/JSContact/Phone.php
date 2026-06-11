@@ -144,7 +144,7 @@ class Phone extends TypeableEntity implements JsonSerializable
             '@type'    => $this->getAtType(),
             'number'   => $this->getNumber(),
             'contexts' => $this->getContexts(),
-            'pref'     => $this->getPref(),
+            'pref'     => $this->getPref() !== null ? (string)$this->getPref() : null,
             'features' => $this->getFeatures(),
             'label'    => $this->getLabel(),
         ], function ($val) {

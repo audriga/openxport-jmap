@@ -24,6 +24,6 @@ class StorageNodeGetMethod extends GetMethod
         }
         $list = $mapper->mapToJmap($files, $adapter);
 
-        return $this->buildMethodResponse($list, $methodCall);
+        return $this->buildMethodResponse($list, "", $methodCall);
     }
 }

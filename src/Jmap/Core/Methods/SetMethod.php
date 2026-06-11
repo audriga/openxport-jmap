@@ -29,7 +29,7 @@ abstract class SetMethod implements \OpenXPort\Jmap\Core\Method
                         "description" => "There was an error when creating the object");
                     $notCreated[$createId] = $setError;
                 } else {
-                    $additional_props = array("id" => $id, "uid" => $id);
+                    $additional_props = array("id" => (string)$id, "uid" => (string)$id);
                     $created[$createId] = $additional_props;
                 }
             }
@@ -68,14 +68,13 @@ abstract class SetMethod implements \OpenXPort\Jmap\Core\Method
         $args = array(
             "accountId" => $accountId,
             "newState" => $newState,
-            "created" => $created,
-            "updated" => $updated,
+            "created" => empty($created) ? (object)[] : $created,
+            "updated" => empty($updated) ? (object)[] : $updated,
             "destroyed" => $destroyed,
-            "notCreated" => $notCreated,
-            "notUpdated" => $notUpdated,
-            "notDestroyed" => $notDestroyed
+            "notCreated" => empty($notCreated) ? (object)[] : $notCreated,
+            "notUpdated" => empty($notUpdated) ? (object)[] : $notUpdated,
+            "notDestroyed" => empty($notDestroyed) ? (object)[] : $notDestroyed
         );
-
         return new Invocation($methodCall->getName(), $args, $methodCall->getMethodCallId());
     }
 

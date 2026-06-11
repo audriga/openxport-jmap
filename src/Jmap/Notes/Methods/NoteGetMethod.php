@@ -21,6 +21,6 @@ class NoteGetMethod extends GetMethod
 
         $list = $mapper->mapToJmap($notes, $adapter);
 
-        return $this->buildMethodResponse($list, $methodCall);
+        return $this->buildMethodResponse($list, "", $methodCall);
     }
 }

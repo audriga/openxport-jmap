@@ -21,6 +21,6 @@ class IdentityGetMethod extends GetMethod
 
         $list = $mapper->mapToJmap($identities, $adapter);
 
-        return $this->buildMethodResponse($list, $methodCall);
+        return $this->buildMethodResponse($list, "", $methodCall);
     }
 }

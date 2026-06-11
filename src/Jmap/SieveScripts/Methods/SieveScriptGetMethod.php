@@ -21,6 +21,6 @@ class SieveScriptGetMethod extends GetMethod
 
         $list = $mapper->mapToJmap($sieveScripts, $adapter);
 
-        return $this->buildMethodResponse($list, $methodCall);
+        return $this->buildMethodResponse($list, "", $methodCall);
     }
 }

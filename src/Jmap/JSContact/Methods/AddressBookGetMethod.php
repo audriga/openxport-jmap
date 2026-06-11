@@ -12,7 +12,7 @@ class AddressBookGetMethod extends GetMethod
         $methodName = $methodCall->getName();
         $adapter = $dataAdapters["AddressBooks"];
         $mapper = $dataMappers["AddressBooks"];
-        $state = "";
+        $state = $dataAccessors["AddressBooks"]->getCurrentState($arguments["accountId"]);
 
         if (isset($arguments["ids"]) && !is_null($arguments["ids"])) {
             $addressBooks = $dataAccessors["AddressBooks"]->get($arguments["ids"]);

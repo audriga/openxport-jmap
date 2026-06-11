@@ -21,6 +21,6 @@ class VacationResponseGetMethod extends GetMethod
 
         $list = $mapper->mapToJmap($vacationResponses, $adapter);
 
-        return $this->buildMethodResponse($list, $methodCall);
+        return $this->buildMethodResponse($list, "", $methodCall);
     }
 }

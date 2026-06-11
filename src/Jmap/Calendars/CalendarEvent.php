@@ -73,7 +73,7 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
 
     public function setId($id)
     {
-        $this->id = $id;
+        $this->id = (string)$id;
     }
 
     public function getCalendarId()
@@ -633,7 +633,7 @@ class CalendarEvent extends JSCalendarDataType implements JsonSerializable
             "timeZone" => $this->getTimeZone(),
             "color" => $this->getColor(),
             "baseEventId" => $this->getBaseEventId(),
-            "calendarIds" => $this->getCalendarIds(),
+            "calendarIds" => $this->getCalendarIds() ? (object)$this->getCalendarIds() : null,
             "isDraft" => $this->getIsDraft(),
             "isOrigin" => $this->getIsOrigin(),
             "utcStart" => $this->getUtcStart(),
