@@ -20,6 +20,10 @@
   tags:
     - files
 
+- import_playbook: filenode.yml
+  tags:
+    - filenode
+
 - import_playbook: mail.yml
   tags:
     mail

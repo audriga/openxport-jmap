@@ -1,0 +1,226 @@
+- hosts: filenode_mock_servers
+  gather_facts: false
+  connection: local
+
+  tasks:
+    - name: Create test folder
+      ansible.builtin.file:
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: 127.0.0.1
+
+    - name: Fetch FileNode list
+      ansible.builtin.uri:
+        body: >
+          {
+            "using": [
+              "urn:ietf:params:jmap:core",
+              "urn:ietf:params:jmap:filenode"
+            ],
+            "methodCalls": [[
+              "FileNode/get",
+              {
+                "accountId": "{{ admin_user }}",
+                "ids": null
+              },
+              "c1"
+            ]]
+          }
+        body_format: json
+        force_basic_auth: true
+        url: "{{ local_address }}"
+        url_username: "{{ admin_user }}"
+        url_password: "{{ admin_pass }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: filenode_response
+      failed_when: "'FileNode/get' not in filenode_response.content"
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ filenode_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/filenode_get.json"
+      delegate_to: 127.0.0.1
+
+    - name: Query all FileNodes
+      ansible.builtin.uri:
+        body: >
+          {
+            "using": [
+              "urn:ietf:params:jmap:core",
+              "urn:ietf:params:jmap:filenode"
+            ],
+            "methodCalls": [[
+              "FileNode/query",
+              {
+                "accountId": "{{ admin_user }}"
+              },
+              "c1"
+            ]]
+          }
+        body_format: json
+        force_basic_auth: true
+        url: "{{ local_address }}"
+        url_username: "{{ admin_user }}"
+        url_password: "{{ admin_pass }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: filenode_response
+      failed_when: "'FileNode/query' not in filenode_response.content"
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ filenode_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/filenode_query.json"
+      delegate_to: 127.0.0.1
+
+    - name: Query FileNodes by nodeType (folders only)
+      ansible.builtin.uri:
+        body: >
+          {
+            "using": [
+              "urn:ietf:params:jmap:core",
+              "urn:ietf:params:jmap:filenode"
+            ],
+            "methodCalls": [[
+              "FileNode/query",
+              {
+                "accountId": "{{ admin_user }}",
+                "filter": { "nodeType": "folder" }
+              },
+              "c1"
+            ]]
+          }
+        body_format: json
+        force_basic_auth: true
+        url: "{{ local_address }}"
+        url_username: "{{ admin_user }}"
+        url_password: "{{ admin_pass }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: filenode_response
+      failed_when: "'FileNode/query' not in filenode_response.content"
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ filenode_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/filenode_query_folders.json"
+      delegate_to: 127.0.0.1
+
+    - name: Query FileNodes by parentId
+      ansible.builtin.uri:
+        body: >
+          {
+            "using": [
+              "urn:ietf:params:jmap:core",
+              "urn:ietf:params:jmap:filenode"
+            ],
+            "methodCalls": [[
+              "FileNode/query",
+              {
+                "accountId": "{{ admin_user }}",
+                "filter": { "parentId": "root" }
+              },
+              "c1"
+            ]]
+          }
+        body_format: json
+        force_basic_auth: true
+        url: "{{ local_address }}"
+        url_username: "{{ admin_user }}"
+        url_password: "{{ admin_pass }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: filenode_response
+      failed_when: "'FileNode/query' not in filenode_response.content"
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ filenode_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/filenode_query_parentid.json"
+      delegate_to: 127.0.0.1
+
+    - name: Create a FileNode
+      ansible.builtin.uri:
+        body: >
+          {
+            "using": [
+              "urn:ietf:params:jmap:core",
+              "urn:ietf:params:jmap:filenode"
+            ],
+            "methodCalls": [[
+              "FileNode/set",
+              {
+                "accountId": "{{ admin_user }}",
+                "create": {
+                  "k1": {
+                    "name": "Test Folder",
+                    "nodeType": "folder",
+                    "parentId": "root"
+                  }
+                }
+              },
+              "c1"
+            ]]
+          }
+        body_format: json
+        force_basic_auth: true
+        url: "{{ local_address }}"
+        url_username: "{{ admin_user }}"
+        url_password: "{{ admin_pass }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: filenode_response
+      failed_when: "'FileNode/set' not in filenode_response.content"
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ filenode_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/filenode_set_create.json"
+      delegate_to: 127.0.0.1
+
+    - name: Get FileNode changes
+      ansible.builtin.uri:
+        body: >
+          {
+            "using": [
+              "urn:ietf:params:jmap:core",
+              "urn:ietf:params:jmap:filenode"
+            ],
+            "methodCalls": [[
+              "FileNode/changes",
+              {
+                "accountId": "{{ admin_user }}",
+                "sinceState": "0"
+              },
+              "c1"
+            ]]
+          }
+        body_format: json
+        force_basic_auth: true
+        url: "{{ local_address }}"
+        url_username: "{{ admin_user }}"
+        url_password: "{{ admin_pass }}"
+        method: POST
+        return_content: true
+        validate_certs: false
+      delegate_to: 127.0.0.1
+      register: filenode_response
+      failed_when: "'FileNode/changes' not in filenode_response.content"
+
+    - name: Store reply under /tmp/
+      copy:
+        content: "{{ filenode_response.content }}"
+        dest: "/tmp/openxport_ansible_output/{{ inventory_hostname }}/filenode_changes.json"
+      delegate_to: 127.0.0.1
