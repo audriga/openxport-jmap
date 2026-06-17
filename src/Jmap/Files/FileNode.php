@@ -6,9 +6,7 @@ use OpenXPort\Util\AdapterUtil;
 
 class FileNode implements \JsonSerializable
 {
-    /**
-     * @var string is either ID or root, trash or temp
-     * **/
+    /** @var string **/
     private $id;
 
     /** @var string **/
@@ -29,17 +27,17 @@ class FileNode implements \JsonSerializable
     /** @var int **/
     private $size;
 
-    /** @var int **/
+    /** @var string UTCDate **/
     private $created;
 
-    /** @var int **/
+    /** @var string UTCDate **/
     private $modified;
 
-    /** @var int **/
+    /** @var string UTCDate **/
     private $accessed;
 
     /** Metadata-change timestamp, separate from modified
-     * @var int **/
+     * @var string UTCDate **/
     private $changed;
 
     /**
