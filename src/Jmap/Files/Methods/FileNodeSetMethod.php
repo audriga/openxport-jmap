@@ -62,17 +62,7 @@ class FileNodeSetMethod extends SetMethod
                     $mergedObject = json_decode(json_encode($mergedArray));
                     $mergedFileNode = FileNode::fromJson($mergedObject);
 
-                    $tempId = 'temp_' . md5($id);
-                    $fileNodeMap = $mapper->mapFromJmap([$tempId => $mergedFileNode], $adapter);
-
-                    $remappedFileMap = [];
-                    if (!empty($fileNodeMap)) {
-                        $firstElement = reset($fileNodeMap);
-                        $fileData = reset($firstElement);
-                        $remappedFileMap[$id] = $fileData;
-                    }
-
-                    $updatedFiles = $dataAccessors["FileNodes"]->update($remappedFileMap);
+                    $updatedFiles = $dataAccessors["FileNodes"]->update([$id => $mergedFileNode]);
 
                     if (isset($updatedFiles[$id]) && $updatedFiles[$id] === true) {
                         $updated[$id] = (object)[];

@@ -24,8 +24,9 @@ class FileNodeGetMethod extends GetMethod
         } else {
             $files = $dataAccessors["FileNodes"]->getAll($accountId);
         }
-        $list = $mapper->mapToJmap($files, $adapter);
+        $list = array_values($mapper->mapToJmap($files, $adapter));
+        $state = $dataAccessors["FileNodes"]->getCurrentState($accountId);
 
-        return $this->buildMethodResponse($list, "", $methodCall);
+        return $this->buildMethodResponse($list, $state, $methodCall);
     }
 }

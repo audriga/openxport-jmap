@@ -17,16 +17,19 @@ abstract class BlobAccess
      * Downloads a blob (in JMAP terms this is binary data)
      *
      * @param string|null @path An optional path to the blob (useful for filesystem access)
+     * @param bool $returnData When true, returns raw bytes as a string instead of streaming via HTTP
      */
-    abstract public function downloadBlob($path = null);
+    abstract public function downloadBlob($path = null, $returnData = false);
 
     /**
      * Uploads a blob (in JMAP terms this is binary data)
      *
      * @param string|null @path An optional path to the blob (useful for filesystem access)
-     * @return boolean If upload is successful, return true, otherwise false
+     * @param string|null $data Raw bytes. When provided (JMAP Blob/upload method path), stores directly
+     *                          and returns ['id', 'type', 'size']. When null, reads from php://input (HTTP path).
+     * @return array|boolean Returns blob metadata when $data is provided, otherwise true on success
      */
-    abstract public function uploadBlob($accountId, $path = null);
+    abstract public function uploadBlob($accountId, $path = null, $data = null);
 
     protected function buildUploadResponse($accountId, $blobId, $type, $size)
     {

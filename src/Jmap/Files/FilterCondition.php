@@ -2,6 +2,12 @@
 
 namespace OpenXPort\Jmap\Files;
 
+/**
+ * Filter condition for FileNode/query as defined in the IETF JMAP FileNode spec
+ * (draft-ietf-jmap-filenode / urn:ietf:params:jmap:filenode).
+ *
+ * @see https://www.ietf.org/archive/id/draft-ietf-jmap-filenode-14.txt Section 5 (Querying FileNodes)
+ */
 class FilterCondition extends \OpenXPort\Jmap\Core\FilterCondition
 {
     /** @var string **/

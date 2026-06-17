@@ -10,7 +10,7 @@ The following data types are currently supported by OpenXPort:
 * Contacts over the JMAP for Contacts protocol, built on top of the [JSContact](https://datatracker.ietf.org/doc/draft-ietf-calext-jscontact/) format
 * Tasks over the JMAP for Tasks protocol, built on top of the [JSCalendar](https://datatracker.ietf.org/doc/html/rfc8984) format
 * SieveScripts over the JMAP for Sieve Scripts protocol
-* Files over the upcoming JMAP for Files protocol
+* Files over the IETF JMAP FileNode protocol ([draft-ietf-jmap-filenode](https://datatracker.ietf.org/doc/draft-ietf-jmap-filenode/))
 * Preferences over the https://www.audriga.eu/jmap/preferences/ Extension
 
 OpenXPort is built with compatibility for older systems in mind. We support all PHP versions down to 5.6 to provide data portability even for older systems.
