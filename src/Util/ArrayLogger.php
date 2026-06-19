@@ -20,7 +20,7 @@ class ArrayLogger extends AbstractSimpleLogger
         $this->minLevel = $minLevel;
     }
 
-    public function log($level, \Stringable|string $message, array $context = array()): void
+    public function log($level, $message, array $context = array())
     {
         if (!$this->minLevelReached($level)) {
             return;

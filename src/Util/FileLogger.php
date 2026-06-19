@@ -31,7 +31,7 @@ class FileLogger extends AbstractSimpleLogger
         $this->uniqueid = md5($_SERVER['REMOTE_ADDR'] . $_SERVER['REQUEST_TIME'] . $_SERVER['REMOTE_PORT']);
     }
 
-    public function log($level, \Stringable|string $message, array $context = array()): void
+    public function log($level, $message, array $context = array())
     {
         if (!$this->minLevelReached($level)) {
             return;
