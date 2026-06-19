@@ -16,12 +16,10 @@ class FilterCondition extends \OpenXPort\Jmap\Core\FilterCondition
     /** @var string **/
     private $ancestorId;
 
-    /** One of "file", "folder", "symlink"
-     * @var string **/
+    /** @var string **/
     private $nodeType;
 
-    /** Filter nodes with this specific blobId
-     * @var string **/
+    /** @var string **/
     private $blobId;
 
     /** @var DateTime **/

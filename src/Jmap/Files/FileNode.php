@@ -256,22 +256,22 @@ class FileNode implements \JsonSerializable
     public function jsonSerialize()
     {
         return (object) array_filter([
-            "id"           => $this->id,
-            "parentId"     => $this->parentId,
-            "blobId"       => $this->blobId,
-            "name"         => $this->name,
-            "type"         => $this->type,
-            "size"         => $this->size,
-            "created"      => $this->created,
-            "modified"     => $this->modified,
-            "accessed"     => $this->accessed,
-            "changed"      => $this->changed,
-            "nodeType"     => $this->nodeType,
-            "role"         => $this->role,
-            "executable"   => $this->executable,
+            "id" => $this->id,
+            "parentId" => $this->parentId,
+            "blobId" => $this->blobId,
+            "name" => $this->name,
+            "type" => $this->type,
+            "size" => $this->size,
+            "created" => $this->created,
+            "modified" => $this->modified,
+            "accessed" => $this->accessed,
+            "changed" => $this->changed,
+            "nodeType" => $this->nodeType,
+            "role" => $this->role,
+            "executable" => $this->executable,
             "isSubscribed" => $this->isSubscribed,
-            "myRights"     => $this->myRights,
-            "shareWith"    => $this->shareWith,
+            "myRights" => $this->myRights,
+            "shareWith" => $this->shareWith,
         ], function ($val) {
             return !is_null($val);
         });
