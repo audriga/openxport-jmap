@@ -43,35 +43,6 @@ init: composer
 update: composer
 	php $(build_tools_directory)/composer.phar update --prefer-dist
 
-# Switch to PHP 5.6 mode. In case you need to build for PHP 5.6
-# WARNING this will change the composer.json file
-# Requires podman for linting based on https://github.com/dbfx/github-phplint
-.PHONY: php56_mode
-php56_mode: composer_lts
-	git checkout composer.json composer.lock
-	rm $(build_tools_directory)/composer.phar || true
-	ln $(build_tools_directory)/composer_lts.phar $(build_tools_directory)/composer.phar
-	php $(build_tools_directory)/composer.phar require psr/log:'<2'
-	php $(build_tools_directory)/composer.phar update --prefer-dist --no-dev
-
-	# Lint for PHP 5.6
-	podman run --rm --name php56 -v "$(PWD)":"$(PWD)" -w "$(PWD)" docker.io/phpdockerio/php56-cli sh -c "! (find . -type f -name \"*.php\" -not -path \"./tests/*\" $1 -exec php -l -n {} \; | grep -v \"No syntax errors detected\")"
-
-# Switch to PHP 7 mode. In case you need to build for PHP 7
-# WARNING this will change the composer.json file
-# Requires podman for linting based on https://github.com/dbfx/github-phplint
-.PHONY: php70_mode
-php70_mode: composer_lts
-	git checkout composer.json composer.lock
-	rm -f composer.lock
-	rm $(build_tools_directory)/composer.phar || true
-	ln $(build_tools_directory)/composer_lts.phar $(build_tools_directory)/composer.phar
-	php $(build_tools_directory)/composer.phar require psr/log:'<2' phpunit/phpunit:'<10' phar-io/manifest:'<2' phpunit/php-code-coverage:'<6' phpunit/php-file-iterator:'<2' phpunit/php-timer:'<6' phpunit/php-text-template:'<2' phar-io/version:'<3' squizlabs/php_codesniffer:'<3.6'
-	php $(build_tools_directory)/composer.phar update --prefer-dist --no-dev
-
-	# Lint for PHP 7.0
-	podman run --rm --name php70  -v "$(PWD)":"$(PWD)" -w "$(PWD)" docker.io/jetpulp/php70-cli sh -c "! (find . -type f -name \"*.php\" -not -path \"./tests/*\" $1 -exec php -l -n {} \; | grep -v \"No syntax errors detected\")"
-
 # Switch to PHP 8 mode. In case you need to build for PHP 8
 # WARNING this will change the composer.json file
 .PHONY: php81_mode

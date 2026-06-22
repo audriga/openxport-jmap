@@ -13,15 +13,15 @@ The following data types are currently supported by OpenXPort:
 * Files over the upcoming JMAP for Files protocol
 * Preferences over the https://www.audriga.eu/jmap/preferences/ Extension
 
-OpenXPort is built with compatibility for older systems in mind. We support all PHP versions down to 5.6 to provide data portability even for older systems.
+OpenXPort requires PHP 8.0 or higher.
 
 ## Installation
 ### Local installation
-1. Run `make` to initialize the project for the default PHP version (8.1). Use other build targets (e.g. `make php56_mode` or `make php70_mode`) instead, in case you need to build for a different version.
+1. Run `make` to initialize the project.
 
 ## Development
 ### Installation
-1. Run `make` or one of the targets for old PHP versions above.
+1. Run `make` to initialize the project.
 1. Run `make update` to update dependencies and make development tools available
 
 ### Tests

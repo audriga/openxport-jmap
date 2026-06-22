@@ -11,7 +11,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                php-versions: [7.0, 8.2]
+                php-versions: [8.2]
         name: Nextcloud ${{ matrix.nextcloud-versions }} php
           ${{ matrix.php-versions }} unit tests
         steps:
@@ -25,10 +25,6 @@ jobs:
             - name: Checkout OXP Core
               uses: actions/checkout@v3
             - name: Install dependencies
-              if: ${{ always() && matrix.php-versions == 8.2 }}
               run: make
-            - name: Install dependencies
-              if: ${{ always() && matrix.php-versions == 7.0 }}
-              run: make php70_mode
             - name: Run tests
               run: make lint
