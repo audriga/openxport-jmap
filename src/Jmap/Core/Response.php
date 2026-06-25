@@ -7,6 +7,7 @@ use JsonSerializable;
 class Response implements JsonSerializable
 {
     private $methodResponses;
+    private $session;
 
     public function __construct($methodResponses, $session)
     {
