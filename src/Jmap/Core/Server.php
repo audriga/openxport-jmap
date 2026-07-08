@@ -20,6 +20,7 @@ class Server
         "contactCard" => \OpenXPort\Jmap\JSContact\JSContactServerCapability::class,
         "debug" => \OpenXPort\Jmap\Audriga\DebugServerCapability::class,
         "files" => \OpenXPort\Jmap\Files\FilesServerCapability::class,
+        "email" => \OpenXPort\Jmap\Mail\MailServerCapability::class,
         "mail" => \OpenXPort\Jmap\Mail\SubmissionServerCapability::class,
         "tasks" => \OpenXPort\Jmap\Tasks\TasksServerCapability::class,
         "notes" => \OpenXPort\Jmap\Note\NotesServerCapability::class,

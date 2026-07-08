@@ -6,6 +6,7 @@ It should be simple for consumers to migrate from another service to your servic
 The following data types are currently supported by OpenXPort:
 
 * Signatures over the JMAP for Mail protocol
+* Email and Mailbox over the [JMAP for Mail](https://datatracker.ietf.org/doc/html/rfc8621) protocol
 * Calendars over the JMAP for Calendars protocol, built on top of the [JSCalendar](https://datatracker.ietf.org/doc/html/rfc8984) format
 * Contacts over the JMAP for Contacts protocol, built on top of the [JSContact](https://datatracker.ietf.org/doc/draft-ietf-calext-jscontact/) format
 * Tasks over the JMAP for Tasks protocol, built on top of the [JSCalendar](https://datatracker.ietf.org/doc/html/rfc8984) format
