@@ -25,22 +25,24 @@ class BlobManagement
     // This function is currently copied from SquirrelMailStorageNodeDataAccess
     // with some modifications in it which remove the SquirrelMail-specific logic
     // previously contained in it
-    public function downloadBlob($accountId, $name, $path, $accept)
+    public function downloadBlob($accountId, $name, $path, $accept, $returnData = false)
     {
-        // Inspiration was https://stackoverflow.com/a/32885706
-        // Has more features like MIME type and ob_end_clean
-        $mime_type = $accept;
+        if (!$returnData) {
+            // Inspiration was https://stackoverflow.com/a/32885706
+            // Has more features like MIME type and ob_end_clean
+            $mime_type = $accept;
 
-        // Specified in JMAP Core
-        header('Cache-Control: private, immutable, max-age=31536000');
-        header('Content-Disposition: attachment; filename="' . $name . '"');
+            // Specified in JMAP Core
+            header('Cache-Control: private, immutable, max-age=31536000');
+            header('Content-Disposition: attachment; filename="' . $name . '"');
 
-        // TODO raise error on incorrect MIME Type
-        header('Content-Type: ' . $mime_type);
+            // TODO raise error on incorrect MIME Type
+            header('Content-Type: ' . $mime_type);
 
-        // Own
-        header("Content-Transfer-Encoding: binary");
-        header('Accept-Ranges: bytes');
+            // Own
+            header("Content-Transfer-Encoding: binary");
+            header('Accept-Ranges: bytes');
+        }
 
         // blobId is normally passed as the $path parameter that's why we take it from there
         $blobId = $path;
@@ -51,11 +53,11 @@ class BlobManagement
             // Before passing $blobId to the the blob access class, make sure that we sanitize it from any prefixes
             $blobId = substr($blobId, 6);
 
-            $this->blobAccessors["SieveScripts"]->downloadBlob($blobId);
+            return $this->blobAccessors["SieveScripts"]->downloadBlob($blobId, $returnData);
         } elseif (substr($blobId, 0, 5) === "file-") {
             $blobId = substr($blobId, 5);
 
-            $this->blobAccessors["Files"]->downloadBlob($blobId);
+            return $this->blobAccessors["Files"]->downloadBlob($blobId, $returnData);
         } else {
             if (
                 !isset($this->blobAccessors["Generic"])
@@ -65,15 +67,27 @@ class BlobManagement
                 $this->logger->error("Generic Blob Access class not found");
                 throw new Exception("No Generic Blob Access class defined");
             } else {
-                $this->blobAccessors["Generic"]->downloadBlob($blobId);
+                return $this->blobAccessors["Generic"]->downloadBlob($blobId, $returnData);
             }
         }
     }
 
-    public function uploadBlob($accountId, $path)
+    public function uploadBlob($accountId, $path, $data = null)
     {
         // blobId is normally passed as the $path parameter that's why we take it from there
         $blobId = $path;
+
+        if ($data !== null) {
+            if (
+                !isset($this->blobAccessors["Generic"])
+                || is_null($this->blobAccessors["Generic"])
+                || empty($this->blobAccessors["Generic"])
+            ) {
+                $this->logger->error("Generic Blob Access class not found");
+                throw new Exception("No Generic Blob Access class defined");
+            }
+            return $this->blobAccessors["Generic"]->uploadBlob($accountId, $blobId, $data);
+        }
 
         // Check if the blobId is prefixed with 'sieve-'. If yes, we need to upload a Sieve script blob,
         // otherwise a regular file blob
@@ -95,7 +109,7 @@ class BlobManagement
                 $this->logger->error("Generic Blob Access class not found");
                 throw new Exception("No Generic Blob Access class defined");
             } else {
-                $this->blobAccessors["Generic"]->uploadBlob($blobId);
+                $this->blobAccessors["Generic"]->uploadBlob($accountId, $blobId);
             }
         }
     }

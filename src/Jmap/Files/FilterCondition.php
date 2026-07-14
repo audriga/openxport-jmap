@@ -2,16 +2,25 @@
 
 namespace OpenXPort\Jmap\Files;
 
+/**
+ * Filter condition for FileNode/query as defined in the IETF JMAP FileNode spec
+ * (draft-ietf-jmap-filenode / urn:ietf:params:jmap:filenode).
+ *
+ * @see https://www.ietf.org/archive/id/draft-ietf-jmap-filenode-14.txt Section 5 (Querying FileNodes)
+ */
 class FilterCondition extends \OpenXPort\Jmap\Core\FilterCondition
 {
-    /** @var string[] **/
-    private $parentIds;
+    /** @var string **/
+    private $parentId;
 
-    /** @var string[] **/
-    private $ancestorIds;
+    /** @var string **/
+    private $ancestorId;
 
-    /** @var boolean **/
-    private $hasBlobId;
+    /** @var string **/
+    private $nodeType;
+
+    /** @var string **/
+    private $blobId;
 
     /** @var DateTime **/
     private $createdBefore;
@@ -37,40 +46,154 @@ class FilterCondition extends \OpenXPort\Jmap\Core\FilterCondition
     /** @var string **/
     private $type;
 
-    public function __construct($parentIds = null, $ancestorIds = null, $hasBlobId = null)
+    public function __construct()
     {
-        $this->parentIds = $parentIds;
-        $this->ancestorIds = $ancestorIds;
-        $this->hasBlobId = $hasBlobId;
     }
 
-    public function setParentIds($parentIds)
+    /**
+     * Build a FilterCondition from a JSON object (stdClass).
+     */
+    public static function fromJson($filterConditionJson)
     {
-        $this->parentIds = $parentIds;
+        $filterCondition = new self();
+
+        if (is_null($filterConditionJson)) {
+            return $filterCondition;
+        }
+
+        $fields = [
+            'parentId', 'ancestorId', 'nodeType', 'blobId',
+            'createdBefore', 'createdAfter', 'modifiedBefore', 'modifiedAfter',
+            'minSize', 'maxSize', 'name', 'type',
+        ];
+
+        foreach ($fields as $field) {
+            if (isset($filterConditionJson->$field) && !is_null($filterConditionJson->$field)) {
+                $setter = 'set' . ucfirst($field);
+                $filterCondition->$setter($filterConditionJson->$field);
+            }
+        }
+
+        return $filterCondition;
     }
 
-    public function setAncestorIds($ancestorIds)
+    public function setParentId($parentId)
     {
-        $this->ancestorIds = $ancestorIds;
+        $this->parentId = $parentId;
     }
 
-    public function setHasBlobId($hasBlobId)
+    public function getParentId()
     {
-        $this->hasBlobId = $hasBlobId;
+        return $this->parentId;
     }
 
-    public function getParentIds()
+    public function setAncestorId($ancestorId)
     {
-        return $this->parentIds;
+        $this->ancestorId = $ancestorId;
     }
 
-    public function getAncestorIds()
+    public function getAncestorId()
     {
-        return $this->ancestorIds;
+        return $this->ancestorId;
     }
 
-    public function getHasBlobId()
+    public function setNodeType($nodeType)
     {
-        return $this->hasBlobId;
+        $this->nodeType = $nodeType;
+    }
+
+    public function getNodeType()
+    {
+        return $this->nodeType;
+    }
+
+    public function setBlobId($blobId)
+    {
+        $this->blobId = $blobId;
+    }
+
+    public function getBlobId()
+    {
+        return $this->blobId;
+    }
+
+    public function setCreatedBefore($createdBefore)
+    {
+        $this->createdBefore = $createdBefore;
+    }
+
+    public function getCreatedBefore()
+    {
+        return $this->createdBefore;
+    }
+
+    public function setCreatedAfter($createdAfter)
+    {
+        $this->createdAfter = $createdAfter;
+    }
+
+    public function getCreatedAfter()
+    {
+        return $this->createdAfter;
+    }
+
+    public function setModifiedBefore($modifiedBefore)
+    {
+        $this->modifiedBefore = $modifiedBefore;
+    }
+
+    public function getModifiedBefore()
+    {
+        return $this->modifiedBefore;
+    }
+
+    public function setModifiedAfter($modifiedAfter)
+    {
+        $this->modifiedAfter = $modifiedAfter;
+    }
+
+    public function getModifiedAfter()
+    {
+        return $this->modifiedAfter;
+    }
+
+    public function setMinSize($minSize)
+    {
+        $this->minSize = $minSize;
+    }
+
+    public function getMinSize()
+    {
+        return $this->minSize;
+    }
+
+    public function setMaxSize($maxSize)
+    {
+        $this->maxSize = $maxSize;
+    }
+
+    public function getMaxSize()
+    {
+        return $this->maxSize;
+    }
+
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
+    public function getType()
+    {
+        return $this->type;
     }
 }

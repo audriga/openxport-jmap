@@ -20,9 +20,11 @@ class Server
         "contactCard" => \OpenXPort\Jmap\JSContact\JSContactServerCapability::class,
         "debug" => \OpenXPort\Jmap\Audriga\DebugServerCapability::class,
         "files" => \OpenXPort\Jmap\Files\FilesServerCapability::class,
+        "email" => \OpenXPort\Jmap\Mail\MailServerCapability::class,
         "mail" => \OpenXPort\Jmap\Mail\SubmissionServerCapability::class,
         "tasks" => \OpenXPort\Jmap\Tasks\TasksServerCapability::class,
         "notes" => \OpenXPort\Jmap\Note\NotesServerCapability::class,
+        "blob" => \OpenXPort\Jmap\Blob\BlobServerCapability::class,
         "sieve" => \OpenXPort\Jmap\SieveScript\SieveScriptsServerCapability::class,
         "vacationResponse" => \OpenXPort\Jmap\Mail\VacationResponseServerCapability::class,
         "preferences" => \OpenXPort\Jmap\Preferences\PreferencesServerCapability::class
