@@ -66,8 +66,7 @@ class ContactCardSetMethod extends SetMethod
 
                     $remappedContactMap = [];
                     if (!empty($mappedContact)) {
-                        $firstElement = reset($mappedContact);
-                        $contactData = reset($firstElement);
+                        $contactData = reset($mappedContact);
                         $remappedContactMap[$id] = $contactData;
                     }
 

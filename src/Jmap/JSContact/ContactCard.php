@@ -771,7 +771,7 @@ class ContactCard extends TypeableEntity implements JsonSerializable
         $card = new self();
 
         $simpleProps = ['uid', 'kind', 'language', 'created', 'updated', 'prodId',
-                    'description', 'sortAs', 'notes', 'version'];
+                    'description', 'sortAs', 'version'];
         foreach ($simpleProps as $prop) {
             if (isset($json->$prop)) {
                 $setter = 'set' . ucfirst($prop);
@@ -805,7 +805,6 @@ class ContactCard extends TypeableEntity implements JsonSerializable
         'media' => Media::class,
         'pronouns' => Pronouns::class,
         'preferredLanguages' => LanguagePref::class,
-        'noteObjects' => Note::class,
         'personalInfo' => PersonalInformation::class,
         'relatedTo' => Relation::class,
         'schedulingAddresses' => SchedulingAddress::class,
@@ -825,6 +824,14 @@ class ContactCard extends TypeableEntity implements JsonSerializable
                 $setter = 'set' . ucfirst($prop);
                 $card->$setter($items);
             }
+        }
+
+        if (isset($json->notes)) {
+            $notes = [];
+            foreach ($json->notes as $id => $data) {
+                $notes[$id] = Note::fromJson($data);
+            }
+            $card->setNoteObjects($notes);
         }
 
         if (isset($json->anniversaries)) {
