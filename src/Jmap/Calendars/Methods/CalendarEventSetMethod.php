@@ -71,11 +71,15 @@ class CalendarEventSetMethod extends SetMethod
                     $mergedObject = json_decode(json_encode($mergedArray));
                     $mergedJsEvent = CalendarEvent::fromJson($mergedObject);
 
+                    $existingEventArray = is_array($existingEvent)
+                        ? $existingEvent
+                        : json_decode(json_encode($existingEvent), true);
+
                     if (
                         is_null($mergedJsEvent->getCalendarIds()) &&
-                        isset($existingEvent['oxpProperties']['calendarId'])
+                        isset($existingEventArray['oxpProperties']['calendarId'])
                     ) {
-                        $mergedJsEvent->setCalendarIds($existingEvent['oxpProperties']['calendarId']);
+                        $mergedJsEvent->setCalendarIds($existingEventArray['oxpProperties']['calendarId']);
                     }
 
                     $tempId = 'temp_' . md5($id);
@@ -83,8 +87,7 @@ class CalendarEventSetMethod extends SetMethod
 
                     $remappedEventMap = [];
                     if (!empty($calendarEventMap)) {
-                        $firstElement = reset($calendarEventMap);
-                        $eventData = reset($firstElement);
+                        $eventData = reset($calendarEventMap);
                         $remappedEventMap[$id] = $eventData;
                     }
 
