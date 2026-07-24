@@ -14,9 +14,9 @@ class SieveScriptGetMethod extends GetMethod
         $mapper = $dataMappers["SieveScripts"];
 
         if (isset($arguments["ids"]) && !is_null($arguments["ids"])) {
-            $sieveScripts = $dataAccessors["SieveScripts"]->get($arguments["ids"]);
+            $sieveScripts = $dataAccessors["SieveScripts"]->get($arguments["ids"], $arguments["accountId"] ?? null);
         } else {
-            $sieveScripts = $dataAccessors["SieveScripts"]->getAll();
+            $sieveScripts = $dataAccessors["SieveScripts"]->getAll($arguments["accountId"] ?? null);
         }
 
         $list = $mapper->mapToJmap($sieveScripts, $adapter);
