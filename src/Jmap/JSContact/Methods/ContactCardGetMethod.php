@@ -16,9 +16,9 @@ class ContactCardGetMethod extends GetMethod
         $mapper  = $dataMappers['ContactCard'];
 
         if (isset($arguments['ids']) && $arguments['ids'] !== null) {
-            $contacts = $dataAccessors['ContactCard']->get($arguments['ids']);
+            $contacts = $dataAccessors['ContactCard']->get($arguments['ids'], $arguments['accountId'] ?? null);
         } else {
-            $contacts = $dataAccessors['ContactCard']->getAll();
+            $contacts = $dataAccessors['ContactCard']->getAll($arguments['accountId'] ?? null);
         }
 
         $list = $mapper->mapToJmap($contacts, $adapter);

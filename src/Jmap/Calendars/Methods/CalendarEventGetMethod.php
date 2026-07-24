@@ -13,12 +13,12 @@ class CalendarEventGetMethod extends GetMethod
         $methodName = $methodCall->getName();
         $adapter = $dataAdapters["CalendarEvents"];
         $mapper = $dataMappers["CalendarEvents"];
-        $state = $dataAccessors["CalendarEvents"]->getCurrentState($arguments["accountId"]);
+        $state = $dataAccessors["CalendarEvents"]->getCurrentState($arguments["accountId"] ?? null);
 
         if (isset($arguments["ids"]) && !is_null($arguments["ids"])) {
-            $events = $dataAccessors["CalendarEvents"]->get($arguments["ids"]);
+            $events = $dataAccessors["CalendarEvents"]->get($arguments["ids"], $arguments["accountId"] ?? null);
         } else {
-            $events = $dataAccessors["CalendarEvents"]->getAll();
+            $events = $dataAccessors["CalendarEvents"]->getAll($arguments["accountId"] ?? null);
         }
 
         $logger->debug("Collected " . sizeof($events) . " calendar events");
