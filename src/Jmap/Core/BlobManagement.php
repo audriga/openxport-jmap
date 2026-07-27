@@ -72,7 +72,7 @@ class BlobManagement
         }
     }
 
-    public function uploadBlob($accountId, $path, $data = null)
+    public function uploadBlob($accountId, $path, $data = null, $contentType = null)
     {
         // blobId is normally passed as the $path parameter that's why we take it from there
         $blobId = $path;
@@ -86,7 +86,7 @@ class BlobManagement
                 $this->logger->error("Generic Blob Access class not found");
                 throw new Exception("No Generic Blob Access class defined");
             }
-            return $this->blobAccessors["Generic"]->uploadBlob($accountId, $blobId, $data);
+            return $this->blobAccessors["Generic"]->uploadBlob($accountId, $blobId, $data, $contentType);
         }
 
         // Check if the blobId is prefixed with 'sieve-'. If yes, we need to upload a Sieve script blob,

@@ -162,8 +162,8 @@ class ErrorHandler
 
     public static function raiseInvalidArgument($methodCallId, $description)
     {
-        http_response_code(500);
-
+        // Per RFC 8620 section 3.6.2, this is a method-level error and belongs in a
+        // normal 200 response, not an HTTP-level error status.
         $args = array("type" => "invalidArguments", "description" => $description);
         $response = self::buildMethodResponse($methodCallId, $args);
 
@@ -172,8 +172,8 @@ class ErrorHandler
 
     public static function raiseUnknownMethod($methodCallId)
     {
-        http_response_code(500);
-
+        // Per RFC 8620 section 3.6.2, this is a method-level error and belongs in a
+        // normal 200 response, not an HTTP-level error status.
         $args = array("type" => "unknownMethod");
 
         $response = self::buildMethodResponse($methodCallId, $args);

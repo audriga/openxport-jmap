@@ -27,9 +27,11 @@ abstract class BlobAccess
      * @param string|null @path An optional path to the blob (useful for filesystem access)
      * @param string|null $data Raw bytes. When provided (JMAP Blob/upload method path), stores directly
      *                          and returns ['id', 'type', 'size']. When null, reads from php://input (HTTP path).
+     * @param string|null $contentType MIME type of $data, echoed back as-is in the upload response.
+     *                                 Ignored when $data is null.
      * @return array|boolean Returns blob metadata when $data is provided, otherwise true on success
      */
-    abstract public function uploadBlob($accountId, $path = null, $data = null);
+    abstract public function uploadBlob($accountId, $path = null, $data = null, $contentType = null);
 
     protected function buildUploadResponse($accountId, $blobId, $type, $size)
     {

@@ -15,6 +15,8 @@ class SubmissionServerCapability extends \OpenXPort\Jmap\Core\ServerCapability
         return array(
             "Identity/get" => Methods\IdentityGetMethod::class,
             "Identity/set" => Methods\IdentitySetMethod::class,
+            "EmailSubmission/get" => Methods\EmailSubmissionGetMethod::class,
+            "EmailSubmission/set" => Methods\EmailSubmissionSetMethod::class,
         );
     }
 }
