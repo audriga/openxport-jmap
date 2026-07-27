@@ -18,7 +18,8 @@ class MailServerCapability extends \OpenXPort\Jmap\Core\ServerCapability
             "Mailbox/set" => Methods\MailboxSetMethod::class,
             "Email/get" => Methods\EmailGetMethod::class,
             "Email/query" => Methods\EmailQueryMethod::class,
-            "Email/set" => Methods\EmailSetMethod::class
+            "Email/set" => Methods\EmailSetMethod::class,
+            "Email/import" => Methods\EmailImportMethod::class
         );
     }
 }
