@@ -20,7 +20,8 @@ class ErrorHandler
     public function checkForFatal()
     {
         $error = error_get_last();
-        if (in_array($error["type"], array(E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_RECOVERABLE_ERROR))) {
+        $fatalTypes = array(E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_RECOVERABLE_ERROR);
+        if ($error !== null && in_array($error["type"], $fatalTypes)) {
             $output = "";
             if ($this->verboseOutput) {
                 $output = "ERROR " . $error["type"] . ":" .
