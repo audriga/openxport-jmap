@@ -842,6 +842,12 @@ class ContactCard extends TypeableEntity implements JsonSerializable
             $card->setAnniversaries($anns);
         }
 
+        if (isset($json->properties)) {
+            foreach ((array) $json->properties as $name => $value) {
+                $card->setProperty($name, $value);
+            }
+        }
+
         return $card;
     }
 
