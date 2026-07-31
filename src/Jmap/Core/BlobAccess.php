@@ -35,6 +35,7 @@ abstract class BlobAccess
 
     protected function buildUploadResponse($accountId, $blobId, $type, $size)
     {
+        header("Content-Type: application/json");
         echo json_encode(
             array(
                 "accountId" => $accountId,
@@ -55,6 +56,7 @@ abstract class BlobAccess
         $detail = null,
         $instance = null
     ) {
+        header("Content-Type: application/json");
         echo json_encode(
             array(
                 "type" => $type,
