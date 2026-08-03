@@ -12,15 +12,19 @@ class SieveScriptSetMethod extends SetMethod
         $methodName = $methodCall->getName();
         $adapter = $dataAdapters["SieveScripts"];
         $mapper = $dataMappers["SieveScripts"];
+        $accountId = isset($arguments["accountId"]) ? $arguments["accountId"] : null;
 
         if (isset($arguments["create"]) && !is_null($arguments["create"])) {
             $sieveScriptMap = $mapper->mapFromJmap($arguments["create"], $adapter);
-            $created = $dataAccessors["SieveScripts"]->create($sieveScriptMap);
+            $created = $dataAccessors["SieveScripts"]->create($sieveScriptMap, $accountId);
+        }
+        if (isset($arguments["update"]) && !is_null($arguments["update"])) {
+            $updated = $dataAccessors["SieveScripts"]->update($arguments["update"], $accountId);
         }
         if (isset($arguments["destroy"]) && !is_null($arguments["destroy"])) {
-            $destroyed = $dataAccessors["SieveScripts"]->destroy($arguments["destroy"]);
+            $destroyed = $dataAccessors["SieveScripts"]->destroy($arguments["destroy"], $accountId);
         }
 
-        return $this->buildMethodResponse($created, $destroyed, $methodCall);
+        return $this->buildMethodResponse($created, $destroyed, $methodCall, $updated ?? []);
     }
 }
