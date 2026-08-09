@@ -208,9 +208,10 @@ class Server
         $this->logger->warning($msg);
 
         \OpenXPort\Util\AdapterUtil::executeEncodingCallback();
-        array_walk($content['methodResponses'][0][1]["list"], array('\OpenXPort\Util\AdapterUtil', 'sanitizeJson'));
+        $data = json_decode(json_encode($content), true);
+        array_walk($data['methodResponses'][0][1]["list"], array('\OpenXPort\Util\AdapterUtil', 'sanitizeJson'));
 
-        return json_encode($content, JSON_UNESCAPED_SLASHES);
+        return json_encode($data, JSON_UNESCAPED_SLASHES);
     }
 
     private function buildResponse($invocations)

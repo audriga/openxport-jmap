@@ -41,7 +41,7 @@ abstract class AbstractSimpleLogger extends AbstractLogger
      *
      * @author Joris Baum
      *
-     * @return string
+     * @return array
      */
     protected function getParentTraceLine()
     {
