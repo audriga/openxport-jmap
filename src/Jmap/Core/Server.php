@@ -208,9 +208,46 @@ class Server
         $this->logger->warning($msg);
 
         \OpenXPort\Util\AdapterUtil::executeEncodingCallback();
-        array_walk($content['methodResponses'][0][1]["list"], array('\OpenXPort\Util\AdapterUtil', 'sanitizeJson'));
+        $data = $this->sanitizeForJson($content);
 
-        return json_encode($content, JSON_UNESCAPED_SLASHES);
+        return json_encode($data, JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * Recursively walks the given value, replacing any malformed UTF-8 bytes in strings so that
+     * the result can be safely passed to json_encode(). Unlike a json_encode()/json_decode() round-trip,
+     * this does not depend on json_encode() succeeding first, since that is exactly what failed.
+     *
+     * @param mixed $value The value to sanitize. May be a JsonSerializable object, array, or scalar.
+     * @return mixed The sanitized value, safe to pass to json_encode().
+     */
+    private function sanitizeForJson($value)
+    {
+        if (is_string($value)) {
+            return mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+        }
+
+        if ($value instanceof \JsonSerializable) {
+            return $this->sanitizeForJson($value->jsonSerialize());
+        }
+
+        if (is_array($value)) {
+            $result = [];
+            foreach ($value as $key => $item) {
+                $result[$key] = $this->sanitizeForJson($item);
+            }
+            return $result;
+        }
+
+        if (is_object($value)) {
+            $result = new \stdClass();
+            foreach ($value as $key => $item) {
+                $result->$key = $this->sanitizeForJson($item);
+            }
+            return $result;
+        }
+
+        return $value;
     }
 
     private function buildResponse($invocations)
