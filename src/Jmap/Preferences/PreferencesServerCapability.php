@@ -20,7 +20,8 @@ class PreferencesServerCapability extends \OpenXPort\Jmap\Core\ServerCapability
     public function getMethods()
     {
         return array(
-            "Preferences/get" => Methods\PreferencesGetMethod::class
+            "Preferences/get" => Methods\PreferencesGetMethod::class,
+            "Preferences/set" => Methods\PreferencesSetMethod::class
         );
     }
 }

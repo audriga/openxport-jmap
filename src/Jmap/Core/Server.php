@@ -102,7 +102,12 @@ class Server
         }
 
         // Init capabilities with sub-capabilities
-        $this->session->addCapability(new $this->capMap["preferences"]($preferencesCapabilities));
+        // Only advertise preferences if the consuming app actually configured a sub-capability
+        // for it (e.g. forwards), otherwise there is no data accessor to back it and any
+        // Preferences/get or Preferences/set call would fail.
+        if (!empty($preferencesCapabilities)) {
+            $this->session->addCapability(new $this->capMap["preferences"]($preferencesCapabilities));
+        }
     }
 
     /* Process JMAP request and return JSON response */
