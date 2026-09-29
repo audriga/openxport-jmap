@@ -33,7 +33,7 @@ class Logger
         if ($jmapRequest && in_array("https://www.audriga.eu/jmap/debug/", $jmapRequest->getCapabilities())) {
             $logger = new ArrayLogger($oxpConfig["logLevel"]);
             $logger->info("Array Logger has been successfully initialized");
-        } elseif ($oxpConfig["allowGraylog"] && class_exists('Gelf\Logger')) {
+        } elseif (($oxpConfig["allowGraylog"] ?? false) && class_exists('Gelf\Logger')) {
             try {
                 // Try sending a log line first and raise exception in case of error
                 if ($oxpConfig["graylogUseTls"]) {
