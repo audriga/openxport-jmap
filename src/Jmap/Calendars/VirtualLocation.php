@@ -159,7 +159,7 @@ class VirtualLocation implements JsonSerializable
             "features" => $this->getFeatures()
         ];
 
-        foreach ($this->getCustomProperties() as $name => $value) {
+        foreach ($this->getCustomProperties() ?? [] as $name => $value) {
             $objectProperties[$name] = $value;
         }
 

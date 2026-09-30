@@ -123,7 +123,7 @@ class AbsoluteTrigger implements JsonSerializable
             "when" => $this->getWhen()
         ];
 
-        foreach ($this->getCustomProperties() as $name => $value) {
+        foreach ($this->getCustomProperties() ?? [] as $name => $value) {
             $objectProperties[$name] = $value;
         }
 
