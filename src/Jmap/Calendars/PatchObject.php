@@ -265,7 +265,7 @@ class PatchObject implements JsonSerializable
     /**
      * Serialize to JSON.
      */
-    public function jsonSerialize(): mixed
+    public function jsonSerialize()
     {
         $props = $this->properties;
 
