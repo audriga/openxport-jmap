@@ -2,7 +2,6 @@
 
 namespace OpenXPort\Util;
 
-use Psr\Log\LogLevel;
 
 /**
  * Simple array logger

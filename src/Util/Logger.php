@@ -85,7 +85,7 @@ class Logger
     public static function getInstance()
     {
         if (!self::$logger) {
-            self::$logger = new \Psr\Log\NullLogger();
+            self::$logger = new NullLogger();
         }
 
         return self::$logger;
