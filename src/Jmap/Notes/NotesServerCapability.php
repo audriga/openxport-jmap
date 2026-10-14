@@ -14,7 +14,9 @@ class NotesServerCapability extends \OpenXPort\Jmap\Core\ServerCapability
     {
         return array(
             "Note/get" => Methods\NoteGetMethod::class,
-            "Notebook/get" => Methods\NotebookGetMethod::class
+            "Note/set" => Methods\NoteSetMethod::class,
+            "Notebook/get" => Methods\NotebookGetMethod::class,
+            "Notebook/set" => Methods\NotebookSetMethod::class
         );
     }
 }
