@@ -15,7 +15,9 @@ class TasksServerCapability extends \OpenXPort\Jmap\Core\ServerCapability
     {
         return array(
             "Task/get" => Methods\TaskGetMethod::class,
+            "Task/set" => Methods\TaskSetMethod::class,
             "TaskList/get" => Methods\TaskListGetMethod::class,
+            "TaskList/set" => Methods\TaskListSetMethod::class,
         );
     }
 }
